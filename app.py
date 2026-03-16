@@ -737,6 +737,7 @@ app_ui = ui.page_fluid(
 
                 if (key === 'handoff') {
                     var teamKey = document.getElementById('team_dropdown').value || 'exploring';
+                    console.log('DEBUG handoff teamKey:', teamKey, 'handoff_team_input el:', document.getElementById('handoff_team_input'));
                     var ht = document.getElementById('handoff_team_input');
                     if (ht) { ht.value = teamKey; ht.dispatchEvent(new Event('input', { bubbles: true })); }
                     setTimeout(function() { document.getElementById('handoff_trigger').click(); }, 80);
