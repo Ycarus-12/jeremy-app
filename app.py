@@ -43,9 +43,8 @@ def log_to_airtable(user_id: str, team: str, question: str, response_length: int
         base_id = os.environ.get("AIRTABLE_BASE_ID", "").strip()
         table   = os.environ.get("AIRTABLE_TABLE_NAME", "logs").strip()
         token   = os.environ.get("AIRTABLE_API_TOKEN", "").strip()
-        print(f"AIRTABLE ATTEMPT: base_id={base_id[:8] if base_id else 'MISSING'} table={table} token={'SET' if token else 'MISSING'}")
         if not all([base_id, table, token]):
-            print("AIRTABLE SKIPPED: one or more env vars missing")
+            print("AIRTABLE SKIPPED: missing env vars")
             return
         url     = f"https://api.airtable.com/v0/{base_id}/{table}"
         payload = _json.dumps({
@@ -58,12 +57,8 @@ def log_to_airtable(user_id: str, team: str, question: str, response_length: int
             }
         }).encode("utf-8")
         req = _urllib.Request(
-            url,
-            data=payload,
-            headers={
-                "Authorization": f"Bearer {token}",
-                "Content-Type":  "application/json",
-            },
+            url, data=payload,
+            headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
             method="POST"
         )
         ctx  = _ssl.create_default_context()
@@ -71,7 +66,6 @@ def log_to_airtable(user_id: str, team: str, question: str, response_length: int
         print(f"AIRTABLE OK: status={resp.status} user={user_id} team={team}")
     except Exception as e:
         print(f"AIRTABLE ERROR: {type(e).__name__}: {e}")
-
 
 # -- Team configuration --------------------------------------------------------
 
@@ -120,7 +114,7 @@ TEAMS = {
     },
     "exploring": {
         "label":            "Just exploring",
-        "unlock_url":       "https://connect.posit.cloud/YOUR_USERNAME/general-tool",
+        "unlock_url":       "https://connect.posit.cloud/jmcoates/content/019cf80e-e102-b179-07c7-18bf5f63839a",
         "tool_name":        "Posit PS Operations Assistant",
         "tool_description": "A custom AI assistant built for professional services delivery",
         "handoff_label":    "PS Handoff Agent",
@@ -139,8 +133,8 @@ SUGGESTED_QUESTIONS = {
         ("q3",       "How does Jeremy think about the relationship between implementation quality and long-term retention?"),
         ("q4",       "What does Jeremy see as the biggest failure modes when PS and CS aren't aligned?"),
         ("q5",       "How would Jeremy help CS identify expansion opportunities surfaced during implementation?"),
-        ("handoff",  "[>] Test-Drive the PS -> CS Handoff Agent"),
-        ("lucky",    "[+] Feeling Lucky?"),
+        ("handoff",  "🤖 Test-Drive the PS -> CS Handoff Agent"),
+        ("lucky",    "🍀 Feeling Lucky?"),
     ],
     "onboarding": [
         ("culture",  "Why is Jeremy the right cultural fit for Posit?"),
@@ -150,8 +144,8 @@ SUGGESTED_QUESTIONS = {
         ("q3",       "How has Jeremy reduced time-to-value in previous onboarding programs?"),
         ("q4",       "How would Jeremy handle onboarding for customers with highly variable technical environments?"),
         ("q5",       "What's Jeremy's approach to building onboarding playbooks that scale without him in the room?"),
-        ("handoff",  "[>] Test-Drive the PS -> Onboarding Handoff Agent"),
-        ("lucky",    "[+] Feeling Lucky?"),
+        ("handoff",  "🤖 Test-Drive the PS -> Onboarding Handoff Agent"),
+        ("lucky",    "🍀 Feeling Lucky?"),
     ],
     "tam": [
         ("culture",  "Why is Jeremy the right cultural fit for Posit?"),
@@ -161,8 +155,8 @@ SUGGESTED_QUESTIONS = {
         ("q3",       "How would Jeremy measure whether the TAM team is delivering real technical partnership versus reactive service?"),
         ("q4",       "How has Jeremy bridged the gap between technical account management and commercial outcomes?"),
         ("q5",       "What's Jeremy's approach to escalation management when a TAM relationship is at risk?"),
-        ("handoff",  "[>] Test-Drive the PS -> TAM Handoff Agent"),
-        ("lucky",    "[+] Feeling Lucky?"),
+        ("handoff",  "🤖 Test-Drive the PS -> TAM Handoff Agent"),
+        ("lucky",    "🍀 Feeling Lucky?"),
     ],
     "delivery": [
         ("culture",  "Why is Jeremy the right cultural fit for Posit?"),
@@ -172,8 +166,8 @@ SUGGESTED_QUESTIONS = {
         ("q3",       "How has Jeremy maintained delivery quality while scaling a PS team rapidly?"),
         ("q4",       "How does Jeremy think about the boundary between in-scope delivery and change orders?"),
         ("q5",       "What early warning indicators does Jeremy watch for to catch delivery risk before it becomes an escalation?"),
-        ("handoff",  "[>] Test-Drive the PS -> Delivery Handoff Agent"),
-        ("lucky",    "[+] Feeling Lucky?"),
+        ("handoff",  "🤖 Test-Drive the PS -> Delivery Handoff Agent"),
+        ("lucky",    "🍀 Feeling Lucky?"),
     ],
     "product": [
         ("culture",  "Why is Jeremy the right cultural fit for Posit?"),
@@ -183,8 +177,8 @@ SUGGESTED_QUESTIONS = {
         ("q3",       "How has Jeremy handled situations where customer requests conflict with product direction?"),
         ("q4",       "How would Jeremy help Product distinguish between one-off customer requests and systemic gaps?"),
         ("q5",       "What role should PS play in beta programs and early access releases?"),
-        ("handoff",  "[>] Test-Drive the PS -> Product Feedback Agent"),
-        ("lucky",    "[+] Feeling Lucky?"),
+        ("handoff",  "🤖 Test-Drive the PS -> Product Feedback Agent"),
+        ("lucky",    "🍀 Feeling Lucky?"),
     ],
     "support": [
         ("culture",  "Why is Jeremy the right cultural fit for Posit?"),
@@ -194,8 +188,8 @@ SUGGESTED_QUESTIONS = {
         ("q3",       "How has Jeremy handled situations where Support inherited unresolved issues from implementation?"),
         ("q4",       "How would Jeremy define the boundary between what PS resolves and what becomes a Support ticket?"),
         ("q5",       "How does Jeremy think about knowledge transfer from PS to Support at scale?"),
-        ("handoff",  "[>] Test-Drive the PS -> Support Handoff Agent"),
-        ("lucky",    "[+] Feeling Lucky?"),
+        ("handoff",  "🤖 Test-Drive the PS -> Support Handoff Agent"),
+        ("lucky",    "🍀 Feeling Lucky?"),
     ],
     "exploring": [
         ("culture",  "Why is Jeremy the right cultural fit for Posit?"),
@@ -205,8 +199,8 @@ SUGGESTED_QUESTIONS = {
         ("q3",       "What's the hardest PS org challenge Jeremy has faced, and how did he handle it?"),
         ("q4",       "How does Jeremy think about building a PS team culture in a fully distributed environment?"),
         ("q5",       "What's Jeremy's honest assessment of where he'd need to ramp up at Posit?"),
-        ("handoff",  "[>] Test-Drive the PS Handoff Agent"),
-        ("lucky",    "[+] Feeling Lucky?"),
+        ("handoff",  "🤖 Test-Drive the PS Handoff Agent"),
+        ("lucky",    "🍀 Feeling Lucky?"),
     ],
 }
 
@@ -407,9 +401,42 @@ Flag gaps clearly and frame them in terms of what the CS Manager won't be able t
 Keep responses focused and practical. Ask one or two questions at a time rather than overwhelming the PM. This is a conversation, not a form."""
 
 
+PM_AGENT_SYSTEM_PROMPT = """You are a Project Management agent supporting a SaaS implementation. You are assigned to a single customer implementation project. Your job is to help the project team stay on track with PM best practices, produce high-quality deliverables, enforce scope discipline, and proactively surface risks before they become problems.
+
+You follow PMI standards with an emphasis on Communication Management, Stakeholder Engagement, and formal Change Management. Your tone is practical and straightforward -- professional enough for customer-facing use.
+
+Start by asking what project the PM is working on and what phase they are in. Ask for the SOW if they have one -- you need it to be effective on scope questions. Then help them with whatever they need: status reports, meeting agendas, milestone tracking, risk management, stakeholder communication, or scope questions.
+
+Project lifecycle phases: Kickoff -> Discovery -> Configuration -> Training -> Testing -> Go-Live/Transition -> Close-Out. Always know which phase is active and tailor your guidance accordingly.
+
+SCOPE ENFORCEMENT: The SOW is the source of truth. When asked whether something is in scope, cite the SOW verbatim. If out of scope, say so and direct to formal change management. Never help plan out-of-scope work without flagging a change order is required first.
+
+RISK MANAGEMENT: Surface risks the moment you see them. Every response with risks must include:
+RISK: [description] | Severity: Critical/High/Low/None | Details: [what and why] | Mitigation: [what to do]
+
+COMPLETENESS CHECK: When producing deliverables, list missing information clearly. Let the PM choose to proceed with gaps noted or provide the info first.
+
+MILESTONE SIGN-OFF: Remind the PM that formal customer sign-off is required for every milestone. Never treat a milestone as done without documented sign-off.
+
+Always ask which audience a deliverable is for before producing it: Internal PS Team, Customer PM, Customer Technical Lead, Customer Executive Sponsor, Customer End Users, Internal Sales, or Internal Support.
+
+Keep responses focused and practical. This is a conversation -- ask one or two questions at a time."""
+
+PM_AGENT_SCENARIO = (
+    "I'm the PM on a new Posit Connect and Workbench implementation for "
+    "DataBridge Analytics, a mid-size financial services firm. We just "
+    "completed kickoff last week. They have 25 data scientists who will be "
+    "migrating from a mix of local RStudio installs and a legacy BI tool. "
+    "The SOW covers Connect and Workbench setup, SSO integration with their "
+    "Azure AD, and 3 days of training. Timeline is 10 weeks. First milestone "
+    "is environment setup sign-off in 2 weeks. I have a concern -- their IT "
+    "team hasn't confirmed firewall access yet and training materials aren't "
+    "started. What should I be focused on right now?"
+)
+
 # -- Build SUGGESTED JSON for JS -----------------------------------------------
 import json as _json
-_SQ_JSON = _json.dumps({k: [[qk, ql] for qk, ql in qs] for k, qs in SUGGESTED_QUESTIONS.items()})
+_SQ_JSON = _json.dumps({k: [[qk, ql] for qk, ql in qs] for k, qs in SUGGESTED_QUESTIONS.items()}, ensure_ascii=False)
 _SCENARIO_JS = HANDOFF_SCENARIO.replace("'", "\\'")
 
 # -- UI ------------------------------------------------------------------------
@@ -601,6 +628,21 @@ app_ui = ui.page_fluid(
         ),
     ),
 
+    # -- Celebration GIF overlay (shown when riddle solved) --
+    ui.div(
+        {"id": "celebration-overlay",
+         "style": "display:none; position:fixed; inset:0; z-index:2000; pointer-events:none; "
+                  "display:flex; align-items:center; justify-content:center; "
+                  "background:rgba(0,0,0,0.5);"},
+        ui.tags.img(
+            {
+                "src": "https://media.tenor.com/xwARyAaoSJEAAAAM/all-good-its-all-good.gif",
+                "style": "max-width:480px; width:80%; border-radius:8px; "
+                         "box-shadow:0 0 60px rgba(106,128,96,0.8);",
+            }
+        ),
+    ),
+
     ui.div(
         {"class": "j-shell"},
 
@@ -668,7 +710,6 @@ app_ui = ui.page_fluid(
                     "onkeydown": "handleKey(event)",
                 }
             ),
-
         ),
 
         ui.div(
@@ -746,14 +787,14 @@ app_ui = ui.page_fluid(
                 }
 
                 if (key === 'handoff') {
-                    // Server reads selected_team directly -- just fire the trigger
+                    // Server reads selected_team directly
                     setTimeout(function() { document.getElementById('handoff_trigger').click(); }, 80);
                     el.selectedIndex = 0;
                     return;
                 }
 
                 // Populate textarea with question text
-                var teamKey = document.getElementById('team_dropdown').value || 'exploring';
+                var teamKey = document.getElementById('selected_team').value || 'exploring';
                 var questions = SUGGESTED[teamKey] || SUGGESTED['exploring'];
                 var found = null;
                 for (var i = 0; i < questions.length; i++) {
@@ -787,7 +828,21 @@ app_ui = ui.page_fluid(
                 if (ta) { ta.value = SCENARIO; syncHandoffInput(SCENARIO); ta.focus(); }
             }
 
+            function prefillPMScenario() {
+                var pmScenario = 'I\'m the PM on a new Posit Connect and Workbench implementation for DataBridge Analytics, a mid-size financial services firm. We just completed kickoff last week. They have 25 data scientists who will be migrating from a mix of local RStudio installs and a legacy BI tool. The SOW covers Connect and Workbench setup, SSO integration with their Azure AD, and 3 days of training. Timeline is 10 weeks. First milestone is environment setup sign-off in 2 weeks. I have a concern -- their IT team hasn\'t confirmed firewall access yet and training materials aren\'t started. What should I be focused on right now?';
+                var ta = document.getElementById('handoff_chat_display');
+                if (ta) { ta.value = pmScenario; syncHandoffInput(pmScenario); ta.focus(); }
+            }
+
             // ── About modal ──────────────────────────────────────────────────
+            function showCelebration() {
+                var el = document.getElementById('celebration-overlay');
+                if (el) {
+                    el.style.display = 'flex';
+                    setTimeout(function() { el.style.display = 'none'; }, 4000);
+                }
+            }
+
             function openAbout()  { document.getElementById('about-overlay').classList.add('active'); }
             function closeAbout() { document.getElementById('about-overlay').classList.remove('active'); }
             function closeAboutOnOverlay(e) { if (e.target === document.getElementById('about-overlay')) closeAbout(); }
@@ -813,6 +868,7 @@ app_ui = ui.page_fluid(
 
             // ── Shiny message handlers ───────────────────────────────────────
             Shiny.addCustomMessageHandler('show_try_again', function(v) { openTryAgain(); });
+            Shiny.addCustomMessageHandler('show_celebration', function(v) { showCelebration(); });
             Shiny.addCustomMessageHandler('show_hint',      function(v) { openHint(); });
 
             Shiny.addCustomMessageHandler('set_loading', function(loading) {
@@ -873,8 +929,9 @@ def server(input, output, session):
         if not msg:
             return
         team_key = handoff_team()
-        if team_key != "cs":
+        if team_key not in ("cs", "exploring"):
             return
+        system_prompt = CS_HANDOFF_SYSTEM_PROMPT if team_key == "cs" else PM_AGENT_SYSTEM_PROMPT
         messages = list(handoff_messages())
         messages.append({"role": "user", "content": msg})
         handoff_messages.set(messages)
@@ -885,7 +942,7 @@ def server(input, output, session):
             resp    = client.messages.create(
                 model="claude-sonnet-4-20250514",
                 max_tokens=600,
-                system=CS_HANDOFF_SYSTEM_PROMPT,
+                system=system_prompt,
                 messages=messages
             )
             reply = resp.content[0].text
@@ -923,6 +980,7 @@ def server(input, output, session):
             is_unlocked.set(True)
             unlocked_team.set(team_key)
             wrong_attempts.set(0)
+            await session.send_custom_message("show_celebration", True)
             return
 
         # Unlock phrase check
@@ -974,7 +1032,6 @@ def server(input, output, session):
             reply = message.content[0].text
             response_text.set(reply)
 
-            # Call logging directly -- daemon thread was being killed before completing
             log_to_airtable(uid, team_key, question, len(reply))
 
         except Exception as e:
@@ -993,9 +1050,16 @@ def server(input, output, session):
         team     = get_team(handoff_team())
         team_key = handoff_team()
 
-        if team_key == "cs":
+        if team_key in ("cs", "exploring"):
             messages = list(handoff_messages())
             loading  = handoff_loading()
+            is_pm    = team_key == "exploring"
+            agent_label  = "PS -> CS Handoff Agent" if not is_pm else "PS Implementation PM Agent"
+            agent_desc   = ("Live agent powered by Claude. Start a handoff scenario below -- or try the sample one."
+                           if not is_pm else
+                           "Live PM Agent powered by Claude. Try a real implementation scenario below.")
+            panel_label  = "// agent test-drive -- ps to cs handoff" if not is_pm else "// agent test-drive -- ps implementation pm agent"
+            scenario_btn = "Try a sample Posit scenario ->"
 
             msg_nodes = []
             if not messages and not loading:
@@ -1028,17 +1092,17 @@ def server(input, output, session):
 
             return ui.div(
                 {"class": "j-handoff-panel"},
-                ui.div({"class": "j-handoff-label"}, "// agent test-drive -- ps to cs handoff"),
-                ui.div({"class": "j-handoff-title"}, "PS -> CS Handoff Agent"),
-                ui.div({"class": "j-handoff-desc"}, "Live agent powered by Claude. Start a handoff scenario below -- or try the sample one."),
+                ui.div({"class": "j-handoff-label"}, panel_label),
+                ui.div({"class": "j-handoff-title"}, agent_label),
+                ui.div({"class": "j-handoff-desc"}, agent_desc),
                 # Scenario button (only when no messages yet)
                 ui.div(
                     {"style": "" if not messages else "display:none;"},
                     ui.tags.button(
-                        "Try a sample Posit scenario ->",
+                        scenario_btn,
                         {
                             "style": "background: transparent; border: 1px solid var(--border2); color: var(--warm); font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.06em; padding: 7px 14px; border-radius: 2px; cursor: pointer; margin-bottom: 16px;",
-                            "onclick": "prefillHandoffScenario()",
+                            "onclick": "prefillHandoffScenario()" if not is_pm else "prefillPMScenario()",
                         }
                     ),
                 ),
