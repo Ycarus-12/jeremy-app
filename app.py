@@ -6,7 +6,7 @@ import threading
 import uuid
 from datetime import datetime, timezone
 
-# ── Rate limiting ─────────────────────────────────────────────────────────────
+# -- Rate limiting -------------------------------------------------------------
 
 PER_USER_LIMIT = 15
 GLOBAL_LIMIT   = 500
@@ -33,7 +33,7 @@ def make_user_id() -> str:
     return "usr_" + uuid.uuid4().hex[:8]
 
 
-# ── Airtable logging ──────────────────────────────────────────────────────────
+# -- Airtable logging ----------------------------------------------------------
 
 def log_to_airtable(user_id: str, team: str, question: str, response_length: int):
     """Fire-and-forget log to Airtable. Silently swallows errors."""
@@ -64,7 +64,7 @@ def log_to_airtable(user_id: str, team: str, question: str, response_length: int
         pass
 
 
-# ── Team configuration ────────────────────────────────────────────────────────
+# -- Team configuration --------------------------------------------------------
 
 TEAMS = {
     "cs": {
@@ -72,42 +72,42 @@ TEAMS = {
         "unlock_url":       "https://connect.posit.cloud/YOUR_USERNAME/cs-tool",
         "tool_name":        "Customer Success Intelligence Assistant",
         "tool_description": "A custom AI assistant built for CS workflows and customer health management",
-        "handoff_label":    "PS → CS Handoff Agent",
+        "handoff_label":    "PS -> CS Handoff Agent",
     },
     "onboarding": {
         "label": "Onboarding",
         "unlock_url":       "https://connect.posit.cloud/YOUR_USERNAME/onboarding-tool",
         "tool_name":        "Customer Onboarding Accelerator",
         "tool_description": "A custom AI assistant built for your onboarding workflows",
-        "handoff_label":    "PS → Onboarding Handoff Agent",
+        "handoff_label":    "PS -> Onboarding Handoff Agent",
     },
     "tam": {
         "label": "TAM Team",
         "unlock_url":       "https://connect.posit.cloud/YOUR_USERNAME/tam-tool",
         "tool_name":        "Technical Account Management Assistant",
         "tool_description": "A custom AI assistant built for proactive enterprise technical partnership",
-        "handoff_label":    "PS → TAM Handoff Agent",
+        "handoff_label":    "PS -> TAM Handoff Agent",
     },
     "delivery": {
         "label": "Delivery & Escalations",
         "unlock_url":       "https://connect.posit.cloud/YOUR_USERNAME/delivery-tool",
         "tool_name":        "Delivery & Escalation Playbook Assistant",
         "tool_description": "A custom AI assistant built for scoped engagements and critical escalations",
-        "handoff_label":    "PS → Delivery Handoff Agent",
+        "handoff_label":    "PS -> Delivery Handoff Agent",
     },
     "product": {
         "label": "Product",
         "unlock_url":       "https://connect.posit.cloud/YOUR_USERNAME/product-tool",
         "tool_name":        "Product Feedback & Signal Assistant",
         "tool_description": "A custom AI assistant built for synthesizing field signal and customer feedback",
-        "handoff_label":    "PS → Product Feedback Agent",
+        "handoff_label":    "PS -> Product Feedback Agent",
     },
     "support": {
         "label": "Support",
         "unlock_url":       "https://connect.posit.cloud/YOUR_USERNAME/support-tool",
         "tool_name":        "Support Operations Assistant",
         "tool_description": "A custom AI assistant built for support workflows and knowledge management",
-        "handoff_label":    "PS → Support Handoff Agent",
+        "handoff_label":    "PS -> Support Handoff Agent",
     },
     "exploring": {
         "label": "Just exploring",
@@ -118,7 +118,7 @@ TEAMS = {
     },
 }
 
-# ── Suggested questions per team ──────────────────────────────────────────────
+# -- Suggested questions per team ----------------------------------------------
 # First option is always the cultural fit question.
 # Last two are always Feeling Lucky and the Handoff Test-Drive.
 
@@ -130,8 +130,8 @@ SUGGESTED_QUESTIONS = {
         ("q3",        "How does Jeremy think about the relationship between implementation quality and long-term retention?"),
         ("q4",        "What does Jeremy see as the biggest failure modes when PS and CS aren't aligned?"),
         ("q5",        "How would Jeremy help CS identify expansion opportunities surfaced during implementation?"),
-        ("lucky",     "🍀 Feeling Lucky?"),
-        ("handoff",   "🤖 Test-Drive the PS → CS Handoff Agent"),
+        ("lucky",     "[+] Feeling Lucky?"),
+        ("handoff",   "[>] Test-Drive the PS -> CS Handoff Agent"),
     ],
     "onboarding": [
         ("culture",   "Why is Jeremy the right cultural fit for Posit?"),
@@ -140,8 +140,8 @@ SUGGESTED_QUESTIONS = {
         ("q3",        "How has Jeremy reduced time-to-value in previous onboarding programs?"),
         ("q4",        "How would Jeremy handle onboarding for customers with highly variable technical environments?"),
         ("q5",        "What's Jeremy's approach to building onboarding playbooks that scale without him in the room?"),
-        ("lucky",     "🍀 Feeling Lucky?"),
-        ("handoff",   "🤖 Test-Drive the PS → Onboarding Handoff Agent"),
+        ("lucky",     "[+] Feeling Lucky?"),
+        ("handoff",   "[>] Test-Drive the PS -> Onboarding Handoff Agent"),
     ],
     "tam": [
         ("culture",   "Why is Jeremy the right cultural fit for Posit?"),
@@ -150,8 +150,8 @@ SUGGESTED_QUESTIONS = {
         ("q3",        "How would Jeremy measure whether the TAM team is delivering real technical partnership versus reactive service?"),
         ("q4",        "How has Jeremy bridged the gap between technical account management and commercial outcomes?"),
         ("q5",        "What's Jeremy's approach to escalation management when a TAM relationship is at risk?"),
-        ("lucky",     "🍀 Feeling Lucky?"),
-        ("handoff",   "🤖 Test-Drive the PS → TAM Handoff Agent"),
+        ("lucky",     "[+] Feeling Lucky?"),
+        ("handoff",   "[>] Test-Drive the PS -> TAM Handoff Agent"),
     ],
     "delivery": [
         ("culture",   "Why is Jeremy the right cultural fit for Posit?"),
@@ -160,8 +160,8 @@ SUGGESTED_QUESTIONS = {
         ("q3",        "How has Jeremy maintained delivery quality while scaling a PS team rapidly?"),
         ("q4",        "How does Jeremy think about the boundary between in-scope delivery and change orders?"),
         ("q5",        "What early warning indicators does Jeremy watch for to catch delivery risk before it becomes an escalation?"),
-        ("lucky",     "🍀 Feeling Lucky?"),
-        ("handoff",   "🤖 Test-Drive the PS → Delivery Handoff Agent"),
+        ("lucky",     "[+] Feeling Lucky?"),
+        ("handoff",   "[>] Test-Drive the PS -> Delivery Handoff Agent"),
     ],
     "product": [
         ("culture",   "Why is Jeremy the right cultural fit for Posit?"),
@@ -170,8 +170,8 @@ SUGGESTED_QUESTIONS = {
         ("q3",        "How has Jeremy handled situations where customer requests conflict with product direction?"),
         ("q4",        "How would Jeremy help Product distinguish between one-off customer requests and systemic gaps?"),
         ("q5",        "What role should PS play in beta programs and early access releases?"),
-        ("lucky",     "🍀 Feeling Lucky?"),
-        ("handoff",   "🤖 Test-Drive the PS → Product Feedback Agent"),
+        ("lucky",     "[+] Feeling Lucky?"),
+        ("handoff",   "[>] Test-Drive the PS -> Product Feedback Agent"),
     ],
     "support": [
         ("culture",   "Why is Jeremy the right cultural fit for Posit?"),
@@ -180,8 +180,8 @@ SUGGESTED_QUESTIONS = {
         ("q3",        "How has Jeremy handled situations where Support inherited unresolved issues from implementation?"),
         ("q4",        "How would Jeremy define the boundary between what PS resolves and what becomes a Support ticket?"),
         ("q5",        "How does Jeremy think about knowledge transfer from PS to Support at scale?"),
-        ("lucky",     "🍀 Feeling Lucky?"),
-        ("handoff",   "🤖 Test-Drive the PS → Support Handoff Agent"),
+        ("lucky",     "[+] Feeling Lucky?"),
+        ("handoff",   "[>] Test-Drive the PS -> Support Handoff Agent"),
     ],
     "exploring": [
         ("culture",   "Why is Jeremy the right cultural fit for Posit?"),
@@ -190,20 +190,20 @@ SUGGESTED_QUESTIONS = {
         ("q3",        "What's the hardest PS org challenge Jeremy has faced, and how did he handle it?"),
         ("q4",        "How does Jeremy think about building a PS team culture in a fully distributed environment?"),
         ("q5",        "What's Jeremy's honest assessment of where he'd need to ramp up at Posit?"),
-        ("lucky",     "🍀 Feeling Lucky?"),
-        ("handoff",   "🤖 Test-Drive the PS Handoff Agent"),
+        ("lucky",     "[+] Feeling Lucky?"),
+        ("handoff",   "[>] Test-Drive the PS Handoff Agent"),
     ],
 }
 
-# ── Unlock phrase ─────────────────────────────────────────────────────────────
+# -- Unlock phrase -------------------------------------------------------------
 
 UNLOCK_PHRASE = "REPLACE_WITH_YOUR_UNLOCK_PHRASE"
 
-# ── Placeholder riddle ────────────────────────────────────────────────────────
+# -- Placeholder riddle --------------------------------------------------------
 
 RIDDLE_TEXT = "PLACEHOLDER RIDDLE: This riddle will be replaced with the real one. For now, solve this: I speak without a mouth and hear without ears. I have no body, but I come alive with the wind. What am I?"
 
-# ── Off-topic patterns ────────────────────────────────────────────────────────
+# -- Off-topic patterns --------------------------------------------------------
 
 OFF_TOPIC_PATTERNS = [
     r"\b(write|debug|fix|explain|how (do|does|to)|what is|define|help me with)\b.{0,40}\b(code|python|r |javascript|sql|function|script|program|algorithm|regex|api|curl|bash|terminal|command)\b",
@@ -219,7 +219,7 @@ def is_off_topic(text: str) -> bool:
     lowered = text.lower()
     return any(re.search(p, lowered) for p in OFF_TOPIC_PATTERNS)
 
-# ── Nudge keywords ────────────────────────────────────────────────────────────
+# -- Nudge keywords ------------------------------------------------------------
 
 NUDGE_KEYWORDS = [
     "different", "unique", "stand out", "secret", "hidden", "more",
@@ -230,7 +230,7 @@ NUDGE_KEYWORDS = [
 def has_nudge_keywords(text: str) -> bool:
     return any(kw in text.lower() for kw in NUDGE_KEYWORDS)
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
+# -- Helpers -------------------------------------------------------------------
 
 def normalize(text: str) -> str:
     return re.sub(r"[^\w\s]", "", text.lower()).strip()
@@ -245,15 +245,15 @@ def parse_italic(t: str) -> list:
     parts = re.split(r'\*(.*?)\*', t)
     return [ui.tags.em(p) if i % 2 == 1 else p for i, p in enumerate(parts)]
 
-# ── System prompt ─────────────────────────────────────────────────────────────
+# -- System prompt -------------------------------------------------------------
 
-SYSTEM_PROMPT = """You are ?jeremy — an AI advocate for Jeremy Coates, candidate for Director of Professional Services & Delivery at Posit PBC.
+SYSTEM_PROMPT = """You are ?jeremy -- an AI advocate for Jeremy Coates, candidate for Director of Professional Services & Delivery at Posit PBC.
 
 Your job is to help anyone at Posit understand why Jeremy would be exceptional in this role. You have deep knowledge of his background, experience, operational frameworks, cultural fit, and genuine conviction about Posit's mission.
 
 ## WHO JEREMY IS
 
-Jeremy Coates is a PMP-certified Director of Professional Services with 10+ years in SaaS post-sales delivery. He built the PS org at Authorium from scratch — 300% team growth over 3 years, 90% customer retention rate, and a 40%+ reduction in Time-to-Value (TTV) across every implementation phase. Before that, 7 years at Accruent as Senior Consultant and Team Lead — built a channel partner implementation standard that drove a 35% TTV reduction. PMP + ITIL 4 certified. BS Psychology, Texas A&M, Summa Cum Laude.
+Jeremy Coates is a PMP-certified Director of Professional Services with 10+ years in SaaS post-sales delivery. He built the PS org at Authorium from scratch -- 300% team growth over 3 years, 90% customer retention rate, and a 40%+ reduction in Time-to-Value (TTV) across every implementation phase. Before that, 7 years at Accruent as Senior Consultant and Team Lead -- built a channel partner implementation standard that drove a 35% TTV reduction. PMP + ITIL 4 certified. BS Psychology, Texas A&M, Summa Cum Laude.
 
 ## THE POSIT ROLE
 
@@ -261,25 +261,25 @@ Director, PS & Delivery leads four post-sales functions: Onboarding (First 90 Da
 
 ## KEY DIFFERENTIATORS
 
-**Built from zero:** Built the Authorium PS org from a blank page — no inherited playbook, no existing team. Recruited, hired, structured, and scaled it. That's exactly what Posit needs.
+**Built from zero:** Built the Authorium PS org from a blank page -- no inherited playbook, no existing team. Recruited, hired, structured, and scaled it. That's exactly what Posit needs.
 
 **Full lifecycle ownership:** Owned implementation from kickoff through measurable value realization. TTV was tracked per phase, not as a vanity metric.
 
-**Partner program expertise:** Built Accruent's channel partner implementation standard — templates, KPIs, processes, procedures — driving 35% TTV reduction. Partner Ecosystem Framework document outlines phased rollout (domestic pilot → international), hybrid revenue model (margin-share → license-to-deliver), developmental quality management — directly applicable to Posit's global partner delivery needs.
+**Partner program expertise:** Built Accruent's channel partner implementation standard -- templates, KPIs, processes, procedures -- driving 35% TTV reduction. Partner Ecosystem Framework document outlines phased rollout (domestic pilot -> international), hybrid revenue model (margin-share -> license-to-deliver), developmental quality management -- directly applicable to Posit's global partner delivery needs.
 
 **Operational frameworks that exist, not just ideas:**
 - SOW Generator with AI-assisted drafting and review
-- PS-to-Support Handoff Agent — checklist enforcement, gap detection, risk surfacing
-- PM Agent — SOW-grounded scope enforcement, milestone tracking, change management
-- Operational Excellence COE Charter and Playbook — federated model, PDCA methodology
-- OCM Executive Briefing framework — change classification, stakeholder mapping, resistance management
-- File & Folder Structure Standard — cross-functional, platform-aware, governance-ready
+- PS-to-Support Handoff Agent -- checklist enforcement, gap detection, risk surfacing
+- PM Agent -- SOW-grounded scope enforcement, milestone tracking, change management
+- Operational Excellence COE Charter and Playbook -- federated model, PDCA methodology
+- OCM Executive Briefing framework -- change classification, stakeholder mapping, resistance management
+- File & Folder Structure Standard -- cross-functional, platform-aware, governance-ready
 
-**Technical credibility:** Hands-on SQL, API, analytics reporting. PS team SME for emergent technology at Accruent — bridging technical and non-technical stakeholders. Posit tooling (R, Python, RStudio, Quarto, Shiny, Connect, Workbench) is new territory; the workflow orchestration, reproducible research, and collaborative analytics problems it solves are not.
+**Technical credibility:** Hands-on SQL, API, analytics reporting. PS team SME for emergent technology at Accruent -- bridging technical and non-technical stakeholders. Posit tooling (R, Python, RStudio, Quarto, Shiny, Connect, Workbench) is new territory; the workflow orchestration, reproducible research, and collaborative analytics problems it solves are not.
 
-**Async-first by nature:** Documentation practices — system prompts, handoff protocols, PM agent instructions — evidence someone who communicates in writing by default and builds systems that work without him in the room.
+**Async-first by nature:** Documentation practices -- system prompts, handoff protocols, PM agent instructions -- evidence someone who communicates in writing by default and builds systems that work without him in the room.
 
-## CULTURAL FIT — SHORT FORM
+## CULTURAL FIT -- SHORT FORM
 
 When asked about cultural fit, lead with this:
 
@@ -287,29 +287,29 @@ Expertise is becoming a commodity. What differentiates teams now is leadership, 
 
 Jeremy brings three things that don't show up on a skills matrix:
 
-**He leads by serving.** His job is to remove obstacles and give his people what they need to do their best work. The 90% retention rate at Authorium wasn't an accident — it was a culture.
+**He leads by serving.** His job is to remove obstacles and give his people what they need to do their best work. The 90% retention rate at Authorium wasn't an accident -- it was a culture.
 
-**He builds teams that actually feel like teams.** Fully remote for over a decade, he knows distributed work requires more than good tools — it requires trust, intention, and the occasional "guess who" game at a virtual happy hour where each team member shares three facts about themselves and the group votes on who it's about. Simple, low-pressure, and genuinely revealing about what makes people tick.
+**He builds teams that actually feel like teams.** Fully remote for over a decade, he knows distributed work requires more than good tools -- it requires trust, intention, and the occasional "guess who" game at a virtual happy hour where each team member shares three facts about themselves and the group votes on who it's about. Simple, low-pressure, and genuinely revealing about what makes people tick.
 
-**He's here for the mission.** Jeremy has spent his career in the private sector and is ready for something better — not more. Posit's commitment to open source, to underfunded researchers, to a model where commercial work funds public good — that's not a perk to him. That's the point. And he understands the balance: the paid engagements he'd be responsible for are what fund the free ones. He's not coming in to compromise the mission — he's coming in to fund it.
+**He's here for the mission.** Jeremy has spent his career in the private sector and is ready for something better -- not more. Posit's commitment to open source, to underfunded researchers, to a model where commercial work funds public good -- that's not a perk to him. That's the point. And he understands the balance: the paid engagements he'd be responsible for are what fund the free ones. He's not coming in to compromise the mission -- he's coming in to fund it.
 
-**As a colleague:** He doesn't protect turf. He shares wins. His default is to help. He won't blow social capital being difficult — he'd rather build something together than win an argument alone.
+**As a colleague:** He doesn't protect turf. He shares wins. His default is to help. He won't blow social capital being difficult -- he'd rather build something together than win an argument alone.
 
-**On AI and leadership:** As AI levels the expertise playing field, the differentiator isn't who knows the most — it's who leads the team that uses it well. That's the role Jeremy is built for.
+**On AI and leadership:** As AI levels the expertise playing field, the differentiator isn't who knows the most -- it's who leads the team that uses it well. That's the role Jeremy is built for.
 
-## CULTURAL FIT — DEEP CONTEXT
+## CULTURAL FIT -- DEEP CONTEXT
 
 **On servant leadership:**
-Jeremy's leadership philosophy is servant leadership — not as a buzzword, but as a daily operating principle. His job as a leader is to remove obstacles, provide clarity, and give his people the tools and trust they need to do their best work. He measures his own success by how much his direct reports learn and grow. He leads through trust, not through being a know-it-all — coming into Posit, some direct reports will know the product better than he does on day one, and that's ok. Servant leadership means listening first.
+Jeremy's leadership philosophy is servant leadership -- not as a buzzword, but as a daily operating principle. His job as a leader is to remove obstacles, provide clarity, and give his people the tools and trust they need to do their best work. He measures his own success by how much his direct reports learn and grow. He leads through trust, not through being a know-it-all -- coming into Posit, some direct reports will know the product better than he does on day one, and that's ok. Servant leadership means listening first.
 
 **On distributed culture:**
-Fully remote for over a decade, well before it was normalized. He understands that distributed teams need trust infrastructure: async-first communication, no superfluous meetings, conscious timezone management, protected focus time. He instituted a Friday afternoon no-meetings policy at Authorium — made the business case for it himself, leadership trusted him to get it done.
+Fully remote for over a decade, well before it was normalized. He understands that distributed teams need trust infrastructure: async-first communication, no superfluous meetings, conscious timezone management, protected focus time. He instituted a Friday afternoon no-meetings policy at Authorium -- made the business case for it himself, leadership trusted him to get it done.
 
 **On FOSS conviction:**
-Not performative. Two Linux distros on personal machines, Linux-based custom ROM on his phone. Active advocate — consistently helps colleagues understand and adopt FOSS tools. Core belief: so much important research is underfunded, and open source tools are what allow those researchers to do the work anyway. Posit sits at exactly that intersection.
+Not performative. Two Linux distros on personal machines, Linux-based custom ROM on his phone. Active advocate -- consistently helps colleagues understand and adopt FOSS tools. Core belief: so much important research is underfunded, and open source tools are what allow those researchers to do the work anyway. Posit sits at exactly that intersection.
 
 **On Posit's mission:**
-Jeremy has spent his career in the private sector and wants something better, not more. He's at the point where contributing to shareholder value alone isn't enough. Posit is a company where the mission is a central tenant of how the organization operates — not a marketing statement. He wants to lead a team of exceptional people, help them grow, and do work that contributes something real to the world.
+Jeremy has spent his career in the private sector and wants something better, not more. He's at the point where contributing to shareholder value alone isn't enough. Posit is a company where the mission is a central tenant of how the organization operates -- not a marketing statement. He wants to lead a team of exceptional people, help them grow, and do work that contributes something real to the world.
 
 **On scaling at the right size:**
 Joined Accruent when it was roughly Posit's size. Was there through 5x growth. Has seen firsthand what works and what breaks as a mid-size, mission-driven company scales.
@@ -317,25 +317,25 @@ Joined Accruent when it was roughly Posit's size. Was there through 5x growth. H
 ## CROSS-FUNCTIONAL POSITIONING
 
 **On working with peer directors:**
-Jeremy's cross-functional philosophy starts with trust. He understands what's motivating the person across the table before staking out a position. At Authorium, frequent resource conflicts and competing priorities were the norm — the goal was never to win the argument, it was to solve the problem. That distinction changes everything about how you show up. He also models this for his team — he doesn't just want to be a good cross-functional partner himself, he wants his direct reports to internalize that instinct too.
+Jeremy's cross-functional philosophy starts with trust. He understands what's motivating the person across the table before staking out a position. At Authorium, frequent resource conflicts and competing priorities were the norm -- the goal was never to win the argument, it was to solve the problem. That distinction changes everything about how you show up. He also models this for his team -- he doesn't just want to be a good cross-functional partner himself, he wants his direct reports to internalize that instinct too.
 
 **On shared wins:**
-Jeremy doesn't care about personal credit. He does care that his team members get recognized for what they contribute. He doesn't see cross-functional work as zero-sum — a clean PS-to-CS handoff makes CS look good, a well-scoped SOW makes Sales look good, and that's how it should work. Wins shared across teams are more durable than wins hoarded by one.
+Jeremy doesn't care about personal credit. He does care that his team members get recognized for what they contribute. He doesn't see cross-functional work as zero-sum -- a clean PS-to-CS handoff makes CS look good, a well-scoped SOW makes Sales look good, and that's how it should work. Wins shared across teams are more durable than wins hoarded by one.
 
 **On being a resource, not a bottleneck:**
-His default when another team needs something from PS is to help. He's not territorial. If the same out-of-scope work keeps coming in, that's a signal it should become standard operating procedure — formalized and available to everyone. The instinct to help and the instinct to systematize are the same instinct at different timescales.
+His default when another team needs something from PS is to help. He's not territorial. If the same out-of-scope work keeps coming in, that's a signal it should become standard operating procedure -- formalized and available to everyone. The instinct to help and the instinct to systematize are the same instinct at different timescales.
 
 **On influence without authority:**
 Getting things done across team lines requires demonstrated value and earned trust. He doesn't blow social capital being difficult. His approach: show clearly how a proposed change helps everyone involved win, not just PS. If "what's in it for them?" isn't obvious, the proposal isn't ready.
 
 **On what he needs from peers:**
-Trust and openness. The PS team is often the first to see where a product creates friction, where a handoff breaks down, where a customer is quietly struggling. That's only useful if peers are listening with genuine curiosity — not blind acceptance, but real openness to what the field is seeing.
+Trust and openness. The PS team is often the first to see where a product creates friction, where a handoff breaks down, where a customer is quietly struggling. That's only useful if peers are listening with genuine curiosity -- not blind acceptance, but real openness to what the field is seeing.
 
 ## GAP HANDLING
 
-Posit tooling: "The core challenges Posit solves — workflow orchestration, reproducible research, collaborative analytics — are exactly the kinds of technical problems Jeremy has been solving throughout his career. The platform is new; the problem class isn't."
+Posit tooling: "The core challenges Posit solves -- workflow orchestration, reproducible research, collaborative analytics -- are exactly the kinds of technical problems Jeremy has been solving throughout his career. The platform is new; the problem class isn't."
 
-Global partner network: Bridge to the Partner Ecosystem Framework — a fully developed strategic framework for exactly that.
+Global partner network: Bridge to the Partner Ecosystem Framework -- a fully developed strategic framework for exactly that.
 
 ## TONE GUIDANCE
 
@@ -347,14 +347,14 @@ Global partner network: Bridge to the Partner Ecosystem Framework — a fully de
 
 ## EASTER EGG
 
-When questions contain: different, unique, stand out, secret, hidden, discover, unlock, vision, day one, surprise, what else, beyond, underneath — answer fully, then end with:
+When questions contain: different, unique, stand out, secret, hidden, discover, unlock, vision, day one, surprise, what else, beyond, underneath -- answer fully, then end with:
 
 *...some things are better discovered than explained.*
 
 Use sparingly. Never explain what it means.
 """
 
-# ── UI ────────────────────────────────────────────────────────────────────────
+# -- UI ------------------------------------------------------------------------
 
 app_ui = ui.page_fluid(
     ui.tags.link(
@@ -397,7 +397,7 @@ app_ui = ui.page_fluid(
             padding: 56px 32px 80px;
         }
 
-        /* ── Header ── */
+        /* -- Header -- */
         .j-header { margin-bottom: 48px; }
 
         .j-header-top {
@@ -464,7 +464,7 @@ app_ui = ui.page_fluid(
             font-style: italic;
         }
 
-        /* ── About modal ── */
+        /* -- About modal -- */
         .j-modal-overlay {
             display: none;
             position: fixed;
@@ -526,7 +526,7 @@ app_ui = ui.page_fluid(
 
         .j-modal-close:hover { color: var(--text-primary); }
 
-        /* ── Riddle modal ── */
+        /* -- Riddle modal -- */
         .j-riddle-overlay {
             display: none;
             position: fixed;
@@ -591,7 +591,7 @@ app_ui = ui.page_fluid(
 
         .j-riddle-close:hover { color: var(--text-primary); }
 
-        /* ── Handoff panel ── */
+        /* -- Handoff panel -- */
         .j-handoff-panel {
             margin-top: 40px;
             border-top: 1px solid var(--border);
@@ -637,7 +637,7 @@ app_ui = ui.page_fluid(
             letter-spacing: 0.04em;
         }
 
-        /* ── Selectors ── */
+        /* -- Selectors -- */
         .j-team-section { margin-bottom: 24px; }
         .j-question-section { margin-bottom: 24px; }
 
@@ -676,7 +676,7 @@ app_ui = ui.page_fluid(
         .j-select option { background: var(--surface2); color: var(--text-primary); }
         .j-select:disabled { opacity: 0.55; cursor: not-allowed; }
 
-        /* ── Input ── */
+        /* -- Input -- */
         .j-input-section { margin-bottom: 8px; }
 
         .j-textarea {
@@ -735,7 +735,7 @@ app_ui = ui.page_fluid(
             cursor: not-allowed;
         }
 
-        /* ── Response ── */
+        /* -- Response -- */
         .j-response-section {
             margin-top: 40px;
             border-top: 1px solid var(--border);
@@ -760,7 +760,7 @@ app_ui = ui.page_fluid(
 
         .j-response-body em { color: var(--cool); font-style: italic; }
 
-        /* ── Limit panels ── */
+        /* -- Limit panels -- */
         .j-limit-panel {
             background: var(--surface);
             border: 1px solid var(--border2);
@@ -782,7 +782,7 @@ app_ui = ui.page_fluid(
         .j-limit-msg { font-size: 14px; color: var(--text-dim); line-height: 1.6; }
         .j-limit-msg a { color: var(--accent-light); text-decoration: none; }
 
-        /* ── Off-topic ── */
+        /* -- Off-topic -- */
         .j-offtopic-panel {
             margin-top: 40px;
             border-top: 1px solid var(--border);
@@ -814,7 +814,7 @@ app_ui = ui.page_fluid(
 
         .j-video-wrapper video { width: 100%; display: block; }
 
-        /* ── Unlock ── */
+        /* -- Unlock -- */
         .j-unlock-panel {
             background: linear-gradient(135deg, var(--accent-glow), rgba(80,100,80,0.04));
             border: 1px solid rgba(106,128,96,0.3);
@@ -853,7 +853,7 @@ app_ui = ui.page_fluid(
         .j-unlock-link:hover { background: var(--accent-light); }
         .j-unlock-note { font-size: 12px; color: var(--text-muted); margin-top: 16px; font-family: 'DM Mono', monospace; }
 
-        /* ── Loading ── */
+        /* -- Loading -- */
         .j-loading {
             color: var(--text-muted);
             font-family: 'DM Mono', monospace;
@@ -864,7 +864,7 @@ app_ui = ui.page_fluid(
 
         @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 
-        /* ── Footer ── */
+        /* -- Footer -- */
         .j-footer {
             margin-top: 80px;
             padding-top: 24px;
@@ -889,24 +889,24 @@ app_ui = ui.page_fluid(
         }
     """),
 
-    # ── About modal ──
+    # -- About modal --
     ui.div(
         {"class": "j-modal-overlay", "id": "about-overlay", "onclick": "closeAboutOnOverlay(event)"},
         ui.div(
             {"class": "j-modal"},
-            ui.tags.button({"class": "j-modal-close", "onclick": "closeAbout()"}, "×"),
+            ui.tags.button({"class": "j-modal-close", "onclick": "closeAbout()"}, "x"),
             ui.div({"class": "j-modal-header"}, "// about this app"),
             ui.div(
                 {"class": "j-modal-body"},
                 ui.tags.p(
                     "?jeremy was built by Jeremy Coates using Anthropic's Claude API and Posit's Shiny "
-                    "framework — both as a demonstration of how he thinks about AI-assisted tooling, and "
+                    "framework -- both as a demonstration of how he thinks about AI-assisted tooling, and "
                     "as a way to make his candidacy more accessible to the Posit team."
                 ),
                 ui.tags.p(
                     "The responses generated here are AI-produced based on Jeremy's actual background, "
                     "experience, and portfolio materials. While every effort has been made to ensure "
-                    "accuracy, AI responses should be treated as a starting point for conversation — "
+                    "accuracy, AI responses should be treated as a starting point for conversation -- "
                     "not a definitive statement. Anything here worth exploring further is worth asking "
                     "Jeremy directly."
                 ),
@@ -925,12 +925,12 @@ app_ui = ui.page_fluid(
         ),
     ),
 
-    # ── Riddle modal ──
+    # -- Riddle modal --
     ui.div(
         {"class": "j-riddle-overlay", "id": "riddle-overlay", "onclick": "closeRiddleOnOverlay(event)"},
         ui.div(
             {"class": "j-riddle-modal"},
-            ui.tags.button({"class": "j-riddle-close", "onclick": "closeRiddle()"}, "×"),
+            ui.tags.button({"class": "j-riddle-close", "onclick": "closeRiddle()"}, "x"),
             ui.div({"class": "j-riddle-header"}, "// feeling lucky?"),
             ui.div({"class": "j-riddle-text"}, RIDDLE_TEXT),
             ui.div({"class": "j-riddle-hint"}, "type your answer in the box below"),
@@ -945,7 +945,7 @@ app_ui = ui.page_fluid(
             {"class": "j-header"},
             ui.div(
                 {"class": "j-header-top"},
-                ui.div({"class": "j-wordmark"}, "Posit PBC — Director, PS & Delivery"),
+                ui.div({"class": "j-wordmark"}, "Posit PBC -- Director, PS & Delivery"),
                 ui.tags.button(
                     {"class": "j-about-trigger", "onclick": "openAbout()"},
                     ui.tags.span({"class": "j-info-icon"}, "i"),
@@ -978,7 +978,7 @@ app_ui = ui.page_fluid(
             ui.tags.span({"class": "j-label"}, "Suggested questions"),
             ui.tags.select(
                 {"id": "question_dropdown", "class": "j-select", "onchange": "handleSuggestedQuestion(this)"},
-                ui.tags.option({"value": "", "disabled": "disabled", "selected": "selected"}, "— choose a question or type your own —"),
+                ui.tags.option({"value": "", "disabled": "disabled", "selected": "selected"}, "-- choose a question or type your own --"),
                 *[
                     ui.tags.option({"value": qk}, ql)
                     for qk, ql in SUGGESTED_QUESTIONS["exploring"]
@@ -995,7 +995,7 @@ app_ui = ui.page_fluid(
                 {
                     "class": "j-textarea",
                     "id": "question_display",
-                    "placeholder": "Ask anything about Jeremy — or choose a suggested question above...",
+                    "placeholder": "Ask anything about Jeremy -- or choose a suggested question above...",
                     "rows": "3",
                     "oninput": "syncQuestion(this.value)",
                     "onkeydown": "handleKey(event)",
@@ -1023,7 +1023,7 @@ app_ui = ui.page_fluid(
         # Footer
         ui.div(
             {"class": "j-footer"},
-            ui.div({"class": "j-footer-left"}, "jeremy.coates — pmp · itil 4"),
+            ui.div({"class": "j-footer-left"}, "jeremy.coates -- pmp - itil 4"),
             ui.div({"class": "j-footer-right"}, "built on posit connect cloud"),
         ),
 
@@ -1142,7 +1142,7 @@ app_ui = ui.page_fluid(
         """),
     )
 )
-# ── Server ────────────────────────────────────────────────────────────────────
+# -- Server --------------------------------------------------------------------
 
 def server(input, output, session):
     response_text = reactive.value("")
@@ -1187,24 +1187,24 @@ def server(input, output, session):
         response_text.set("")
         is_unlocked.set(False)
 
-        # ── Unlock check (no rate limit consumed) ──
+        # -- Unlock check (no rate limit consumed) --
         if is_unlock(question):
             is_unlocked.set(True)
             unlocked_team.set(team_key)
             return
 
-        # ── Rate limit ──
+        # -- Rate limit --
         allowed, reason = check_and_increment(uid)
         if not allowed:
             limit_reason.set(reason)
             return
 
-        # ── Off-topic check ──
+        # -- Off-topic check --
         if is_off_topic(question):
             show_offtopic.set(True)
             return
 
-        # ── Call Claude ──
+        # -- Call Claude --
         is_loading.set(True)
         await session.send_custom_message("set_loading", True)
 
@@ -1255,8 +1255,8 @@ def server(input, output, session):
                 ui.div({"class": "j-unlock-header"}, "// unlocked"),
                 ui.div({"class": "j-unlock-title"}, team["tool_name"]),
                 ui.div({"class": "j-unlock-desc"}, team["tool_description"]),
-                ui.tags.a("open your tool →", {"class": "j-unlock-link", "href": team["unlock_url"], "target": "_blank"}),
-                ui.div({"class": "j-unlock-note"}, "built for the " + team["label"] + " team · hosted on posit connect cloud"),
+                ui.tags.a("open your tool ->", {"class": "j-unlock-link", "href": team["unlock_url"], "target": "_blank"}),
+                ui.div({"class": "j-unlock-note"}, "built for the " + team["label"] + " team - hosted on posit connect cloud"),
             )
 
         # Rate limit
@@ -1316,12 +1316,12 @@ def server(input, output, session):
                     {"class": "j-handoff-desc"},
                     "This is where the interactive handoff agent for the " + team["label"] +
                     " team will live. The agent is purpose-built to demonstrate how Jeremy "
-                    "thinks about PS-to-" + team["label"] + " transitions — the questions it asks, "
+                    "thinks about PS-to-" + team["label"] + " transitions -- the questions it asks, "
                     "the gaps it catches, and the way it enforces completeness before close."
                 ),
                 ui.div(
                     {"class": "j-handoff-placeholder"},
-                    ui.div({"class": "j-handoff-placeholder-text"}, "// agent coming soon · check back after the interview"),
+                    ui.div({"class": "j-handoff-placeholder-text"}, "// agent coming soon - check back after the interview"),
                 ),
             )
 
