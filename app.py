@@ -69,7 +69,7 @@ def log_to_airtable(user_id: str, team: str, question: str, response_length: int
 TEAMS = {
     "cs": {
         "label": "Customer Success",
-        "unlock_url":       "https://connect.posit.cloud/YOUR_USERNAME/cs-tool",
+        "unlock_url":       "https://connect.posit.cloud/jmcoates/content/019cf76a-1a38-d87d-07d3-b834f0dec0a4",
         "tool_name":        "Customer Success Intelligence Assistant",
         "tool_description": "A custom AI assistant built for CS workflows and customer health management",
         "handoff_label":    "PS -> CS Handoff Agent",
@@ -130,8 +130,8 @@ SUGGESTED_QUESTIONS = {
         ("q3",        "How does Jeremy think about the relationship between implementation quality and long-term retention?"),
         ("q4",        "What does Jeremy see as the biggest failure modes when PS and CS aren't aligned?"),
         ("q5",        "How would Jeremy help CS identify expansion opportunities surfaced during implementation?"),
-        ("lucky",     "[+] Feeling Lucky?"),
         ("handoff",   "[>] Test-Drive the PS -> CS Handoff Agent"),
+        ("lucky",     "[+] Feeling Lucky?"),
     ],
     "onboarding": [
         ("culture",   "Why is Jeremy the right cultural fit for Posit?"),
@@ -140,8 +140,8 @@ SUGGESTED_QUESTIONS = {
         ("q3",        "How has Jeremy reduced time-to-value in previous onboarding programs?"),
         ("q4",        "How would Jeremy handle onboarding for customers with highly variable technical environments?"),
         ("q5",        "What's Jeremy's approach to building onboarding playbooks that scale without him in the room?"),
-        ("lucky",     "[+] Feeling Lucky?"),
         ("handoff",   "[>] Test-Drive the PS -> Onboarding Handoff Agent"),
+        ("lucky",     "[+] Feeling Lucky?"),
     ],
     "tam": [
         ("culture",   "Why is Jeremy the right cultural fit for Posit?"),
@@ -150,8 +150,8 @@ SUGGESTED_QUESTIONS = {
         ("q3",        "How would Jeremy measure whether the TAM team is delivering real technical partnership versus reactive service?"),
         ("q4",        "How has Jeremy bridged the gap between technical account management and commercial outcomes?"),
         ("q5",        "What's Jeremy's approach to escalation management when a TAM relationship is at risk?"),
-        ("lucky",     "[+] Feeling Lucky?"),
         ("handoff",   "[>] Test-Drive the PS -> TAM Handoff Agent"),
+        ("lucky",     "[+] Feeling Lucky?"),
     ],
     "delivery": [
         ("culture",   "Why is Jeremy the right cultural fit for Posit?"),
@@ -160,8 +160,8 @@ SUGGESTED_QUESTIONS = {
         ("q3",        "How has Jeremy maintained delivery quality while scaling a PS team rapidly?"),
         ("q4",        "How does Jeremy think about the boundary between in-scope delivery and change orders?"),
         ("q5",        "What early warning indicators does Jeremy watch for to catch delivery risk before it becomes an escalation?"),
-        ("lucky",     "[+] Feeling Lucky?"),
         ("handoff",   "[>] Test-Drive the PS -> Delivery Handoff Agent"),
+        ("lucky",     "[+] Feeling Lucky?"),
     ],
     "product": [
         ("culture",   "Why is Jeremy the right cultural fit for Posit?"),
@@ -170,8 +170,8 @@ SUGGESTED_QUESTIONS = {
         ("q3",        "How has Jeremy handled situations where customer requests conflict with product direction?"),
         ("q4",        "How would Jeremy help Product distinguish between one-off customer requests and systemic gaps?"),
         ("q5",        "What role should PS play in beta programs and early access releases?"),
-        ("lucky",     "[+] Feeling Lucky?"),
         ("handoff",   "[>] Test-Drive the PS -> Product Feedback Agent"),
+        ("lucky",     "[+] Feeling Lucky?"),
     ],
     "support": [
         ("culture",   "Why is Jeremy the right cultural fit for Posit?"),
@@ -180,8 +180,8 @@ SUGGESTED_QUESTIONS = {
         ("q3",        "How has Jeremy handled situations where Support inherited unresolved issues from implementation?"),
         ("q4",        "How would Jeremy define the boundary between what PS resolves and what becomes a Support ticket?"),
         ("q5",        "How does Jeremy think about knowledge transfer from PS to Support at scale?"),
-        ("lucky",     "[+] Feeling Lucky?"),
         ("handoff",   "[>] Test-Drive the PS -> Support Handoff Agent"),
+        ("lucky",     "[+] Feeling Lucky?"),
     ],
     "exploring": [
         ("culture",   "Why is Jeremy the right cultural fit for Posit?"),
@@ -190,8 +190,8 @@ SUGGESTED_QUESTIONS = {
         ("q3",        "What's the hardest PS org challenge Jeremy has faced, and how did he handle it?"),
         ("q4",        "How does Jeremy think about building a PS team culture in a fully distributed environment?"),
         ("q5",        "What's Jeremy's honest assessment of where he'd need to ramp up at Posit?"),
-        ("lucky",     "[+] Feeling Lucky?"),
         ("handoff",   "[>] Test-Drive the PS Handoff Agent"),
+        ("lucky",     "[+] Feeling Lucky?"),
     ],
 }
 
@@ -199,9 +199,29 @@ SUGGESTED_QUESTIONS = {
 
 UNLOCK_PHRASE = "REPLACE_WITH_YOUR_UNLOCK_PHRASE"
 
+# -- Riddle answer -------------------------------------------------------------
+# Flexible matching: "kind humble curious", "kind, humble, and curious" all match
+
+RIDDLE_ANSWERS = [
+    "kind humble curious",
+    "kind, humble, curious",
+    "kind, humble and curious",
+    "kind humble and curious",
+    "humble, kind, curious",
+    "humble kind curious",
+]
+
+RIDDLE_HINT_URL = "https://www.linkedin.com/company/posit-software/life"
+
+def is_riddle_answer(text: str) -> bool:
+    """Check if text contains all three answer words in any order."""
+    normalized = re.sub(r"[^\w\s]", "", text.lower()).strip()
+    words = set(normalized.split())
+    return {"kind", "humble", "curious"}.issubset(words)
+
 # -- Placeholder riddle --------------------------------------------------------
 
-RIDDLE_TEXT = "PLACEHOLDER RIDDLE: This riddle will be replaced with the real one. For now, solve this: I speak without a mouth and hear without ears. I have no body, but I come alive with the wind. What am I?"
+RIDDLE_TEXT = "Posit says there are three things that mean you belong here. What are they?"
 
 # -- Off-topic patterns --------------------------------------------------------
 
@@ -937,6 +957,29 @@ app_ui = ui.page_fluid(
         ),
     ),
 
+    # -- Hint modal (shown after 2 wrong riddle attempts) --
+    ui.div(
+        {"class": "j-riddle-overlay", "id": "hint-overlay", "onclick": "closeHintOnOverlay(event)"},
+        ui.div(
+            {"class": "j-riddle-modal"},
+            ui.tags.button({"class": "j-riddle-close", "onclick": "closeHint()"}, "x"),
+            ui.div({"class": "j-riddle-header"}, "// not quite"),
+            ui.div(
+                {"class": "j-riddle-text"},
+                "The answer is closer than you think. Posit tells you exactly who belongs there -- you just have to know where to look."
+            ),
+            ui.tags.a(
+                "Find the answer here ->",
+                {
+                    "href": RIDDLE_HINT_URL,
+                    "target": "_blank",
+                    "style": "color: var(--accent-light); font-family: 'DM Mono', monospace; font-size: 13px; letter-spacing: 0.04em;"
+                }
+            ),
+            ui.div({"class": "j-riddle-hint", "style": "margin-top: 16px;"}, "then type your answer in the box below"),
+        ),
+    ),
+
     ui.div(
         {"class": "j-shell"},
 
@@ -963,10 +1006,13 @@ app_ui = ui.page_fluid(
             ui.tags.select(
                 {"id": "team_dropdown", "class": "j-select", "onchange": "lockTeam(this)"},
                 ui.tags.option({"value": "exploring", "selected": "selected"}, "Just exploring"),
-                *[
-                    ui.tags.option({"value": k}, t["label"])
-                    for k, t in TEAMS.items() if k != "exploring"
-                ],
+                ui.tags.option({"value": "cs"}, "Customer Success"),
+                # Other teams hidden until production-ready -- uncomment to enable:
+                # ui.tags.option({"value": "onboarding"}, "Onboarding"),
+                # ui.tags.option({"value": "tam"}, "TAM Team"),
+                # ui.tags.option({"value": "delivery"}, "Delivery & Escalations"),
+                # ui.tags.option({"value": "product"}, "Product"),
+                # ui.tags.option({"value": "support"}, "Support"),
             ),
             ui.input_text("selected_team", "", value="exploring"),
             ui.tags.style("#selected_team { display: none; }"),
@@ -985,6 +1031,9 @@ app_ui = ui.page_fluid(
                 ],
             ),
         ),
+
+        # Handoff panel -- appears here when test-drive selected (above input)
+        ui.output_ui("handoff_panel"),
 
         # Input
         ui.div(
@@ -1054,7 +1103,6 @@ app_ui = ui.page_fluid(
 
             function lockTeam(el) {
                 var key = el.value;
-                el.disabled = true;
                 var inp = document.getElementById('selected_team');
                 if (inp) {
                     inp.value = key;
@@ -1132,6 +1180,20 @@ app_ui = ui.page_fluid(
                 if (e.target === document.getElementById('riddle-overlay')) closeRiddle();
             }
 
+            function openHint() {
+                document.getElementById('hint-overlay').classList.add('active');
+            }
+            function closeHint() {
+                document.getElementById('hint-overlay').classList.remove('active');
+            }
+            function closeHintOnOverlay(e) {
+                if (e.target === document.getElementById('hint-overlay')) closeHint();
+            }
+
+            Shiny.addCustomMessageHandler('show_hint', function(show) {
+                if (show) openHint();
+            });
+
             Shiny.addCustomMessageHandler('set_loading', function(loading) {
                 var btn = document.getElementById('ask_btn');
                 if (btn) {
@@ -1145,15 +1207,16 @@ app_ui = ui.page_fluid(
 # -- Server --------------------------------------------------------------------
 
 def server(input, output, session):
-    response_text = reactive.value("")
-    is_unlocked   = reactive.value(False)
-    unlocked_team = reactive.value("")
-    is_loading    = reactive.value(False)
-    show_offtopic = reactive.value(False)
-    show_handoff  = reactive.value(False)
-    handoff_team  = reactive.value("exploring")
-    limit_reason  = reactive.value("")
-    user_id       = reactive.value(make_user_id())
+    response_text  = reactive.value("")
+    is_unlocked    = reactive.value(False)
+    unlocked_team  = reactive.value("")
+    is_loading     = reactive.value(False)
+    show_offtopic  = reactive.value(False)
+    show_handoff   = reactive.value(False)
+    handoff_team   = reactive.value("exploring")
+    limit_reason   = reactive.value("")
+    user_id        = reactive.value(make_user_id())
+    wrong_attempts = reactive.value(0)
 
     @reactive.effect
     @reactive.event(input.handoff_trigger)
@@ -1187,10 +1250,33 @@ def server(input, output, session):
         response_text.set("")
         is_unlocked.set(False)
 
-        # -- Unlock check (no rate limit consumed) --
+        # -- Riddle answer check (no rate limit consumed) --
+        if is_riddle_answer(question):
+            is_unlocked.set(True)
+            unlocked_team.set(team_key)
+            wrong_attempts.set(0)
+            return
+
+        # -- Unlock phrase check (no rate limit consumed) --
         if is_unlock(question):
             is_unlocked.set(True)
             unlocked_team.set(team_key)
+            return
+
+        # -- Wrong riddle attempt tracking --
+        # If question looks like a riddle attempt (short, no question words)
+        # and doesn't match, increment counter and show hint after 2 tries
+        q_lower = question.lower().strip()
+        looks_like_riddle = (
+            len(question.split()) <= 8 and
+            any(w in q_lower for w in ["kind", "humble", "curious", "open", "passionate",
+                                        "driven", "smart", "creative", "honest", "brave"])
+        )
+        if looks_like_riddle:
+            attempts = wrong_attempts() + 1
+            wrong_attempts.set(attempts)
+            if attempts >= 2:
+                await session.send_custom_message("show_hint", True)
             return
 
         # -- Rate limit --
@@ -1245,11 +1331,64 @@ def server(input, output, session):
 
     @output
     @render.ui
+    def handoff_panel():
+        """Renders above the input box when test-drive is selected."""
+        if not show_handoff():
+            return ui.div()
+        team = get_team(handoff_team())
+        return ui.div(
+            {"class": "j-handoff-panel", "style": "margin-top: 0; margin-bottom: 24px; border-top: none; padding-top: 0;"},
+            ui.div({"class": "j-handoff-label"}, "// agent test-drive"),
+            ui.div({"class": "j-handoff-title"}, team["handoff_label"]),
+            ui.div(
+                {"class": "j-handoff-desc"},
+                "This is where the interactive handoff agent for the " + team["label"] +
+                " team will live. The agent is purpose-built to demonstrate how Jeremy "
+                "thinks about PS-to-" + team["label"] + " transitions -- the questions it asks, "
+                "the gaps it catches, and the way it enforces completeness before close."
+            ),
+            ui.div(
+                {"class": "j-handoff-placeholder"},
+                ui.div({"class": "j-handoff-placeholder-text"}, "// agent coming soon - check back after the interview"),
+            ),
+        )
+
+    @output
+    @render.ui
     def response_panel():
 
         # Unlock
         if is_unlocked():
-            team = get_team(unlocked_team())
+            team     = get_team(unlocked_team())
+            team_key = unlocked_team()
+
+            if team_key == "cs":
+                return ui.div(
+                    {"class": "j-unlock-panel"},
+                    ui.div({"class": "j-unlock-header"}, "// unlocked"),
+                    ui.div({"class": "j-unlock-title"}, "A Tool Built for You"),
+                    ui.div(
+                        {"class": "j-unlock-desc"},
+                        "If you're reading this, you solved the riddle -- and that's fitting, "
+                        "because the best CS people are the ones who stay curious."
+                    ),
+                    ui.div(
+                        {"class": "j-response-body", "style": "margin-bottom: 24px; font-size: 14px;"},
+                        "What you've unlocked is a working AI agent built on Anthropic's Claude -- "
+                        "designed to guide a PS Project Manager through a complete PS-to-CS handoff. "
+                        "The kind that actually sets CS up to win, not just the kind that closes out a project board. "
+                        "The full instructions and everything you need to run it yourself are in the document below."
+                    ),
+                    ui.tags.a(
+                        "Open your tool ->",
+                        {"class": "j-unlock-link", "href": team["unlock_url"], "target": "_blank"}
+                    ),
+                    ui.div(
+                        {"class": "j-unlock-note", "style": "margin-top: 16px;"},
+                        "built for the Customer Success team - hosted on posit connect cloud"
+                    ),
+                )
+
             return ui.div(
                 {"class": "j-unlock-panel"},
                 ui.div({"class": "j-unlock-header"}, "// unlocked"),
@@ -1302,26 +1441,6 @@ def server(input, output, session):
                         {"autoplay": "true", "controls": "true", "loop": "true", "style": "width:100%;"},
                         ui.tags.source({"src": "https://y.yarn.co/c286f02c-fc08-48e1-bf99-5fa48f913d0e_text.mp4", "type": "video/mp4"})
                     )
-                ),
-            )
-
-        # Handoff test-drive
-        if show_handoff():
-            team = get_team(handoff_team())
-            return ui.div(
-                {"class": "j-handoff-panel"},
-                ui.div({"class": "j-handoff-label"}, "// agent test-drive"),
-                ui.div({"class": "j-handoff-title"}, team["handoff_label"]),
-                ui.div(
-                    {"class": "j-handoff-desc"},
-                    "This is where the interactive handoff agent for the " + team["label"] +
-                    " team will live. The agent is purpose-built to demonstrate how Jeremy "
-                    "thinks about PS-to-" + team["label"] + " transitions -- the questions it asks, "
-                    "the gaps it catches, and the way it enforces completeness before close."
-                ),
-                ui.div(
-                    {"class": "j-handoff-placeholder"},
-                    ui.div({"class": "j-handoff-placeholder-text"}, "// agent coming soon - check back after the interview"),
                 ),
             )
 
