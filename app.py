@@ -125,6 +125,7 @@ TEAMS = {
 SUGGESTED_QUESTIONS = {
     "cs": [
         ("culture",   "Why is Jeremy the right cultural fit for Posit?"),
+        ("collab",  "What would it be like working with Jeremy for the CS team specifically?"),
         ("q1",        "How would Jeremy approach reducing time-to-value for customers transitioning from PS to ongoing success?"),
         ("q2",        "What's Jeremy's philosophy on the PS-to-CS handoff, and how has he structured it in the past?"),
         ("q3",        "How does Jeremy think about the relationship between implementation quality and long-term retention?"),
@@ -135,6 +136,7 @@ SUGGESTED_QUESTIONS = {
     ],
     "onboarding": [
         ("culture",   "Why is Jeremy the right cultural fit for Posit?"),
+        ("collab",  "What would it be like working with Jeremy for the Onboarding team specifically?"),
         ("q1",        "How would Jeremy standardize a First 90 Days onboarding program across a distributed team?"),
         ("q2",        "What metrics would Jeremy use to define a successful customer onboarding?"),
         ("q3",        "How has Jeremy reduced time-to-value in previous onboarding programs?"),
@@ -145,6 +147,7 @@ SUGGESTED_QUESTIONS = {
     ],
     "tam": [
         ("culture",   "Why is Jeremy the right cultural fit for Posit?"),
+        ("collab",  "What would it be like working with Jeremy for the TAM team specifically?"),
         ("q1",        "How does Jeremy think about the role of a TAM versus a traditional support function?"),
         ("q2",        "What frameworks has Jeremy used to prioritize proactive outreach across a large enterprise portfolio?"),
         ("q3",        "How would Jeremy measure whether the TAM team is delivering real technical partnership versus reactive service?"),
@@ -155,6 +158,7 @@ SUGGESTED_QUESTIONS = {
     ],
     "delivery": [
         ("culture",   "Why is Jeremy the right cultural fit for Posit?"),
+        ("collab",  "What would it be like working with Jeremy for the Delivery & Escalations team?"),
         ("q1",        "How does Jeremy scope and price SOW engagements to protect delivery margin?"),
         ("q2",        "What's Jeremy's framework for managing a critical customer escalation without losing the relationship?"),
         ("q3",        "How has Jeremy maintained delivery quality while scaling a PS team rapidly?"),
@@ -165,6 +169,7 @@ SUGGESTED_QUESTIONS = {
     ],
     "product": [
         ("culture",   "Why is Jeremy the right cultural fit for Posit?"),
+        ("collab",  "What would it be like working with Jeremy for the Product team specifically?"),
         ("q1",        "How would Jeremy structure the feedback loop between PS delivery and the Product roadmap?"),
         ("q2",        "What's Jeremy's approach to documenting configuration decisions in a way that's useful to Product?"),
         ("q3",        "How has Jeremy handled situations where customer requests conflict with product direction?"),
@@ -175,6 +180,7 @@ SUGGESTED_QUESTIONS = {
     ],
     "support": [
         ("culture",   "Why is Jeremy the right cultural fit for Posit?"),
+        ("collab",  "What would it be like working with Jeremy for the Support team specifically?"),
         ("q1",        "How does Jeremy ensure Support has everything they need before PS hands off a customer?"),
         ("q2",        "What does a clean PS-to-Support handoff look like in Jeremy's model, and what does a broken one look like?"),
         ("q3",        "How has Jeremy handled situations where Support inherited unresolved issues from implementation?"),
@@ -185,6 +191,7 @@ SUGGESTED_QUESTIONS = {
     ],
     "exploring": [
         ("culture",   "Why is Jeremy the right cultural fit for Posit?"),
+        ("collab",  "What would it be like working with Jeremy as a colleague at Posit?"),
         ("q1",        "Why is Jeremy making a move now, and why Posit specifically?"),
         ("q2",        "What would Jeremy's first 90 days look like if he got this role?"),
         ("q3",        "What's the hardest PS org challenge Jeremy has faced, and how did he handle it?"),
@@ -212,6 +219,25 @@ RIDDLE_ANSWERS = [
 ]
 
 RIDDLE_HINT_URL = "https://www.linkedin.com/company/posit-software/life"
+
+# -- CS Handoff Agent system prompt -------------------------------------------
+
+CS_HANDOFF_SYSTEM_PROMPT = """You are a PS-to-CS Handoff Agent for a SaaS company. You guide Project Managers through transitioning a customer from Professional Services to Customer Success at or around go-live.
+
+PS and CS are partners. Both teams want the customer to feel genuinely taken care of, confident in the product, and excited about what comes next. Your tone is warm but rigorous.
+
+Start by asking the PM what customer they are handing off and what information they have available (project summary, open issues, Monday.com export, etc.). Then guide them through:
+
+1. Pre-handoff gate check -- is implementation complete? Is go-live signed off?
+2. The Opportunity & Sentiment Summary -- customer champions, skeptics, what went well/didn't, workarounds, promises made, expansion signals
+3. The handoff checklist -- customer details, implementation status, relationship context, CS enablement, communication plan, commercial handoff
+4. CS Ramp-Up Briefing agenda (if requested)
+5. Go-Live Call agenda and talking points (if requested)
+6. Post Go-Live announcement draft (if requested)
+
+Flag gaps clearly and frame them in terms of what the CS Manager won't be able to do without the missing information. Surface risks immediately when you see them.
+
+Keep responses focused and practical. Ask one or two questions at a time rather than overwhelming the PM. This is a conversation, not a form."""
 
 def is_riddle_answer(text: str) -> bool:
     """Check if text contains all three answer words in any order."""
@@ -350,6 +376,20 @@ Getting things done across team lines requires demonstrated value and earned tru
 
 **On what he needs from peers:**
 Trust and openness. The PS team is often the first to see where a product creates friction, where a handoff breaks down, where a customer is quietly struggling. That's only useful if peers are listening with genuine curiosity -- not blind acceptance, but real openness to what the field is seeing.
+
+## COLLAB QUESTION HANDLING
+
+When asked "What would it be like working with Jeremy for [team]?", tailor the answer to that specific team's cross-functional relationship with PS. Draw from:
+
+- CS: Jeremy sees PS and CS as partners, not handoff endpoints. Clean transitions, shared wins, expansion signals passed proactively. CS never inherits a customer without full context.
+- Product: Jeremy treats PS as a signal generator for Product -- configuration decisions documented with business context, customer requests triaged and fed back systematically, not as noise.
+- Support: Jeremy's PS-to-Support handoff system enforces completeness before close. Support inherits customers with full documentation, open items tracked, and clear ownership.
+- Onboarding: Jeremy's playbook-first approach means Onboarding gets repeatable, documented processes -- not tribal knowledge that walks out the door.
+- TAM: Jeremy sees TAMs as strategic partners. PS surfaces expansion signals and relationship context that makes TAM conversations smarter from day one.
+- Delivery & Escalations: Jeremy brings SOW discipline and change order rigor -- Delivery inherits well-scoped engagements, not scope creep messes.
+- General: Jeremy doesn't protect turf, shares wins, defaults to helping, and builds trust before spending it.
+
+Always connect the answer to specific behaviors and systems Jeremy has built -- not just values.
 
 ## GAP HANDLING
 
@@ -980,6 +1020,18 @@ app_ui = ui.page_fluid(
         ),
     ),
 
+    # -- Try again modal --
+    ui.div(
+        {"class": "j-riddle-overlay", "id": "tryagain-overlay", "onclick": "closeTryAgainOnOverlay(event)"},
+        ui.div(
+            {"class": "j-riddle-modal", "style": "max-width: 340px;"},
+            ui.tags.button({"class": "j-riddle-close", "onclick": "closeTryAgain()"}, "x"),
+            ui.div({"class": "j-riddle-header"}, "// not quite"),
+            ui.div({"class": "j-riddle-text", "style": "font-size: 22px; margin-bottom: 8px;"}, "Try again!"),
+            ui.div({"class": "j-riddle-hint"}, "type your answer in the box below"),
+        ),
+    ),
+
     ui.div(
         {"class": "j-shell"},
 
@@ -1078,7 +1130,7 @@ app_ui = ui.page_fluid(
 
         # JavaScript
         ui.tags.script("""
-            var SUGGESTED = {"cs": [["culture", "Why is Jeremy the right cultural fit for Posit?"], ["q1", "How would Jeremy approach reducing time-to-value for customers transitioning from PS to ongoing success?"], ["q2", "What's Jeremy's philosophy on the PS-to-CS handoff, and how has he structured it in the past?"], ["q3", "How does Jeremy think about the relationship between implementation quality and long-term retention?"], ["q4", "What does Jeremy see as the biggest failure modes when PS and CS aren't aligned?"], ["q5", "How would Jeremy help CS identify expansion opportunities surfaced during implementation?"], ["lucky", "[+] Feeling Lucky?"], ["handoff", "[>] Test-Drive the PS -> CS Handoff Agent"]], "onboarding": [["culture", "Why is Jeremy the right cultural fit for Posit?"], ["q1", "How would Jeremy standardize a First 90 Days onboarding program across a distributed team?"], ["q2", "What metrics would Jeremy use to define a successful customer onboarding?"], ["q3", "How has Jeremy reduced time-to-value in previous onboarding programs?"], ["q4", "How would Jeremy handle onboarding for customers with highly variable technical environments?"], ["q5", "What's Jeremy's approach to building onboarding playbooks that scale without him in the room?"], ["lucky", "[+] Feeling Lucky?"], ["handoff", "[>] Test-Drive the PS -> Onboarding Handoff Agent"]], "tam": [["culture", "Why is Jeremy the right cultural fit for Posit?"], ["q1", "How does Jeremy think about the role of a TAM versus a traditional support function?"], ["q2", "What frameworks has Jeremy used to prioritize proactive outreach across a large enterprise portfolio?"], ["q3", "How would Jeremy measure whether the TAM team is delivering real technical partnership versus reactive service?"], ["q4", "How has Jeremy bridged the gap between technical account management and commercial outcomes?"], ["q5", "What's Jeremy's approach to escalation management when a TAM relationship is at risk?"], ["lucky", "[+] Feeling Lucky?"], ["handoff", "[>] Test-Drive the PS -> TAM Handoff Agent"]], "delivery": [["culture", "Why is Jeremy the right cultural fit for Posit?"], ["q1", "How does Jeremy scope and price SOW engagements to protect delivery margin?"], ["q2", "What's Jeremy's framework for managing a critical customer escalation without losing the relationship?"], ["q3", "How has Jeremy maintained delivery quality while scaling a PS team rapidly?"], ["q4", "How does Jeremy think about the boundary between in-scope delivery and change orders?"], ["q5", "What early warning indicators does Jeremy watch for to catch delivery risk before it becomes an escalation?"], ["lucky", "[+] Feeling Lucky?"], ["handoff", "[>] Test-Drive the PS -> Delivery Handoff Agent"]], "product": [["culture", "Why is Jeremy the right cultural fit for Posit?"], ["q1", "How would Jeremy structure the feedback loop between PS delivery and the Product roadmap?"], ["q2", "What's Jeremy's approach to documenting configuration decisions in a way that's useful to Product?"], ["q3", "How has Jeremy handled situations where customer requests conflict with product direction?"], ["q4", "How would Jeremy help Product distinguish between one-off customer requests and systemic gaps?"], ["q5", "What role should PS play in beta programs and early access releases?"], ["lucky", "[+] Feeling Lucky?"], ["handoff", "[>] Test-Drive the PS -> Product Feedback Agent"]], "support": [["culture", "Why is Jeremy the right cultural fit for Posit?"], ["q1", "How does Jeremy ensure Support has everything they need before PS hands off a customer?"], ["q2", "What does a clean PS-to-Support handoff look like in Jeremy's model, and what does a broken one look like?"], ["q3", "How has Jeremy handled situations where Support inherited unresolved issues from implementation?"], ["q4", "How would Jeremy define the boundary between what PS resolves and what becomes a Support ticket?"], ["q5", "How does Jeremy think about knowledge transfer from PS to Support at scale?"], ["lucky", "[+] Feeling Lucky?"], ["handoff", "[>] Test-Drive the PS -> Support Handoff Agent"]], "exploring": [["culture", "Why is Jeremy the right cultural fit for Posit?"], ["q1", "Why is Jeremy making a move now, and why Posit specifically?"], ["q2", "What would Jeremy's first 90 days look like if he got this role?"], ["q3", "What's the hardest PS org challenge Jeremy has faced, and how did he handle it?"], ["q4", "How does Jeremy think about building a PS team culture in a fully distributed environment?"], ["q5", "What's Jeremy's honest assessment of where he'd need to ramp up at Posit?"], ["lucky", "[+] Feeling Lucky?"], ["handoff", "[>] Test-Drive the PS Handoff Agent"]]};
+            var SUGGESTED = {"cs": [["culture", "Why is Jeremy the right cultural fit for Posit?"], ["collab", "What would it be like working with Jeremy for the CS team specifically?"], ["q1", "How would Jeremy approach reducing time-to-value for customers transitioning from PS to ongoing success?"], ["q2", "What's Jeremy's philosophy on the PS-to-CS handoff, and how has he structured it in the past?"], ["q3", "How does Jeremy think about the relationship between implementation quality and long-term retention?"], ["q4", "What does Jeremy see as the biggest failure modes when PS and CS aren't aligned?"], ["q5", "How would Jeremy help CS identify expansion opportunities surfaced during implementation?"], ["handoff", "[>] Test-Drive the PS -> CS Handoff Agent"], ["lucky", "[+] Feeling Lucky?"]], "onboarding": [["culture", "Why is Jeremy the right cultural fit for Posit?"], ["collab", "What would it be like working with Jeremy for the Onboarding team specifically?"], ["q1", "How would Jeremy standardize a First 90 Days onboarding program across a distributed team?"], ["q2", "What metrics would Jeremy use to define a successful customer onboarding?"], ["q3", "How has Jeremy reduced time-to-value in previous onboarding programs?"], ["q4", "How would Jeremy handle onboarding for customers with highly variable technical environments?"], ["q5", "What's Jeremy's approach to building onboarding playbooks that scale without him in the room?"], ["handoff", "[>] Test-Drive the PS -> Onboarding Handoff Agent"], ["lucky", "[+] Feeling Lucky?"]], "tam": [["culture", "Why is Jeremy the right cultural fit for Posit?"], ["collab", "What would it be like working with Jeremy for the TAM team specifically?"], ["q1", "How does Jeremy think about the role of a TAM versus a traditional support function?"], ["q2", "What frameworks has Jeremy used to prioritize proactive outreach across a large enterprise portfolio?"], ["q3", "How would Jeremy measure whether the TAM team is delivering real technical partnership versus reactive service?"], ["q4", "How has Jeremy bridged the gap between technical account management and commercial outcomes?"], ["q5", "What's Jeremy's approach to escalation management when a TAM relationship is at risk?"], ["handoff", "[>] Test-Drive the PS -> TAM Handoff Agent"], ["lucky", "[+] Feeling Lucky?"]], "delivery": [["culture", "Why is Jeremy the right cultural fit for Posit?"], ["collab", "What would it be like working with Jeremy for the Delivery & Escalations team?"], ["q1", "How does Jeremy scope and price SOW engagements to protect delivery margin?"], ["q2", "What's Jeremy's framework for managing a critical customer escalation without losing the relationship?"], ["q3", "How has Jeremy maintained delivery quality while scaling a PS team rapidly?"], ["q4", "How does Jeremy think about the boundary between in-scope delivery and change orders?"], ["q5", "What early warning indicators does Jeremy watch for to catch delivery risk before it becomes an escalation?"], ["handoff", "[>] Test-Drive the PS -> Delivery Handoff Agent"], ["lucky", "[+] Feeling Lucky?"]], "product": [["culture", "Why is Jeremy the right cultural fit for Posit?"], ["collab", "What would it be like working with Jeremy for the Product team specifically?"], ["q1", "How would Jeremy structure the feedback loop between PS delivery and the Product roadmap?"], ["q2", "What's Jeremy's approach to documenting configuration decisions in a way that's useful to Product?"], ["q3", "How has Jeremy handled situations where customer requests conflict with product direction?"], ["q4", "How would Jeremy help Product distinguish between one-off customer requests and systemic gaps?"], ["q5", "What role should PS play in beta programs and early access releases?"], ["handoff", "[>] Test-Drive the PS -> Product Feedback Agent"], ["lucky", "[+] Feeling Lucky?"]], "support": [["culture", "Why is Jeremy the right cultural fit for Posit?"], ["collab", "What would it be like working with Jeremy for the Support team specifically?"], ["q1", "How does Jeremy ensure Support has everything they need before PS hands off a customer?"], ["q2", "What does a clean PS-to-Support handoff look like in Jeremy's model, and what does a broken one look like?"], ["q3", "How has Jeremy handled situations where Support inherited unresolved issues from implementation?"], ["q4", "How would Jeremy define the boundary between what PS resolves and what becomes a Support ticket?"], ["q5", "How does Jeremy think about knowledge transfer from PS to Support at scale?"], ["handoff", "[>] Test-Drive the PS -> Support Handoff Agent"], ["lucky", "[+] Feeling Lucky?"]], "exploring": [["culture", "Why is Jeremy the right cultural fit for Posit?"], ["collab", "What would it be like working with Jeremy as a colleague at Posit?"], ["q1", "Why is Jeremy making a move now, and why Posit specifically?"], ["q2", "What would Jeremy's first 90 days look like if he got this role?"], ["q3", "What's the hardest PS org challenge Jeremy has faced, and how did he handle it?"], ["q4", "How does Jeremy think about building a PS team culture in a fully distributed environment?"], ["q5", "What's Jeremy's honest assessment of where he'd need to ramp up at Posit?"], ["handoff", "[>] Test-Drive the PS Handoff Agent"], ["lucky", "[+] Feeling Lucky?"]]};
 
             function syncQuestion(val) {
                 var el = document.getElementById('question');
@@ -1099,6 +1151,37 @@ app_ui = ui.page_fluid(
                 var q = document.getElementById('question_display').value.trim();
                 if (!q) return;
                 document.getElementById('ask').click();
+            }
+
+            function syncHandoffInput(val) {
+                var el = document.getElementById('handoff_chat_input');
+                if (el) {
+                    el.value = val;
+                    el.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            }
+
+            function handleHandoffKey(e) {
+                if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                    e.preventDefault();
+                    submitHandoffChat();
+                }
+            }
+
+            function submitHandoffChat() {
+                var q = document.getElementById('handoff_chat_display').value.trim();
+                if (!q) return;
+                document.getElementById('handoff_chat_send').click();
+            }
+
+            function prefillHandoffScenario() {
+                var scenario = 'I\'m handing off BioStat Labs, a university research group that just went live on Posit Connect and Workbench. They\'re a team of 8 data scientists using R and Python for clinical trial analysis. Implementation went well overall -- they\'re excited about reproducible reporting in Quarto. However their main champion Dr. Reyes is going on sabbatical in 6 weeks, and we have one open issue with their LDAP SSO integration that works but needs a config cleanup. During the engagement they asked about Posit Package Manager for internal package hosting -- it was out of scope but they\'re clearly interested. Ready to start the handoff.';
+                var ta = document.getElementById('handoff_chat_display');
+                if (ta) {
+                    ta.value = scenario;
+                    syncHandoffInput(scenario);
+                    ta.focus();
+                }
             }
 
             function lockTeam(el) {
@@ -1190,8 +1273,27 @@ app_ui = ui.page_fluid(
                 if (e.target === document.getElementById('hint-overlay')) closeHint();
             }
 
+            function openTryAgain() {
+                var el = document.getElementById('tryagain-overlay');
+                if (el) el.classList.add('active');
+                setTimeout(function() {
+                    if (el) el.classList.remove('active');
+                }, 2000);
+            }
+            function closeTryAgain() {
+                var el = document.getElementById('tryagain-overlay');
+                if (el) el.classList.remove('active');
+            }
+            function closeTryAgainOnOverlay(e) {
+                if (e.target === document.getElementById('tryagain-overlay')) closeTryAgain();
+            }
+
             Shiny.addCustomMessageHandler('show_hint', function(show) {
                 if (show) openHint();
+            });
+
+            Shiny.addCustomMessageHandler('show_try_again', function(show) {
+                if (show) openTryAgain();
             });
 
             Shiny.addCustomMessageHandler('set_loading', function(loading) {
@@ -1201,37 +1303,78 @@ app_ui = ui.page_fluid(
                     btn.textContent = loading ? 'querying...' : 'run query';
                 }
             });
+
+            Shiny.addCustomMessageHandler('clear_handoff_input', function(v) {
+                var ta = document.getElementById('handoff_chat_display');
+                if (ta) ta.value = '';
+                var inp = document.getElementById('handoff_chat_input');
+                if (inp) { inp.value = ''; inp.dispatchEvent(new Event('input', { bubbles: true })); }
+            });
         """),
     )
 )
 # -- Server --------------------------------------------------------------------
 
 def server(input, output, session):
-    response_text  = reactive.value("")
-    is_unlocked    = reactive.value(False)
-    unlocked_team  = reactive.value("")
-    is_loading     = reactive.value(False)
-    show_offtopic  = reactive.value(False)
-    show_handoff   = reactive.value(False)
-    handoff_team   = reactive.value("exploring")
-    limit_reason   = reactive.value("")
-    user_id        = reactive.value(make_user_id())
-    wrong_attempts = reactive.value(0)
+    response_text     = reactive.value("")
+    is_unlocked       = reactive.value(False)
+    unlocked_team     = reactive.value("")
+    is_loading        = reactive.value(False)
+    show_offtopic     = reactive.value(False)
+    show_handoff      = reactive.value(False)
+    handoff_team      = reactive.value("exploring")
+    limit_reason      = reactive.value("")
+    user_id           = reactive.value(make_user_id())
+    wrong_attempts    = reactive.value(0)
+    handoff_messages  = reactive.value([])   # list of {"role": ..., "content": ...}
+    handoff_loading   = reactive.value(False)
 
     @reactive.effect
     @reactive.event(input.handoff_trigger)
     def handle_handoff():
         """Dedicated handler for handoff test-drive selection."""
         team_key = input.handoff_team_input().strip() or "exploring"
-        # Reset other states
         show_offtopic.set(False)
         limit_reason.set("")
         response_text.set("")
         is_unlocked.set(False)
         is_loading.set(False)
-        # Set handoff state
         handoff_team.set(team_key)
+        handoff_messages.set([])
         show_handoff.set(True)
+
+    @reactive.effect
+    @reactive.event(input.handoff_chat_send)
+    async def handle_handoff_chat():
+        """Handle messages in the CS handoff agent chat."""
+        msg = input.handoff_chat_input().strip()
+        if not msg:
+            return
+        team_key = handoff_team()
+        # Only CS team has live agent for now
+        if team_key != "cs":
+            return
+        messages = handoff_messages()
+        messages = messages + [{"role": "user", "content": msg}]
+        handoff_messages.set(messages)
+        handoff_loading.set(True)
+        await session.send_custom_message("clear_handoff_input", True)
+        try:
+            client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
+            response = client.messages.create(
+                model="claude-sonnet-4-20250514",
+                max_tokens=600,
+                system=CS_HANDOFF_SYSTEM_PROMPT,
+                messages=messages
+            )
+            reply = response.content[0].text
+            messages = messages + [{"role": "assistant", "content": reply}]
+            handoff_messages.set(messages)
+        except Exception as e:
+            messages = messages + [{"role": "assistant", "content": f"Something went wrong: {str(e)}"}]
+            handoff_messages.set(messages)
+        finally:
+            handoff_loading.set(False)
 
     @reactive.effect
     @reactive.event(input.ask)
@@ -1264,19 +1407,16 @@ def server(input, output, session):
             return
 
         # -- Wrong riddle attempt tracking --
-        # If question looks like a riddle attempt (short, no question words)
-        # and doesn't match, increment counter and show hint after 2 tries
-        q_lower = question.lower().strip()
-        looks_like_riddle = (
-            len(question.split()) <= 8 and
-            any(w in q_lower for w in ["kind", "humble", "curious", "open", "passionate",
-                                        "driven", "smart", "creative", "honest", "brave"])
-        )
-        if looks_like_riddle:
+        # Short answers (<=6 words) that don't match are treated as riddle attempts
+        if len(question.split()) <= 6 and "?" not in question:
             attempts = wrong_attempts() + 1
             wrong_attempts.set(attempts)
             if attempts >= 2:
+                # 2nd wrong attempt: show hint with LinkedIn link
                 await session.send_custom_message("show_hint", True)
+            else:
+                # 1st wrong attempt: simple try again
+                await session.send_custom_message("show_try_again", True)
             return
 
         # -- Rate limit --
@@ -1335,21 +1475,125 @@ def server(input, output, session):
         """Renders above the input box when test-drive is selected."""
         if not show_handoff():
             return ui.div()
-        team = get_team(handoff_team())
+        team     = get_team(handoff_team())
+        team_key = handoff_team()
+
+        if team_key == "cs":
+            # Live chat interface for CS handoff agent
+            messages = handoff_messages()
+            loading  = handoff_loading()
+
+            msg_nodes = []
+            for m in messages:
+                is_user = m["role"] == "user"
+                msg_nodes.append(
+                    ui.div(
+                        {
+                            "style": (
+                                "padding: 10px 14px; border-radius: 3px; margin-bottom: 10px; font-size: 14px; line-height: 1.6; "
+                                + ("background: var(--surface2); color: var(--text-dim); text-align: right;" if is_user
+                                   else "background: var(--surface); border: 1px solid var(--border); color: var(--text-primary);")
+                            )
+                        },
+                        ui.tags.span(
+                            {"style": "font-family: 'DM Mono', monospace; font-size: 10px; opacity: 0.5; display: block; margin-bottom: 4px;"},
+                            "you" if is_user else "handoff agent"
+                        ),
+                        m["content"]
+                    )
+                )
+
+            if loading:
+                msg_nodes.append(
+                    ui.div({"class": "j-loading", "style": "margin-top: 8px;"}, "agent is thinking...")
+                )
+
+            if not messages:
+                msg_nodes.append(
+                    ui.div(
+                        {"style": "color: var(--text-muted); font-size: 13px; font-style: italic; padding: 8px 0;"},
+                        "Tell the agent which customer you are handing off, and paste in any project context you have."
+                    )
+                )
+
+            return ui.div(
+                {"class": "j-handoff-panel", "style": "margin-top: 0; margin-bottom: 24px; border-top: none; padding-top: 0;"},
+                ui.div({"class": "j-handoff-label"}, "// agent test-drive -- ps to cs handoff"),
+                ui.div({"class": "j-handoff-title"}, "PS -> CS Handoff Agent"),
+                ui.div(
+                    {"class": "j-handoff-desc"},
+                    "Live agent powered by Claude. Start a real handoff scenario below."
+                ),
+                # Scenario suggestion -- only show when no messages yet
+                ui.div(
+                    {"style": "margin-bottom: 16px;" if not messages else "display: none;"},
+                    ui.div(
+                        {"style": "font-family: \'DM Mono\', monospace; font-size: 11px; color: var(--text-muted); "
+                                  "letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px;"},
+                        "// not sure where to start?"
+                    ),
+                    ui.tags.button(
+                        "Try a sample scenario ->",
+                        {
+                            "style": (
+                                "background: transparent; border: 1px solid var(--border2); "
+                                "color: var(--warm); font-family: \'DM Mono\', monospace; "
+                                "font-size: 11px; letter-spacing: 0.06em; padding: 7px 14px; "
+                                "border-radius: 2px; cursor: pointer; transition: all 0.15s;"
+                            ),
+                            "onclick": "prefillHandoffScenario()",
+                        }
+                    ),
+                ),
+                # Message history
+                ui.div(
+                    {
+                        "id": "handoff-chat-messages",
+                        "style": "max-height: 400px; overflow-y: auto; margin-bottom: 12px; padding: 4px 0;"
+                    },
+                    *msg_nodes
+                ),
+                # Input row
+                ui.div(
+                    {"style": "display: flex; gap: 8px; align-items: flex-end;"},
+                    ui.tags.textarea(
+                        {
+                            "id": "handoff_chat_display",
+                            "class": "j-textarea",
+                            "style": "min-height: 52px; flex: 1; font-size: 14px;",
+                            "placeholder": "Describe the customer you are handing off...",
+                            "rows": "2",
+                            "oninput": "syncHandoffInput(this.value)",
+                            "onkeydown": "handleHandoffKey(event)",
+                        }
+                    ),
+                    ui.tags.button(
+                        "send",
+                        {
+                            "class": "j-submit-btn",
+                            "style": "padding: 10px 18px; flex-shrink: 0;",
+                            "onclick": "submitHandoffChat()",
+                        }
+                    ),
+                ),
+                ui.div(
+                    {"style": "font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text-muted); margin-top: 6px;"},
+                    "ctrl+enter to send - this agent counts against your query limit"
+                ),
+            )
+
+        # Placeholder for other teams
         return ui.div(
             {"class": "j-handoff-panel", "style": "margin-top: 0; margin-bottom: 24px; border-top: none; padding-top: 0;"},
             ui.div({"class": "j-handoff-label"}, "// agent test-drive"),
             ui.div({"class": "j-handoff-title"}, team["handoff_label"]),
             ui.div(
                 {"class": "j-handoff-desc"},
-                "This is where the interactive handoff agent for the " + team["label"] +
-                " team will live. The agent is purpose-built to demonstrate how Jeremy "
-                "thinks about PS-to-" + team["label"] + " transitions -- the questions it asks, "
-                "the gaps it catches, and the way it enforces completeness before close."
+                "This agent is coming soon. Check back after the next interview round."
             ),
             ui.div(
                 {"class": "j-handoff-placeholder"},
-                ui.div({"class": "j-handoff-placeholder-text"}, "// agent coming soon - check back after the interview"),
+                ui.div({"class": "j-handoff-placeholder-text"}, "// coming soon"),
             ),
         )
 
@@ -1380,7 +1624,7 @@ def server(input, output, session):
                         "The full instructions and everything you need to run it yourself are in the document below."
                     ),
                     ui.tags.a(
-                        "Open your tool ->",
+                        "Access full instructions ->",
                         {"class": "j-unlock-link", "href": team["unlock_url"], "target": "_blank"}
                     ),
                     ui.div(
@@ -1394,7 +1638,7 @@ def server(input, output, session):
                 ui.div({"class": "j-unlock-header"}, "// unlocked"),
                 ui.div({"class": "j-unlock-title"}, team["tool_name"]),
                 ui.div({"class": "j-unlock-desc"}, team["tool_description"]),
-                ui.tags.a("open your tool ->", {"class": "j-unlock-link", "href": team["unlock_url"], "target": "_blank"}),
+                ui.tags.a("Access full instructions ->", {"class": "j-unlock-link", "href": team["unlock_url"], "target": "_blank"}),
                 ui.div({"class": "j-unlock-note"}, "built for the " + team["label"] + " team - hosted on posit connect cloud"),
             )
 
