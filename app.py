@@ -632,7 +632,7 @@ app_ui = ui.page_fluid(
     ui.div(
         {"id": "celebration-overlay",
          "style": "display:none; position:fixed; inset:0; z-index:2000; pointer-events:none; "
-                  "display:flex; align-items:center; justify-content:center; "
+                  "align-items:center; justify-content:center; "
                   "background:rgba(0,0,0,0.5);"},
         ui.tags.img(
             {
@@ -839,6 +839,8 @@ app_ui = ui.page_fluid(
                 var el = document.getElementById('celebration-overlay');
                 if (el) {
                     el.style.display = 'flex';
+                    el.style.alignItems = 'center';
+                    el.style.justifyContent = 'center';
                     setTimeout(function() { el.style.display = 'none'; }, 4000);
                 }
             }
