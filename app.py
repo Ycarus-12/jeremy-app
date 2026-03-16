@@ -617,7 +617,7 @@ app_ui = ui.page_fluid(
                 ),
             ),
             ui.tags.h1({"class": "j-title"}, ui.tags.span("?"), "jeremy"),
-            ui.div({"class": "j-subtitle"}, "Answering the question: Why is Jeremy the right fit for Posit?"),
+            ui.div({"class": "j-subtitle"}, "Answering the question: Why is Jeremy the right fit for Posit? Check About this App for more information!"),
         ),
 
         # Team selector
