@@ -67,6 +67,7 @@ def log_to_airtable(user_id: str, team: str, question: str, response_length: int
     except Exception as e:
         print(f"AIRTABLE ERROR: {type(e).__name__}: {e}")
 
+
 # -- Team configuration --------------------------------------------------------
 
 TEAMS = {
@@ -115,14 +116,13 @@ TEAMS = {
     "exploring": {
         "label":            "Just exploring",
         "unlock_url":       "https://connect.posit.cloud/jmcoates/content/019cf80e-e102-b179-07c7-18bf5f63839a",
-        "tool_name":        "Posit PS Operations Assistant",
-        "tool_description": "A custom AI assistant built for professional services delivery",
-        "handoff_label":    "PS Handoff Agent",
+        "tool_name":        "PS Implementation PM Agent",
+        "tool_description": "A custom AI assistant built for SaaS implementation project management",
+        "handoff_label":    "PS Implementation PM Agent",
     },
 }
 
 # -- Suggested questions -------------------------------------------------------
-# Order per team: culture -> collab -> q1-q5 -> handoff (test-drive) -> lucky
 
 SUGGESTED_QUESTIONS = {
     "cs": [
@@ -133,8 +133,8 @@ SUGGESTED_QUESTIONS = {
         ("q3",       "How does Jeremy think about the relationship between implementation quality and long-term retention?"),
         ("q4",       "What does Jeremy see as the biggest failure modes when PS and CS aren't aligned?"),
         ("q5",       "How would Jeremy help CS identify expansion opportunities surfaced during implementation?"),
-        ("handoff",  "🤖 Test-Drive the PS -> CS Handoff Agent"),
-        ("lucky",    "🍀 Feeling Lucky?"),
+        ("handoff",  "\U0001f916 Test-Drive the PS -> CS Handoff Agent"),
+        ("lucky",    "\U0001f340 Feeling Lucky?"),
     ],
     "onboarding": [
         ("culture",  "Why is Jeremy the right cultural fit for Posit?"),
@@ -144,8 +144,8 @@ SUGGESTED_QUESTIONS = {
         ("q3",       "How has Jeremy reduced time-to-value in previous onboarding programs?"),
         ("q4",       "How would Jeremy handle onboarding for customers with highly variable technical environments?"),
         ("q5",       "What's Jeremy's approach to building onboarding playbooks that scale without him in the room?"),
-        ("handoff",  "🤖 Test-Drive the PS -> Onboarding Handoff Agent"),
-        ("lucky",    "🍀 Feeling Lucky?"),
+        ("handoff",  "\U0001f916 Test-Drive the PS -> Onboarding Handoff Agent"),
+        ("lucky",    "\U0001f340 Feeling Lucky?"),
     ],
     "tam": [
         ("culture",  "Why is Jeremy the right cultural fit for Posit?"),
@@ -155,8 +155,8 @@ SUGGESTED_QUESTIONS = {
         ("q3",       "How would Jeremy measure whether the TAM team is delivering real technical partnership versus reactive service?"),
         ("q4",       "How has Jeremy bridged the gap between technical account management and commercial outcomes?"),
         ("q5",       "What's Jeremy's approach to escalation management when a TAM relationship is at risk?"),
-        ("handoff",  "🤖 Test-Drive the PS -> TAM Handoff Agent"),
-        ("lucky",    "🍀 Feeling Lucky?"),
+        ("handoff",  "\U0001f916 Test-Drive the PS -> TAM Handoff Agent"),
+        ("lucky",    "\U0001f340 Feeling Lucky?"),
     ],
     "delivery": [
         ("culture",  "Why is Jeremy the right cultural fit for Posit?"),
@@ -166,8 +166,8 @@ SUGGESTED_QUESTIONS = {
         ("q3",       "How has Jeremy maintained delivery quality while scaling a PS team rapidly?"),
         ("q4",       "How does Jeremy think about the boundary between in-scope delivery and change orders?"),
         ("q5",       "What early warning indicators does Jeremy watch for to catch delivery risk before it becomes an escalation?"),
-        ("handoff",  "🤖 Test-Drive the PS -> Delivery Handoff Agent"),
-        ("lucky",    "🍀 Feeling Lucky?"),
+        ("handoff",  "\U0001f916 Test-Drive the PS -> Delivery Handoff Agent"),
+        ("lucky",    "\U0001f340 Feeling Lucky?"),
     ],
     "product": [
         ("culture",  "Why is Jeremy the right cultural fit for Posit?"),
@@ -177,8 +177,8 @@ SUGGESTED_QUESTIONS = {
         ("q3",       "How has Jeremy handled situations where customer requests conflict with product direction?"),
         ("q4",       "How would Jeremy help Product distinguish between one-off customer requests and systemic gaps?"),
         ("q5",       "What role should PS play in beta programs and early access releases?"),
-        ("handoff",  "🤖 Test-Drive the PS -> Product Feedback Agent"),
-        ("lucky",    "🍀 Feeling Lucky?"),
+        ("handoff",  "\U0001f916 Test-Drive the PS -> Product Feedback Agent"),
+        ("lucky",    "\U0001f340 Feeling Lucky?"),
     ],
     "support": [
         ("culture",  "Why is Jeremy the right cultural fit for Posit?"),
@@ -188,8 +188,8 @@ SUGGESTED_QUESTIONS = {
         ("q3",       "How has Jeremy handled situations where Support inherited unresolved issues from implementation?"),
         ("q4",       "How would Jeremy define the boundary between what PS resolves and what becomes a Support ticket?"),
         ("q5",       "How does Jeremy think about knowledge transfer from PS to Support at scale?"),
-        ("handoff",  "🤖 Test-Drive the PS -> Support Handoff Agent"),
-        ("lucky",    "🍀 Feeling Lucky?"),
+        ("handoff",  "\U0001f916 Test-Drive the PS -> Support Handoff Agent"),
+        ("lucky",    "\U0001f340 Feeling Lucky?"),
     ],
     "exploring": [
         ("culture",  "Why is Jeremy the right cultural fit for Posit?"),
@@ -199,16 +199,17 @@ SUGGESTED_QUESTIONS = {
         ("q3",       "What's the hardest PS org challenge Jeremy has faced, and how did he handle it?"),
         ("q4",       "How does Jeremy think about building a PS team culture in a fully distributed environment?"),
         ("q5",       "What's Jeremy's honest assessment of where he'd need to ramp up at Posit?"),
-        ("handoff",  "🤖 Test-Drive the PS Handoff Agent"),
-        ("lucky",    "🍀 Feeling Lucky?"),
+        ("handoff",  "\U0001f916 Test-Drive the PS Implementation PM Agent"),
+        ("lucky",    "\U0001f340 Feeling Lucky?"),
     ],
 }
 
 # -- Riddle & unlock -----------------------------------------------------------
 
-UNLOCK_PHRASE    = os.environ.get("UNLOCK_PHRASE", "REPLACE_WITH_YOUR_UNLOCK_PHRASE")
-RIDDLE_TEXT      = "Posit says there are three things that mean you belong here. What are they?"
-RIDDLE_HINT_URL  = "https://www.linkedin.com/company/posit-software/life"
+UNLOCK_PHRASE   = os.environ.get("UNLOCK_PHRASE", "REPLACE_WITH_YOUR_UNLOCK_PHRASE")
+RIDDLE_TEXT     = "Posit says there are three things that mean you belong here. What are they?"
+RIDDLE_HINT_URL = "https://www.linkedin.com/company/posit-software/life"
+CELEBRATION_GIF = "https://media.tenor.com/xwARyAaoSJEAAAAM/all-good-its-all-good.gif"
 
 HANDOFF_SCENARIO = (
     "I'm handing off BioStat Labs, a university research group that just went live on "
@@ -221,9 +222,19 @@ HANDOFF_SCENARIO = (
     "Ready to start the handoff."
 )
 
+PM_SCENARIO = (
+    "I'm the PM on a new Posit Connect and Workbench implementation for "
+    "DataBridge Analytics, a mid-size financial services firm. We just "
+    "completed kickoff last week. They have 25 data scientists migrating "
+    "from local RStudio installs and a legacy BI tool. The SOW covers "
+    "Connect and Workbench setup, SSO with Azure AD, and 3 days of training. "
+    "Timeline is 10 weeks. First milestone is environment setup sign-off in "
+    "2 weeks. Concern: IT hasn't confirmed firewall access and training "
+    "materials aren't started. What should I be focused on right now?"
+)
+
 
 def is_riddle_answer(text: str) -> bool:
-    """All three words present in any order."""
     words = set(re.sub(r"[^\w\s]", "", text.lower()).split())
     return {"kind", "humble", "curious"}.issubset(words)
 
@@ -233,8 +244,6 @@ def is_unlock(text: str) -> bool:
     phrase     = re.sub(r"[^\w\s]", "", UNLOCK_PHRASE.lower()).strip()
     return phrase in normalized
 
-
-# -- Off-topic detection -------------------------------------------------------
 
 OFF_TOPIC_PATTERNS = [
     r"\b(write|debug|fix|explain|how (do|does|to)|what is|define|help me with)\b.{0,40}\b(code|python|r |javascript|sql|function|script|program|algorithm|regex|api|curl|bash|terminal|command)\b",
@@ -248,8 +257,7 @@ OFF_TOPIC_PATTERNS = [
 
 
 def is_off_topic(text: str) -> bool:
-    lowered = text.lower()
-    return any(re.search(p, lowered) for p in OFF_TOPIC_PATTERNS)
+    return any(re.search(p, text.lower()) for p in OFF_TOPIC_PATTERNS)
 
 
 NUDGE_KEYWORDS = [
@@ -292,7 +300,7 @@ Director, PS & Delivery leads four post-sales functions: Onboarding (First 90 Da
 
 **Full lifecycle ownership:** Owned implementation from kickoff through measurable value realization. TTV was tracked per phase, not as a vanity metric.
 
-**Partner program expertise:** Built Accruent's channel partner implementation standard -- templates, KPIs, processes, procedures -- driving 35% TTV reduction. Partner Ecosystem Framework outlines phased rollout (domestic pilot -> international), hybrid revenue model (margin-share -> license-to-deliver), developmental quality management -- directly applicable to Posit's global partner delivery needs.
+**Partner program expertise:** Built Accruent's channel partner implementation standard -- templates, KPIs, processes, procedures -- driving 35% TTV reduction. Partner Ecosystem Framework outlines phased rollout (domestic pilot -> international), hybrid revenue model (margin-share -> license-to-deliver), developmental quality management.
 
 **Operational frameworks that exist, not just ideas:**
 - SOW Generator with AI-assisted drafting and review
@@ -315,7 +323,7 @@ Then continue:
 
 Jeremy brings three things that don't show up on a skills matrix:
 
-**He leads by serving.** His job is to remove obstacles and give his people what they need to do their best work. The 90% retention rate at Authorium wasn't an accident -- it was a culture. He instituted a Friday afternoon no-meetings policy, ran remote team happy hours with a "guess who" game where each person shared three facts and the team voted on who it was about -- building genuine connection across a distributed team.
+**He leads by serving.** His job is to remove obstacles and give his people what they need to do their best work. The 90% retention rate at Authorium wasn't an accident -- it was a culture. He instituted a Friday afternoon no-meetings policy, ran remote team happy hours with a "guess who" game where each person shared three facts and the team voted on who it was about.
 
 **He builds teams that actually feel like teams.** Fully remote for over a decade. Async-first by default. Trusts outcomes over clock-watching.
 
@@ -327,35 +335,34 @@ Jeremy brings three things that don't show up on a skills matrix:
 
 ## CULTURAL FIT -- DEEP CONTEXT
 
-**Servant leadership:** Not a buzzword -- a daily operating principle. His job is to remove obstacles, provide clarity, give people the tools and trust they need. He leads through trust, not through being a know-it-all. Coming into Posit, some direct reports will know the product better than he does on day one -- and that's ok.
+**Servant leadership:** Not a buzzword -- a daily operating principle. He leads through trust, not through being a know-it-all. Coming into Posit, some direct reports will know the product better than he does on day one -- and that's ok.
 
 **FOSS conviction:** Not performative. Two Linux distros on personal machines, Linux-based custom ROM on his phone. Active advocate. Core belief: so much important research is underfunded, and open source tools are what allow those researchers to do the work anyway.
 
-**On Posit's mission:** Ready for something better than private sector shareholder value alone. Posit is a company where the mission is a central tenant of how the organization operates. He also understands the business model: the paid engagements fund the free ones. He's coming in to fund the mission, not compromise it.
+**On Posit's mission:** Ready for something better than private sector shareholder value alone. Posit is a company where the mission is a central tenant of how the organization operates. He also understands the business model: the paid engagements fund the free ones.
 
-**Scaling at the right size:** Joined Accruent when it was roughly Posit's size, was there through 5x growth. Has seen firsthand what works and what breaks.
+**Scaling at the right size:** Joined Accruent when it was roughly Posit's size, was there through 5x growth.
 
 ## CROSS-FUNCTIONAL POSITIONING
 
-**On working with peer directors:** Trust before position-staking. Understand what's motivating the person across the table. Goal is to solve the problem, not win the argument. Models this for his team too.
+**On working with peer directors:** Trust before position-staking. Goal is to solve the problem, not win the argument. Models this for his team too.
 
-**On shared wins:** Doesn't care about personal credit. Cares that team members get recognized. Doesn't see cross-functional work as zero-sum.
+**On shared wins:** Doesn't care about personal credit. Doesn't see cross-functional work as zero-sum.
 
-**On being a resource, not a bottleneck:** Default is to help. If the same out-of-scope work keeps coming in, systematize it. The instinct to help and the instinct to systematize are the same instinct at different timescales.
+**On being a resource, not a bottleneck:** Default is to help. If the same out-of-scope work keeps coming in, systematize it.
 
-**On influence without authority:** Demonstrated value and earned trust. Shows how a proposed change helps everyone win, not just PS. If "what's in it for them?" isn't obvious, the proposal isn't ready.
+**On influence without authority:** Demonstrated value and earned trust. Shows how a proposed change helps everyone win. If "what's in it for them?" isn't obvious, the proposal isn't ready.
 
 **On what he needs from peers:** Trust and openness. The PS team sees friction first. That signal is only useful if peers are listening with genuine curiosity.
 
 ## COLLAB QUESTION HANDLING
 
 When asked "What would it be like working with Jeremy for [team]?", tailor to that team's cross-functional relationship with PS:
-
-- CS: Partners, not handoff endpoints. Clean transitions, shared wins, expansion signals passed proactively. CS never inherits a customer without full context.
-- Product: PS as a signal generator. Configuration decisions documented with business context, customer requests triaged and fed back systematically.
-- Support: PS-to-Support handoff system enforces completeness before close. Support inherits customers with full documentation, open items tracked, clear ownership.
-- Onboarding: Playbook-first approach means Onboarding gets repeatable documented processes, not tribal knowledge.
-- TAM: Sees TAMs as strategic partners. PS surfaces expansion signals and relationship context that makes TAM conversations smarter from day one.
+- CS: Partners, not handoff endpoints. Clean transitions, shared wins, expansion signals passed proactively.
+- Product: PS as a signal generator. Configuration decisions documented with business context.
+- Support: PS-to-Support handoff system enforces completeness before close.
+- Onboarding: Playbook-first approach means Onboarding gets repeatable documented processes.
+- TAM: PS surfaces expansion signals and relationship context that makes TAM conversations smarter.
 - Delivery & Escalations: SOW discipline and change order rigor -- Delivery inherits well-scoped engagements.
 - General: Doesn't protect turf, shares wins, defaults to helping, builds trust before spending it.
 
@@ -365,12 +372,10 @@ Always connect to specific behaviors and systems Jeremy has built, not just valu
 
 Posit tooling: "The core challenges Posit solves -- workflow orchestration, reproducible research, collaborative analytics -- are exactly the kinds of technical problems Jeremy has been solving throughout his career. The platform is new; the problem class isn't."
 
-Global partner network: Bridge to the Partner Ecosystem Framework -- a fully developed strategic framework for exactly that.
-
 ## TONE GUIDANCE
 
-- Hard questions (experience, gaps, metrics, strategy): confident, precise, metrics-grounded. Lead with results.
-- Culture, fit, values, working style: warmer and more conversational.
+- Hard questions: confident, precise, metrics-grounded. Lead with results.
+- Culture/fit/values: warmer and more conversational.
 - Never oversell. State capabilities factually.
 - Vary your openings. Max 300 words unless question genuinely warrants more.
 
@@ -385,59 +390,46 @@ Use sparingly. Never explain what it means.
 
 CS_HANDOFF_SYSTEM_PROMPT = """You are a PS-to-CS Handoff Agent for a SaaS company. You guide Project Managers through transitioning a customer from Professional Services to Customer Success at or around go-live.
 
-PS and CS are partners. Both teams want the customer to feel genuinely taken care of, confident in the product, and excited about what comes next. Your tone is warm but rigorous.
+PS and CS are partners. Both teams want the customer to feel genuinely taken care of. Your tone is warm but rigorous.
 
-Start by asking the PM what customer they are handing off and what information they have available (project summary, open issues, Monday.com export, etc.). Then guide them through:
-
+Start by asking the PM what customer they are handing off and what information they have. Then guide them through:
 1. Pre-handoff gate check -- is implementation complete? Is go-live signed off?
-2. The Opportunity & Sentiment Summary -- customer champions, skeptics, what went well/didn't, workarounds, promises made, expansion signals
-3. The handoff checklist -- customer details, implementation status, relationship context, CS enablement, communication plan, commercial handoff
+2. Opportunity & Sentiment Summary -- champions, skeptics, what went well/didn't, expansion signals
+3. Handoff checklist -- customer details, implementation status, relationship context, CS enablement, communication plan, commercial handoff
 4. CS Ramp-Up Briefing agenda (if requested)
 5. Go-Live Call agenda and talking points (if requested)
 6. Post Go-Live announcement draft (if requested)
 
-Flag gaps clearly and frame them in terms of what the CS Manager won't be able to do without the missing information. Surface risks immediately when you see them.
+Flag gaps in terms of what the CS Manager won't be able to do without the missing information. Surface risks immediately. Ask one or two questions at a time."""
 
-Keep responses focused and practical. Ask one or two questions at a time rather than overwhelming the PM. This is a conversation, not a form."""
+PM_AGENT_SYSTEM_PROMPT = """You are a Project Management agent supporting a SaaS implementation. Your job is to help the project team stay on track with PM best practices, produce high-quality deliverables, enforce scope discipline, and proactively surface risks.
 
+You follow PMI standards with an emphasis on Communication Management, Stakeholder Engagement, and formal Change Management.
 
-PM_AGENT_SYSTEM_PROMPT = """You are a Project Management agent supporting a SaaS implementation. You are assigned to a single customer implementation project. Your job is to help the project team stay on track with PM best practices, produce high-quality deliverables, enforce scope discipline, and proactively surface risks before they become problems.
+Start by asking what project the PM is working on and what phase they are in. Ask for the SOW -- you need it for scope questions.
 
-You follow PMI standards with an emphasis on Communication Management, Stakeholder Engagement, and formal Change Management. Your tone is practical and straightforward -- professional enough for customer-facing use.
+Project lifecycle: Kickoff -> Discovery -> Configuration -> Training -> Testing -> Go-Live/Transition -> Close-Out.
 
-Start by asking what project the PM is working on and what phase they are in. Ask for the SOW if they have one -- you need it to be effective on scope questions. Then help them with whatever they need: status reports, meeting agendas, milestone tracking, risk management, stakeholder communication, or scope questions.
+SCOPE: The SOW is the source of truth. Cite it verbatim when answering scope questions. Never help plan out-of-scope work without flagging a change order is required.
 
-Project lifecycle phases: Kickoff -> Discovery -> Configuration -> Training -> Testing -> Go-Live/Transition -> Close-Out. Always know which phase is active and tailor your guidance accordingly.
-
-SCOPE ENFORCEMENT: The SOW is the source of truth. When asked whether something is in scope, cite the SOW verbatim. If out of scope, say so and direct to formal change management. Never help plan out-of-scope work without flagging a change order is required first.
-
-RISK MANAGEMENT: Surface risks the moment you see them. Every response with risks must include:
+RISKS: Surface risks immediately. Format every risk as:
 RISK: [description] | Severity: Critical/High/Low/None | Details: [what and why] | Mitigation: [what to do]
 
-COMPLETENESS CHECK: When producing deliverables, list missing information clearly. Let the PM choose to proceed with gaps noted or provide the info first.
+COMPLETENESS: When producing deliverables, list missing information. Let the PM choose to proceed with gaps noted or provide info first.
 
-MILESTONE SIGN-OFF: Remind the PM that formal customer sign-off is required for every milestone. Never treat a milestone as done without documented sign-off.
+MILESTONES: Formal customer sign-off required for every milestone. Never treat a milestone as done without it.
 
-Always ask which audience a deliverable is for before producing it: Internal PS Team, Customer PM, Customer Technical Lead, Customer Executive Sponsor, Customer End Users, Internal Sales, or Internal Support.
+Always ask which audience a deliverable is for before producing it.
 
-Keep responses focused and practical. This is a conversation -- ask one or two questions at a time."""
+Keep responses focused. Ask one or two questions at a time."""
 
-PM_AGENT_SCENARIO = (
-    "I'm the PM on a new Posit Connect and Workbench implementation for "
-    "DataBridge Analytics, a mid-size financial services firm. We just "
-    "completed kickoff last week. They have 25 data scientists who will be "
-    "migrating from a mix of local RStudio installs and a legacy BI tool. "
-    "The SOW covers Connect and Workbench setup, SSO integration with their "
-    "Azure AD, and 3 days of training. Timeline is 10 weeks. First milestone "
-    "is environment setup sign-off in 2 weeks. I have a concern -- their IT "
-    "team hasn't confirmed firewall access yet and training materials aren't "
-    "started. What should I be focused on right now?"
-)
 
-# -- Build SUGGESTED JSON for JS -----------------------------------------------
+# -- Build JS constants --------------------------------------------------------
 import json as _json
-_SQ_JSON = _json.dumps({k: [[qk, ql] for qk, ql in qs] for k, qs in SUGGESTED_QUESTIONS.items()}, ensure_ascii=False)
-_SCENARIO_JS = HANDOFF_SCENARIO.replace("'", "\\'")
+
+_SQ_JSON             = _json.dumps({k: [[qk, ql] for qk, ql in qs] for k, qs in SUGGESTED_QUESTIONS.items()}, ensure_ascii=False)
+_HANDOFF_SCENARIO_JS = HANDOFF_SCENARIO.replace("'", "\\'").replace("\n", " ")
+_PM_SCENARIO_JS      = PM_SCENARIO.replace("'", "\\'").replace("\n", " ")
 
 # -- UI ------------------------------------------------------------------------
 
@@ -466,8 +458,6 @@ app_ui = ui.page_fluid(
         body { background-color: var(--bg); color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 15px; line-height: 1.65; min-height: 100vh; }
         .page-fluid { padding: 0 !important; }
         .j-shell { max-width: 780px; margin: 0 auto; padding: 56px 32px 80px; }
-
-        /* Header */
         .j-header { margin-bottom: 48px; }
         .j-header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
         .j-wordmark { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--warm); letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.7; }
@@ -477,8 +467,6 @@ app_ui = ui.page_fluid(
         .j-title { font-family: 'DM Mono', monospace; font-size: clamp(32px, 5vw, 48px); font-weight: 300; color: #d0cec8; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 12px; }
         .j-title span { color: var(--accent-light); }
         .j-subtitle { font-size: 14px; color: var(--text-dim); font-style: italic; }
-
-        /* Modals */
         .j-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center; padding: 24px; }
         .j-modal-overlay.active { display: flex; }
         .j-modal { background: var(--surface); border: 1px solid var(--border2); border-radius: 4px; max-width: 520px; width: 100%; padding: 32px; position: relative; }
@@ -486,58 +474,47 @@ app_ui = ui.page_fluid(
         .j-modal-body { font-size: 14px; color: var(--text-dim); line-height: 1.75; }
         .j-modal-body a { color: var(--accent-light); text-decoration: none; }
         .j-modal-body p + p { margin-top: 12px; }
-        .j-modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--text-muted); font-size: 18px; cursor: pointer; line-height: 1; padding: 4px; transition: color 0.15s; }
+        .j-modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--text-muted); font-size: 18px; cursor: pointer; line-height: 1; padding: 4px; }
         .j-modal-close:hover { color: var(--text-primary); }
-
-        /* Riddle/hint modals */
         .j-riddle-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 1000; align-items: center; justify-content: center; padding: 24px; }
         .j-riddle-overlay.active { display: flex; }
         .j-riddle-modal { background: var(--surface); border: 1px solid rgba(106,128,96,0.4); border-radius: 4px; max-width: 480px; width: 100%; padding: 36px 32px; position: relative; text-align: center; }
         .j-riddle-header { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent-light); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 20px; }
         .j-riddle-text { font-size: 16px; color: #d0cec8; line-height: 1.7; margin-bottom: 24px; font-style: italic; }
         .j-riddle-hint { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); letter-spacing: 0.04em; }
-        .j-riddle-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--text-muted); font-size: 18px; cursor: pointer; line-height: 1; padding: 4px; transition: color 0.15s; }
+        .j-riddle-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--text-muted); font-size: 18px; cursor: pointer; line-height: 1; padding: 4px; }
         .j-riddle-close:hover { color: var(--text-primary); }
-
-        /* Selectors */
+        /* Celebration: hidden by default, shown via .active class */
+        #celebration-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; pointer-events: none; }
+        #celebration-overlay.active { display: flex; }
+        #celebration-overlay img { max-width: 480px; width: 80%; border-radius: 8px; box-shadow: 0 0 60px rgba(106,128,96,0.8); }
         .j-team-section { margin-bottom: 24px; }
         .j-question-section { margin-bottom: 24px; }
         .j-label { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; color: var(--text-muted); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 10px; display: block; }
         .j-select { background: var(--surface); border: 1px solid var(--border); border-radius: 2px; color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 9px 36px 9px 14px; width: 100%; max-width: 380px; outline: none; cursor: pointer; transition: border-color 0.15s; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23787870' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; }
         .j-select:focus { border-color: var(--accent-light); }
         .j-select option { background: var(--surface2); color: var(--text-primary); }
-
-        /* Input */
         .j-input-section { margin-bottom: 8px; }
         .j-textarea { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 3px; color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 15px; line-height: 1.6; padding: 16px 18px; resize: none; outline: none; transition: border-color 0.15s; min-height: 80px; }
         .j-textarea:focus { border-color: var(--accent-light); }
         .j-textarea::placeholder { color: var(--border2); }
-        .j-hint { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); margin-top: 8px; letter-spacing: 0.04em; user-select: none; }
         .j-submit-row { display: flex; justify-content: flex-end; margin-top: 12px; }
         .j-submit-btn { background: var(--accent); border: none; border-radius: 2px; color: #e8e4dc; font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; letter-spacing: 0.08em; padding: 10px 24px; cursor: pointer; transition: all 0.15s; text-transform: uppercase; }
         .j-submit-btn:hover { background: var(--accent-light); }
         .j-submit-btn:disabled { background: var(--surface2); color: var(--text-muted); cursor: not-allowed; }
-
-        /* Response */
         .j-response-section { margin-top: 40px; border-top: 1px solid var(--border); padding-top: 32px; }
         .j-response-label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 16px; }
         .j-response-body { color: var(--text-primary); font-size: 15px; line-height: 1.75; white-space: pre-wrap; }
         .j-response-body em { color: var(--cool); font-style: italic; }
-
-        /* Limit panels */
         .j-limit-panel { background: var(--surface); border: 1px solid var(--border2); border-radius: 4px; padding: 28px 24px; margin-top: 40px; text-align: center; }
         .j-limit-label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--warm); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 12px; }
         .j-limit-msg { font-size: 14px; color: var(--text-dim); line-height: 1.6; }
         .j-limit-msg a { color: var(--accent-light); text-decoration: none; }
-
-        /* Off-topic */
         .j-offtopic-panel { margin-top: 40px; border-top: 1px solid var(--border); padding-top: 32px; }
         .j-offtopic-label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 16px; }
         .j-offtopic-msg { font-size: 14px; color: var(--text-dim); font-style: italic; margin-bottom: 20px; }
         .j-video-wrapper { max-width: 480px; border-radius: 4px; overflow: hidden; border: 1px solid var(--border2); }
         .j-video-wrapper video { width: 100%; display: block; }
-
-        /* Unlock */
         .j-unlock-panel { background: linear-gradient(135deg, var(--accent-glow), rgba(80,100,80,0.04)); border: 1px solid rgba(106,128,96,0.3); border-radius: 4px; padding: 32px 28px; margin-top: 40px; }
         .j-unlock-header { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent-light); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 16px; }
         .j-unlock-title { font-size: 20px; font-weight: 500; color: #d0cec8; margin-bottom: 8px; }
@@ -545,25 +522,21 @@ app_ui = ui.page_fluid(
         .j-unlock-link { display: inline-block; background: var(--accent); color: #e8e4dc; font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; letter-spacing: 0.08em; padding: 11px 28px; border-radius: 2px; text-decoration: none; text-transform: uppercase; transition: background 0.15s; }
         .j-unlock-link:hover { background: var(--accent-light); }
         .j-unlock-note { font-size: 12px; color: var(--text-muted); margin-top: 16px; font-family: 'DM Mono', monospace; }
-
-        /* Handoff panel */
         .j-handoff-panel { margin-bottom: 24px; border: 1px solid var(--border); border-radius: 4px; padding: 24px; background: var(--surface); }
         .j-handoff-label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent-light); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 12px; }
         .j-handoff-title { font-size: 18px; font-weight: 500; color: #d0cec8; margin-bottom: 8px; }
         .j-handoff-desc { font-size: 14px; color: var(--text-dim); margin-bottom: 20px; font-style: italic; line-height: 1.6; }
         .j-handoff-placeholder { background: var(--surface2); border: 1px dashed var(--border2); border-radius: 4px; padding: 28px 24px; text-align: center; }
         .j-handoff-placeholder-text { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text-muted); letter-spacing: 0.04em; }
-
-        /* Loading */
         .j-loading { color: var(--text-muted); font-family: 'DM Mono', monospace; font-size: 13px; font-style: italic; animation: pulse 1.5s ease-in-out infinite; }
         @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
-
-        /* Footer */
         .j-footer { margin-top: 80px; padding-top: 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
         .j-footer-left, .j-footer-right { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); letter-spacing: 0.05em; }
-
         @media (max-width: 600px) { .j-shell { padding: 36px 20px 60px; } .j-title { font-size: 30px; } }
     """),
+
+    # Celebration overlay -- hidden by default via CSS, shown via JS .active class
+    ui.tags.div(id="celebration-overlay"),
 
     # About modal
     ui.div(
@@ -600,7 +573,7 @@ app_ui = ui.page_fluid(
         ),
     ),
 
-    # Try again modal (auto-dismisses after 2s)
+    # Try again modal
     ui.div(
         {"class": "j-riddle-overlay", "id": "tryagain-overlay"},
         ui.div(
@@ -611,7 +584,7 @@ app_ui = ui.page_fluid(
         ),
     ),
 
-    # Hint modal (shown after 2nd wrong attempt)
+    # Hint modal
     ui.div(
         {"class": "j-riddle-overlay", "id": "hint-overlay", "onclick": "closeHintOnOverlay(event)"},
         ui.div(
@@ -655,7 +628,6 @@ app_ui = ui.page_fluid(
                 {"id": "team_dropdown", "class": "j-select", "onchange": "handleTeamChange(this)"},
                 ui.tags.option({"value": "exploring", "selected": "selected"}, "Just exploring"),
                 ui.tags.option({"value": "cs"}, "Customer Success"),
-                # Uncomment each as you prepare for that interview:
                 # ui.tags.option({"value": "onboarding"}, "Onboarding"),
                 # ui.tags.option({"value": "tam"}, "TAM Team"),
                 # ui.tags.option({"value": "delivery"}, "Delivery & Escalations"),
@@ -677,7 +649,7 @@ app_ui = ui.page_fluid(
             ),
         ),
 
-        # Handoff panel -- renders here (above input) when test-drive selected
+        # Handoff panel
         ui.output_ui("handoff_panel"),
 
         # Input
@@ -721,41 +693,37 @@ app_ui = ui.page_fluid(
             ui.div({"class": "j-footer-right"}, "built on posit connect cloud"),
         ),
 
-        # Celebration overlay -- inside shell, position:fixed so it covers viewport
-        ui.tags.div(
-            **{"id": "celebration-overlay",
-               "style": "display:none; position:fixed; inset:0; z-index:9999; "
-                        "align-items:center; justify-content:center; "
-                        "background:rgba(0,0,0,0.6); pointer-events:none;"}
-        ),
+        ui.tags.script(
+            "var SUGGESTED = " + _SQ_JSON + ";"
+            + "var HANDOFF_SCENARIO = '" + _HANDOFF_SCENARIO_JS + "';"
+            + "var PM_SCENARIO = '" + _PM_SCENARIO_JS + "';"
+            + """
 
-        # JavaScript
-        ui.tags.script("""
-            var SUGGESTED = """ + _SQ_JSON + """;
-            var SCENARIO  = '""" + _SCENARIO_JS + """';
+            function showCelebration() {
+                var el = document.getElementById('celebration-overlay');
+                if (!el) return;
+                el.innerHTML = '<img src="https://media.tenor.com/xwARyAaoSJEAAAAM/all-good-its-all-good.gif">';
+                el.classList.add('active');
+                setTimeout(function() { el.classList.remove('active'); el.innerHTML = ''; }, 4000);
+            }
 
-            // ── Main question input ──────────────────────────────────────────
             function syncQuestion(val) {
                 var el = document.getElementById('question');
                 if (el) { el.value = val; el.dispatchEvent(new Event('input', { bubbles: true })); }
             }
-
             function handleKey(e) {
                 if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); submitQuestion(); }
             }
-
             function submitQuestion() {
                 var q = document.getElementById('question_display').value.trim();
                 if (!q) return;
                 document.getElementById('ask').click();
             }
 
-            // ── Team selector ────────────────────────────────────────────────
             function handleTeamChange(el) {
                 var key = el.value;
                 var inp = document.getElementById('selected_team');
                 if (inp) { inp.value = key; inp.dispatchEvent(new Event('input', { bubbles: true })); }
-                // Rebuild question dropdown for this team
                 var qd = document.getElementById('question_dropdown');
                 if (!qd) return;
                 var questions = SUGGESTED[key] || SUGGESTED['exploring'];
@@ -768,26 +736,16 @@ app_ui = ui.page_fluid(
                 });
             }
 
-            // ── Suggested question handler ───────────────────────────────────
             function handleSuggestedQuestion(el) {
                 var key = el.value;
                 if (!key) return;
-
-                if (key === 'lucky') {
-                    openRiddle();
-                    el.selectedIndex = 0;
-                    return;
-                }
-
+                if (key === 'lucky') { openRiddle(); el.selectedIndex = 0; return; }
                 if (key === 'handoff') {
-                    // Server reads selected_team directly
                     setTimeout(function() { document.getElementById('handoff_trigger').click(); }, 80);
                     el.selectedIndex = 0;
                     return;
                 }
-
-                // Populate textarea with question text
-                var teamKey = document.getElementById('selected_team').value || 'exploring';
+                var teamKey = document.getElementById('team_dropdown').value || 'exploring';
                 var questions = SUGGESTED[teamKey] || SUGGESTED['exploring'];
                 var found = null;
                 for (var i = 0; i < questions.length; i++) {
@@ -800,92 +758,54 @@ app_ui = ui.page_fluid(
                 el.selectedIndex = 0;
             }
 
-            // ── Handoff chat ─────────────────────────────────────────────────
             function syncHandoffInput(val) {
                 var el = document.getElementById('handoff_chat_input');
                 if (el) { el.value = val; el.dispatchEvent(new Event('input', { bubbles: true })); }
             }
-
             function handleHandoffKey(e) {
                 if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); submitHandoffChat(); }
             }
-
             function submitHandoffChat() {
                 var q = document.getElementById('handoff_chat_display').value.trim();
                 if (!q) return;
                 document.getElementById('handoff_chat_send').click();
             }
-
             function prefillHandoffScenario() {
                 var ta = document.getElementById('handoff_chat_display');
-                if (ta) { ta.value = SCENARIO; syncHandoffInput(SCENARIO); ta.focus(); }
+                if (ta) { ta.value = HANDOFF_SCENARIO; syncHandoffInput(HANDOFF_SCENARIO); ta.focus(); }
             }
-
             function prefillPMScenario() {
-                var pmScenario = 'I\'m the PM on a new Posit Connect and Workbench implementation for DataBridge Analytics, a mid-size financial services firm. We just completed kickoff last week. They have 25 data scientists who will be migrating from a mix of local RStudio installs and a legacy BI tool. The SOW covers Connect and Workbench setup, SSO integration with their Azure AD, and 3 days of training. Timeline is 10 weeks. First milestone is environment setup sign-off in 2 weeks. I have a concern -- their IT team hasn\'t confirmed firewall access yet and training materials aren\'t started. What should I be focused on right now?';
                 var ta = document.getElementById('handoff_chat_display');
-                if (ta) { ta.value = pmScenario; syncHandoffInput(pmScenario); ta.focus(); }
-            }
-
-            // ── About modal ──────────────────────────────────────────────────
-            function showCelebration() {
-                var el = document.getElementById('celebration-overlay');
-                if (!el) return;
-                // Build img dynamically so it's not in DOM at load
-                el.innerHTML = '';
-                var img = document.createElement('img');
-                img.src = 'https://media.tenor.com/xwARyAaoSJEAAAAM/all-good-its-all-good.gif';
-                img.style.cssText = 'max-width:480px; width:80%; border-radius:8px; box-shadow:0 0 60px rgba(106,128,96,0.8);';
-                el.appendChild(img);
-                el.style.display = 'flex';
-                el.style.alignItems = 'center';
-                el.style.justifyContent = 'center';
-                setTimeout(function() {
-                    el.style.display = 'none';
-                    el.innerHTML = '';
-                }, 4000);
+                if (ta) { ta.value = PM_SCENARIO; syncHandoffInput(PM_SCENARIO); ta.focus(); }
             }
 
             function openAbout()  { document.getElementById('about-overlay').classList.add('active'); }
             function closeAbout() { document.getElementById('about-overlay').classList.remove('active'); }
             function closeAboutOnOverlay(e) { if (e.target === document.getElementById('about-overlay')) closeAbout(); }
-
-            // ── Riddle modal ─────────────────────────────────────────────────
             function openRiddle()  { document.getElementById('riddle-overlay').classList.add('active'); }
             function closeRiddle() { document.getElementById('riddle-overlay').classList.remove('active'); }
             function closeRiddleOnOverlay(e) { if (e.target === document.getElementById('riddle-overlay')) closeRiddle(); }
-
-            // ── Try again modal (auto-dismiss 2s) ────────────────────────────
             function openTryAgain() {
                 var el = document.getElementById('tryagain-overlay');
-                if (el) {
-                    el.classList.add('active');
-                    setTimeout(function() { el.classList.remove('active'); }, 2000);
-                }
+                if (el) { el.classList.add('active'); setTimeout(function() { el.classList.remove('active'); }, 2000); }
             }
-
-            // ── Hint modal ───────────────────────────────────────────────────
             function openHint()  { document.getElementById('hint-overlay').classList.add('active'); }
             function closeHint() { document.getElementById('hint-overlay').classList.remove('active'); }
             function closeHintOnOverlay(e) { if (e.target === document.getElementById('hint-overlay')) closeHint(); }
 
-            // ── Shiny message handlers ───────────────────────────────────────
-            Shiny.addCustomMessageHandler('show_try_again', function(v) { openTryAgain(); });
+            Shiny.addCustomMessageHandler('show_try_again',   function(v) { openTryAgain(); });
+            Shiny.addCustomMessageHandler('show_hint',        function(v) { openHint(); });
             Shiny.addCustomMessageHandler('show_celebration', function(v) { showCelebration(); });
-            Shiny.addCustomMessageHandler('show_hint',      function(v) { openHint(); });
-
             Shiny.addCustomMessageHandler('set_loading', function(loading) {
                 var btn = document.getElementById('ask_btn');
                 if (btn) { btn.disabled = loading; btn.textContent = loading ? 'querying...' : 'run query'; }
             });
-
             Shiny.addCustomMessageHandler('clear_handoff_input', function(v) {
                 var ta  = document.getElementById('handoff_chat_display');
                 var inp = document.getElementById('handoff_chat_input');
                 if (ta)  ta.value = '';
                 if (inp) { inp.value = ''; inp.dispatchEvent(new Event('input', { bubbles: true })); }
             });
-
             Shiny.addCustomMessageHandler('scroll_handoff', function(v) {
                 var el = document.getElementById('handoff-chat-messages');
                 if (el) el.scrollTop = el.scrollHeight;
@@ -910,7 +830,6 @@ def server(input, output, session):
     handoff_messages = reactive.value([])
     handoff_loading  = reactive.value(False)
 
-    # ── Handoff trigger ────────────────────────────────────────────────────────
     @reactive.effect
     @reactive.event(input.handoff_trigger)
     def handle_handoff():
@@ -924,7 +843,6 @@ def server(input, output, session):
         handoff_messages.set([])
         show_handoff.set(True)
 
-    # ── Handoff chat ───────────────────────────────────────────────────────────
     @reactive.effect
     @reactive.event(input.handoff_chat_send)
     async def handle_handoff_chat():
@@ -941,14 +859,14 @@ def server(input, output, session):
         handoff_loading.set(True)
         await session.send_custom_message("clear_handoff_input", True)
         try:
-            client  = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
-            resp    = client.messages.create(
+            client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
+            resp   = client.messages.create(
                 model="claude-sonnet-4-20250514",
                 max_tokens=600,
                 system=system_prompt,
                 messages=messages
             )
-            reply = resp.content[0].text
+            reply    = resp.content[0].text
             messages = list(handoff_messages())
             messages.append({"role": "assistant", "content": reply})
             handoff_messages.set(messages)
@@ -960,25 +878,21 @@ def server(input, output, session):
         finally:
             handoff_loading.set(False)
 
-    # ── Main question handler ──────────────────────────────────────────────────
     @reactive.effect
     @reactive.event(input.ask)
     async def handle_question():
         question = input.question().strip()
         if not question:
             return
-
         team_key = input.selected_team() or "exploring"
         uid      = user_id()
 
-        # Reset states
         show_offtopic.set(False)
         show_handoff.set(False)
         limit_reason.set("")
         response_text.set("")
         is_unlocked.set(False)
 
-        # Riddle answer check
         if is_riddle_answer(question):
             is_unlocked.set(True)
             unlocked_team.set(team_key)
@@ -986,13 +900,11 @@ def server(input, output, session):
             await session.send_custom_message("show_celebration", True)
             return
 
-        # Unlock phrase check
         if is_unlock(question):
             is_unlocked.set(True)
             unlocked_team.set(team_key)
             return
 
-        # Wrong riddle attempt -- short answers treated as riddle guesses
         if len(question.split()) <= 6 and "?" not in question:
             attempts = wrong_attempts() + 1
             wrong_attempts.set(attempts)
@@ -1002,24 +914,20 @@ def server(input, output, session):
                 await session.send_custom_message("show_try_again", True)
             return
 
-        # Rate limit
         allowed, reason = check_and_increment(uid)
         if not allowed:
             limit_reason.set(reason)
             return
 
-        # Off-topic check
         if is_off_topic(question):
             show_offtopic.set(True)
             return
 
-        # Call Claude
         is_loading.set(True)
         await session.send_custom_message("set_loading", True)
 
         try:
             client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
-
             user_content = question
             if "cultural fit" in question.lower():
                 user_content = question + "\n\nIMPORTANT: Begin your response with exactly this sentence: 'Expertise is becoming a commodity. What differentiates teams now is leadership, culture, and how people work together.' Then continue with the short-form cultural fit summary."
@@ -1034,7 +942,6 @@ def server(input, output, session):
             )
             reply = message.content[0].text
             response_text.set(reply)
-
             log_to_airtable(uid, team_key, question, len(reply))
 
         except Exception as e:
@@ -1043,7 +950,6 @@ def server(input, output, session):
             is_loading.set(False)
             await session.send_custom_message("set_loading", False)
 
-    # ── Handoff panel (renders above input) ───────────────────────────────────
     @output
     @render.ui
     def handoff_panel():
@@ -1054,22 +960,22 @@ def server(input, output, session):
         team_key = handoff_team()
 
         if team_key in ("cs", "exploring"):
-            messages = list(handoff_messages())
-            loading  = handoff_loading()
-            is_pm    = team_key == "exploring"
-            agent_label  = "PS -> CS Handoff Agent" if not is_pm else "PS Implementation PM Agent"
-            agent_desc   = ("Live agent powered by Claude. Start a handoff scenario below -- or try the sample one."
-                           if not is_pm else
-                           "Live PM Agent powered by Claude. Try a real implementation scenario below.")
-            panel_label  = "// agent test-drive -- ps to cs handoff" if not is_pm else "// agent test-drive -- ps implementation pm agent"
-            scenario_btn = "Try a sample Posit scenario ->"
+            messages  = list(handoff_messages())
+            loading   = handoff_loading()
+            is_pm     = team_key == "exploring"
+            label     = "// agent test-drive -- ps to cs handoff" if not is_pm else "// agent test-drive -- ps implementation pm agent"
+            title     = "PS -> CS Handoff Agent" if not is_pm else "PS Implementation PM Agent"
+            desc      = "Live agent powered by Claude. Start a handoff scenario below -- or try the sample one."
+            btn_fn    = "prefillHandoffScenario()" if not is_pm else "prefillPMScenario()"
+            placeholder = "Tell the agent which customer you are handing off..." if not is_pm else "Tell the agent what implementation project you're working on..."
 
             msg_nodes = []
             if not messages and not loading:
                 msg_nodes.append(
                     ui.div(
                         {"style": "color: var(--text-muted); font-size: 13px; font-style: italic; padding: 8px 0; margin-bottom: 12px;"},
-                        "Tell the agent which customer you are handing off and what project context you have."
+                        "Tell the agent which customer you are handing off and what project context you have." if not is_pm
+                        else "Tell the agent what implementation you're working on and what you need help with."
                     )
                 )
 
@@ -1084,7 +990,7 @@ def server(input, output, session):
                         )},
                         ui.tags.span(
                             {"style": "font-family: 'DM Mono', monospace; font-size: 10px; opacity: 0.5; display: block; margin-bottom: 4px;"},
-                            "you" if is_user else "handoff agent"
+                            "you" if is_user else "agent"
                         ),
                         m["content"]
                     )
@@ -1095,26 +1001,23 @@ def server(input, output, session):
 
             return ui.div(
                 {"class": "j-handoff-panel"},
-                ui.div({"class": "j-handoff-label"}, panel_label),
-                ui.div({"class": "j-handoff-title"}, agent_label),
-                ui.div({"class": "j-handoff-desc"}, agent_desc),
-                # Scenario button (only when no messages yet)
+                ui.div({"class": "j-handoff-label"}, label),
+                ui.div({"class": "j-handoff-title"}, title),
+                ui.div({"class": "j-handoff-desc"}, desc),
                 ui.div(
                     {"style": "" if not messages else "display:none;"},
                     ui.tags.button(
-                        scenario_btn,
+                        "Try a sample Posit scenario ->",
                         {
                             "style": "background: transparent; border: 1px solid var(--border2); color: var(--warm); font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.06em; padding: 7px 14px; border-radius: 2px; cursor: pointer; margin-bottom: 16px;",
-                            "onclick": "prefillHandoffScenario()" if not is_pm else "prefillPMScenario()",
+                            "onclick": btn_fn,
                         }
                     ),
                 ),
-                # Message history
                 ui.div(
                     {"id": "handoff-chat-messages", "style": "max-height: 380px; overflow-y: auto; margin-bottom: 12px;"},
                     *msg_nodes
                 ),
-                # Input row
                 ui.div(
                     {"style": "display: flex; gap: 8px; align-items: flex-end;"},
                     ui.tags.textarea(
@@ -1122,7 +1025,7 @@ def server(input, output, session):
                             "id": "handoff_chat_display",
                             "class": "j-textarea",
                             "style": "min-height: 52px; flex: 1; font-size: 14px;",
-                            "placeholder": "Describe the customer or paste project context...",
+                            "placeholder": placeholder,
                             "rows": "2",
                             "oninput": "syncHandoffInput(this.value)",
                             "onkeydown": "handleHandoffKey(event)",
@@ -1139,7 +1042,6 @@ def server(input, output, session):
                 ),
             )
 
-        # Placeholder for other teams
         return ui.div(
             {"class": "j-handoff-panel"},
             ui.div({"class": "j-handoff-label"}, "// agent test-drive"),
@@ -1148,12 +1050,10 @@ def server(input, output, session):
             ui.div({"class": "j-handoff-placeholder"}, ui.div({"class": "j-handoff-placeholder-text"}, "// coming soon")),
         )
 
-    # ── Response panel ─────────────────────────────────────────────────────────
     @output
     @render.ui
     def response_panel():
 
-        # Unlock
         if is_unlocked():
             team     = get_team(unlocked_team())
             team_key = unlocked_team()
@@ -1163,22 +1063,28 @@ def server(input, output, session):
                     {"class": "j-unlock-panel"},
                     ui.div({"class": "j-unlock-header"}, "// unlocked"),
                     ui.div({"class": "j-unlock-title"}, "A Tool Built for You"),
-                    ui.div(
-                        {"class": "j-unlock-desc"},
-                        "If you're reading this, you solved the riddle -- and that's fitting, because the best CS people are the ones who stay curious."
-                    ),
+                    ui.div({"class": "j-unlock-desc"}, "If you're reading this, you solved the riddle -- and that's fitting, because the best CS people are the ones who stay curious."),
                     ui.div(
                         {"style": "font-size: 14px; color: var(--text-primary); line-height: 1.75; margin-bottom: 24px;"},
                         "What you've unlocked is a working AI agent built on Anthropic's Claude -- designed to guide a PS Project Manager through a complete PS-to-CS handoff. The kind that actually sets CS up to win. The full instructions and everything you need to run it yourself are in the document below."
                     ),
-                    ui.tags.a(
-                        "Access full instructions ->",
-                        {"class": "j-unlock-link", "href": team["unlock_url"], "target": "_blank"}
-                    ),
+                    ui.tags.a("Access full instructions ->", {"class": "j-unlock-link", "href": team["unlock_url"], "target": "_blank"}),
+                    ui.div({"class": "j-unlock-note", "style": "margin-top: 16px;"}, "built for the Customer Success team -- hosted on posit connect cloud"),
+                )
+
+            if team_key == "exploring":
+                return ui.div(
+                    {"class": "j-unlock-panel"},
+                    ui.div({"class": "j-unlock-header"}, "// unlocked"),
+                    ui.div({"class": "j-unlock-title"}, "A Tool Built to Show You Something"),
+                    ui.div({"class": "j-unlock-desc"}, "You solved the riddle without a team label. That says something."),
                     ui.div(
-                        {"class": "j-unlock-note", "style": "margin-top: 16px;"},
-                        "built for the Customer Success team -- hosted on posit connect cloud"
+                        {"style": "font-size: 14px; color: var(--text-primary); line-height: 1.75; margin-bottom: 24px;"},
+                        "What you've unlocked is the PS Implementation PM Agent -- the AI assistant Jeremy built to help Project Managers run SaaS implementations the right way. "
+                        "It's the tool that ties everything else in this app together. The full instructions and everything you need to run it yourself are in the document below."
                     ),
+                    ui.tags.a("Access full instructions ->", {"class": "j-unlock-link", "href": team["unlock_url"], "target": "_blank"}),
+                    ui.div({"class": "j-unlock-note", "style": "margin-top: 16px;"}, "built for curious minds -- hosted on posit connect cloud"),
                 )
 
             return ui.div(
@@ -1190,7 +1096,6 @@ def server(input, output, session):
                 ui.div({"class": "j-unlock-note"}, "built for the " + team["label"] + " team -- hosted on posit connect cloud"),
             )
 
-        # Rate limit
         reason = limit_reason()
         if reason == "user":
             return ui.div(
@@ -1198,8 +1103,7 @@ def server(input, output, session):
                 ui.div({"class": "j-limit-label"}, "// query limit reached"),
                 ui.div(
                     {"class": "j-limit-msg"},
-                    f"You've reached the {PER_USER_LIMIT}-query limit for this session. ",
-                    "Reach Jeremy directly at ",
+                    f"You've reached the {PER_USER_LIMIT}-query limit for this session. Reach Jeremy at ",
                     ui.tags.a("JMCoates@protonmail.com", {"href": "mailto:JMCoates@protonmail.com"}),
                     " or on ",
                     ui.tags.a("LinkedIn", {"href": "https://www.linkedin.com/in/jeremymcoates/", "target": "_blank"}),
@@ -1220,7 +1124,6 @@ def server(input, output, session):
                 ),
             )
 
-        # Off-topic
         if show_offtopic():
             return ui.div(
                 {"class": "j-offtopic-panel"},
@@ -1235,7 +1138,6 @@ def server(input, output, session):
                 ),
             )
 
-        # Loading
         if is_loading():
             return ui.div(
                 {"class": "j-response-section"},
@@ -1243,7 +1145,6 @@ def server(input, output, session):
                 ui.div({"class": "j-loading"}, "querying..."),
             )
 
-        # Normal response
         text = response_text()
         if not text:
             return ui.div()
