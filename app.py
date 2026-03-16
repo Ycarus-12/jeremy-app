@@ -628,21 +628,6 @@ app_ui = ui.page_fluid(
         ),
     ),
 
-    # -- Celebration GIF overlay (shown when riddle solved) --
-    ui.div(
-        {"id": "celebration-overlay",
-         "style": "display:none; position:fixed; inset:0; z-index:2000; pointer-events:none; "
-                  "align-items:center; justify-content:center; "
-                  "background:rgba(0,0,0,0.5);"},
-        ui.tags.img(
-            {
-                "src": "https://media.tenor.com/xwARyAaoSJEAAAAM/all-good-its-all-good.gif",
-                "style": "max-width:480px; width:80%; border-radius:8px; "
-                         "box-shadow:0 0 60px rgba(106,128,96,0.8);",
-            }
-        ),
-    ),
-
     ui.div(
         {"class": "j-shell"},
 
@@ -734,6 +719,14 @@ app_ui = ui.page_fluid(
             {"class": "j-footer"},
             ui.div({"class": "j-footer-left"}, "jeremy.coates -- pmp - itil 4"),
             ui.div({"class": "j-footer-right"}, "built on posit connect cloud"),
+        ),
+
+        # Celebration overlay -- inside shell, position:fixed so it covers viewport
+        ui.tags.div(
+            **{"id": "celebration-overlay",
+               "style": "display:none; position:fixed; inset:0; z-index:9999; "
+                        "align-items:center; justify-content:center; "
+                        "background:rgba(0,0,0,0.6); pointer-events:none;"}
         ),
 
         # JavaScript
@@ -837,12 +830,20 @@ app_ui = ui.page_fluid(
             // ── About modal ──────────────────────────────────────────────────
             function showCelebration() {
                 var el = document.getElementById('celebration-overlay');
-                if (el) {
-                    el.style.display = 'flex';
-                    el.style.alignItems = 'center';
-                    el.style.justifyContent = 'center';
-                    setTimeout(function() { el.style.display = 'none'; }, 4000);
-                }
+                if (!el) return;
+                // Build img dynamically so it's not in DOM at load
+                el.innerHTML = '';
+                var img = document.createElement('img');
+                img.src = 'https://media.tenor.com/xwARyAaoSJEAAAAM/all-good-its-all-good.gif';
+                img.style.cssText = 'max-width:480px; width:80%; border-radius:8px; box-shadow:0 0 60px rgba(106,128,96,0.8);';
+                el.appendChild(img);
+                el.style.display = 'flex';
+                el.style.alignItems = 'center';
+                el.style.justifyContent = 'center';
+                setTimeout(function() {
+                    el.style.display = 'none';
+                    el.innerHTML = '';
+                }, 4000);
             }
 
             function openAbout()  { document.getElementById('about-overlay').classList.add('active'); }
