@@ -1013,6 +1013,9 @@ app_ui = ui.page_fluid(
         ),
 
         ui.input_action_button("ask", "", style="display:none;"),
+        ui.input_action_button("handoff_trigger", "", style="display:none;"),
+        ui.input_text("handoff_team_input", "", value=""),
+        ui.tags.style("#handoff_team_input { display: none; }"),
 
         # Response
         ui.output_ui("response_panel"),
@@ -1025,120 +1028,120 @@ app_ui = ui.page_fluid(
         ),
 
         # JavaScript
-        ui.tags.script(f"""
-            var SUGGESTED = {repr({k: [(qk, ql) for qk, ql in qs] for k, qs in SUGGESTED_QUESTIONS.items()})};
+        ui.tags.script("""
+            var SUGGESTED = {"cs": [["culture", "Why is Jeremy the right cultural fit for Posit?"], ["q1", "How would Jeremy approach reducing time-to-value for customers transitioning from PS to ongoing success?"], ["q2", "What's Jeremy's philosophy on the PS-to-CS handoff, and how has he structured it in the past?"], ["q3", "How does Jeremy think about the relationship between implementation quality and long-term retention?"], ["q4", "What does Jeremy see as the biggest failure modes when PS and CS aren't aligned?"], ["q5", "How would Jeremy help CS identify expansion opportunities surfaced during implementation?"], ["lucky", "\ud83c\udf40 Feeling Lucky?"], ["handoff", "\ud83e\udd16 Test-Drive the PS \u2192 CS Handoff Agent"]], "onboarding": [["culture", "Why is Jeremy the right cultural fit for Posit?"], ["q1", "How would Jeremy standardize a First 90 Days onboarding program across a distributed team?"], ["q2", "What metrics would Jeremy use to define a successful customer onboarding?"], ["q3", "How has Jeremy reduced time-to-value in previous onboarding programs?"], ["q4", "How would Jeremy handle onboarding for customers with highly variable technical environments?"], ["q5", "What's Jeremy's approach to building onboarding playbooks that scale without him in the room?"], ["lucky", "\ud83c\udf40 Feeling Lucky?"], ["handoff", "\ud83e\udd16 Test-Drive the PS \u2192 Onboarding Handoff Agent"]], "tam": [["culture", "Why is Jeremy the right cultural fit for Posit?"], ["q1", "How does Jeremy think about the role of a TAM versus a traditional support function?"], ["q2", "What frameworks has Jeremy used to prioritize proactive outreach across a large enterprise portfolio?"], ["q3", "How would Jeremy measure whether the TAM team is delivering real technical partnership versus reactive service?"], ["q4", "How has Jeremy bridged the gap between technical account management and commercial outcomes?"], ["q5", "What's Jeremy's approach to escalation management when a TAM relationship is at risk?"], ["lucky", "\ud83c\udf40 Feeling Lucky?"], ["handoff", "\ud83e\udd16 Test-Drive the PS \u2192 TAM Handoff Agent"]], "delivery": [["culture", "Why is Jeremy the right cultural fit for Posit?"], ["q1", "How does Jeremy scope and price SOW engagements to protect delivery margin?"], ["q2", "What's Jeremy's framework for managing a critical customer escalation without losing the relationship?"], ["q3", "How has Jeremy maintained delivery quality while scaling a PS team rapidly?"], ["q4", "How does Jeremy think about the boundary between in-scope delivery and change orders?"], ["q5", "What early warning indicators does Jeremy watch for to catch delivery risk before it becomes an escalation?"], ["lucky", "\ud83c\udf40 Feeling Lucky?"], ["handoff", "\ud83e\udd16 Test-Drive the PS \u2192 Delivery Handoff Agent"]], "product": [["culture", "Why is Jeremy the right cultural fit for Posit?"], ["q1", "How would Jeremy structure the feedback loop between PS delivery and the Product roadmap?"], ["q2", "What's Jeremy's approach to documenting configuration decisions in a way that's useful to Product?"], ["q3", "How has Jeremy handled situations where customer requests conflict with product direction?"], ["q4", "How would Jeremy help Product distinguish between one-off customer requests and systemic gaps?"], ["q5", "What role should PS play in beta programs and early access releases?"], ["lucky", "\ud83c\udf40 Feeling Lucky?"], ["handoff", "\ud83e\udd16 Test-Drive the PS \u2192 Product Feedback Agent"]], "support": [["culture", "Why is Jeremy the right cultural fit for Posit?"], ["q1", "How does Jeremy ensure Support has everything they need before PS hands off a customer?"], ["q2", "What does a clean PS-to-Support handoff look like in Jeremy's model, and what does a broken one look like?"], ["q3", "How has Jeremy handled situations where Support inherited unresolved issues from implementation?"], ["q4", "How would Jeremy define the boundary between what PS resolves and what becomes a Support ticket?"], ["q5", "How does Jeremy think about knowledge transfer from PS to Support at scale?"], ["lucky", "\ud83c\udf40 Feeling Lucky?"], ["handoff", "\ud83e\udd16 Test-Drive the PS \u2192 Support Handoff Agent"]], "exploring": [["culture", "Why is Jeremy the right cultural fit for Posit?"], ["q1", "Why is Jeremy making a move now, and why Posit specifically?"], ["q2", "What would Jeremy's first 90 days look like if he got this role?"], ["q3", "What's the hardest PS org challenge Jeremy has faced, and how did he handle it?"], ["q4", "How does Jeremy think about building a PS team culture in a fully distributed environment?"], ["q5", "What's Jeremy's honest assessment of where he'd need to ramp up at Posit?"], ["lucky", "\ud83c\udf40 Feeling Lucky?"], ["handoff", "\ud83e\udd16 Test-Drive the PS Handoff Agent"]]};
 
-            function syncQuestion(val) {{
+            function syncQuestion(val) {
                 var el = document.getElementById('question');
-                if (el) {{
+                if (el) {
                     el.value = val;
-                    el.dispatchEvent(new Event('input', {{ bubbles: true }}));
-                }}
-            }}
+                    el.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            }
 
-            function handleKey(e) {{
-                if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {{
+            function handleKey(e) {
+                if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
                     e.preventDefault();
                     submitQuestion();
-                }}
-            }}
+                }
+            }
 
-            function submitQuestion() {{
+            function submitQuestion() {
                 var q = document.getElementById('question_display').value.trim();
                 if (!q) return;
                 document.getElementById('ask').click();
-            }}
+            }
 
-            function lockTeam(el) {{
+            function lockTeam(el) {
                 var key = el.value;
                 el.disabled = true;
                 var inp = document.getElementById('selected_team');
-                if (inp) {{
+                if (inp) {
                     inp.value = key;
-                    inp.dispatchEvent(new Event('input', {{ bubbles: true }}));
-                }}
-                // Update suggested questions dropdown
+                    inp.dispatchEvent(new Event('input', { bubbles: true }));
+                }
                 var qd = document.getElementById('question_dropdown');
                 if (!qd) return;
                 var questions = SUGGESTED[key] || SUGGESTED['exploring'];
-                qd.innerHTML = '<option value="" disabled selected>— choose a question or type your own —</option>';
-                questions.forEach(function(pair) {{
+                qd.innerHTML = '<option value="" disabled selected>\u2014 choose a question or type your own \u2014</option>';
+                questions.forEach(function(pair) {
                     var opt = document.createElement('option');
                     opt.value = pair[0];
                     opt.textContent = pair[1];
                     qd.appendChild(opt);
-                }});
-            }}
+                });
+            }
 
-            function handleSuggestedQuestion(el) {{
+            function handleSuggestedQuestion(el) {
                 var key = el.value;
                 if (!key) return;
 
-                if (key === 'lucky') {{
+                if (key === 'lucky') {
                     openRiddle();
                     el.selectedIndex = 0;
                     return;
-                }}
+                }
 
-                if (key === 'handoff') {{
-                    // Signal to Shiny to show handoff panel
-                    var inp = document.getElementById('question');
-                    if (inp) {{
-                        inp.value = '__HANDOFF__';
-                        inp.dispatchEvent(new Event('input', {{ bubbles: true }}));
-                    }}
-                    document.getElementById('ask').click();
+                if (key === 'handoff') {
+                    var teamKey = document.getElementById('selected_team').value || 'exploring';
+                    var ht = document.getElementById('handoff_team_input');
+                    if (ht) {
+                        ht.value = teamKey;
+                        ht.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                    setTimeout(function() {
+                        document.getElementById('handoff_trigger').click();
+                    }, 80);
                     el.selectedIndex = 0;
                     return;
-                }}
+                }
 
-                // Find the question text and populate the textarea
                 var teamKey = document.getElementById('selected_team').value || 'exploring';
                 var questions = SUGGESTED[teamKey] || SUGGESTED['exploring'];
-                var found = questions.find(function(p) {{ return p[0] === key; }});
-                if (found) {{
+                var found = null;
+                for (var i = 0; i < questions.length; i++) {
+                    if (questions[i][0] === key) { found = questions[i]; break; }
+                }
+                if (found) {
                     var ta = document.getElementById('question_display');
-                    if (ta) {{
+                    if (ta) {
                         ta.value = found[1];
                         syncQuestion(found[1]);
-                    }}
-                }}
+                    }
+                }
                 el.selectedIndex = 0;
-            }}
+            }
 
-            // About modal
-            function openAbout() {{
+            function openAbout() {
                 document.getElementById('about-overlay').classList.add('active');
-            }}
-            function closeAbout() {{
+            }
+            function closeAbout() {
                 document.getElementById('about-overlay').classList.remove('active');
-            }}
-            function closeAboutOnOverlay(e) {{
+            }
+            function closeAboutOnOverlay(e) {
                 if (e.target === document.getElementById('about-overlay')) closeAbout();
-            }}
+            }
 
-            // Riddle modal
-            function openRiddle() {{
+            function openRiddle() {
                 document.getElementById('riddle-overlay').classList.add('active');
-            }}
-            function closeRiddle() {{
+            }
+            function closeRiddle() {
                 document.getElementById('riddle-overlay').classList.remove('active');
-            }}
-            function closeRiddleOnOverlay(e) {{
+            }
+            function closeRiddleOnOverlay(e) {
                 if (e.target === document.getElementById('riddle-overlay')) closeRiddle();
-            }}
+            }
 
-            Shiny.addCustomMessageHandler('set_loading', function(loading) {{
+            Shiny.addCustomMessageHandler('set_loading', function(loading) {
                 var btn = document.getElementById('ask_btn');
-                if (btn) {{
+                if (btn) {
                     btn.disabled = loading;
                     btn.textContent = loading ? 'querying...' : 'run query';
-                }}
-            }});
+                }
+            });
         """),
     )
 )
-
 # ── Server ────────────────────────────────────────────────────────────────────
 
 def server(input, output, session):
@@ -1148,8 +1151,24 @@ def server(input, output, session):
     is_loading    = reactive.value(False)
     show_offtopic = reactive.value(False)
     show_handoff  = reactive.value(False)
+    handoff_team  = reactive.value("exploring")
     limit_reason  = reactive.value("")
     user_id       = reactive.value(make_user_id())
+
+    @reactive.effect
+    @reactive.event(input.handoff_trigger)
+    def handle_handoff():
+        """Dedicated handler for handoff test-drive selection."""
+        team_key = input.handoff_team_input().strip() or "exploring"
+        # Reset other states
+        show_offtopic.set(False)
+        limit_reason.set("")
+        response_text.set("")
+        is_unlocked.set(False)
+        is_loading.set(False)
+        # Set handoff state
+        handoff_team.set(team_key)
+        show_handoff.set(True)
 
     @reactive.effect
     @reactive.event(input.ask)
@@ -1167,11 +1186,6 @@ def server(input, output, session):
         limit_reason.set("")
         response_text.set("")
         is_unlocked.set(False)
-
-        # ── Handoff test-drive ──
-        if question == "__HANDOFF__":
-            show_handoff.set(True)
-            return
 
         # ── Unlock check (no rate limit consumed) ──
         if is_unlock(question):
@@ -1198,7 +1212,12 @@ def server(input, output, session):
             client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 
             user_content = question
-            if has_nudge_keywords(question):
+
+            # Cultural fit question: instruct Claude to lead with the opening line
+            if "cultural fit" in question.lower():
+                user_content = question + "\n\nIMPORTANT: Begin your response with exactly this sentence: \'Expertise is becoming a commodity. What differentiates teams now is leadership, culture, and how people work together.\' Then continue with the short-form cultural fit summary."
+
+            elif has_nudge_keywords(question):
                 user_content += "\n\nAnswer the question fully, then end with this exact line on its own paragraph:\n*...some things are better discovered than explained.*"
 
             message = client.messages.create(
@@ -1288,8 +1307,7 @@ def server(input, output, session):
 
         # Handoff test-drive
         if show_handoff():
-            team_key = input.selected_team() or "exploring"
-            team     = get_team(team_key)
+            team = get_team(handoff_team())
             return ui.div(
                 {"class": "j-handoff-panel"},
                 ui.div({"class": "j-handoff-label"}, "// agent test-drive"),
