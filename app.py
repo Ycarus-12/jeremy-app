@@ -303,34 +303,32 @@ app_ui = ui.page_fluid(
             display: block;
         }
 
-        .j-team-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .j-team-btn {
-            background: transparent;
+        .j-team-dropdown {
+            background: var(--surface);
             border: 1px solid var(--border);
-            color: var(--text-dim);
-            font-family: 'DM Sans', sans-serif;
-            font-size: 13px;
-            padding: 7px 16px;
             border-radius: 2px;
+            color: var(--text-primary);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            padding: 9px 14px;
+            width: 100%;
+            max-width: 320px;
+            outline: none;
             cursor: pointer;
-            transition: all 0.15s ease;
-            letter-spacing: 0.01em;
+            transition: border-color 0.15s ease;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23787870' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 36px;
         }
 
-        .j-team-btn:hover {
-            border-color: var(--accent-light);
-            color: var(--warm);
-        }
+        .j-team-dropdown:focus { border-color: var(--accent-light); }
 
-        .j-team-btn.active {
-            background: var(--accent-glow);
-            border-color: var(--accent-light);
-            color: var(--accent-light);
+        .j-team-dropdown option {
+            background: var(--surface2);
+            color: var(--text-primary);
         }
 
         /* ── Input area ── */
@@ -602,26 +600,25 @@ app_ui = ui.page_fluid(
             ),
             ui.div(
                 {"class": "j-subtitle"},
-                "An AI that knows Jeremy Coates. Ask it anything."
+                "Answering the question: Why is Jeremy the right fit for Posit?"
             ),
         ),
 
         # Team selector
         ui.div(
             {"class": "j-team-section"},
-            ui.tags.span({"class": "j-label"}, "I'm on the"),
-            ui.div(
-                {"class": "j-team-grid"},
+            ui.tags.span({"class": "j-label"}, "Select your team"),
+            ui.tags.select(
+                {
+                    "id": "team_dropdown",
+                    "class": "j-team-dropdown",
+                    "onchange": "lockTeam(this)",
+                },
+                ui.tags.option({"value": "exploring", "selected": "selected"}, "Just exploring"),
                 *[
-                    ui.tags.button(
-                        team["label"],
-                        {
-                            "class": "j-team-btn" + (" active" if key == "exploring" else ""),
-                            "onclick": f"selectTeam('{key}', this)",
-                            "data-team": key,
-                        }
-                    )
+                    ui.tags.option({"value": key}, team["label"])
                     for key, team in TEAMS.items()
+                    if key != "exploring"
                 ]
             ),
             ui.input_text("selected_team", "", value="exploring"),
@@ -631,7 +628,6 @@ app_ui = ui.page_fluid(
         # Input
         ui.div(
             {"class": "j-input-section"},
-            ui.tags.span({"class": "j-label"}, "team"),
             ui.input_text_area("question", "", rows=3),
             ui.tags.style("#question { display: none; }"),
             ui.tags.textarea(
@@ -667,7 +663,7 @@ app_ui = ui.page_fluid(
         # Footer
         ui.div(
             {"class": "j-footer"},
-            ui.div({"class": "j-footer-left"}, "jeremy.coates — pmp · itil 4 · salt lake city"),
+            ui.div({"class": "j-footer-left"}, "jeremy.coates — pmp · itil 4"),
             ui.div({"class": "j-footer-right"}, "built on posit connect cloud"),
         ),
 
@@ -694,11 +690,11 @@ app_ui = ui.page_fluid(
                 document.getElementById('ask').click();
             }
 
-            function selectTeam(key, el) {
-                document.querySelectorAll('.j-team-btn').forEach(function(b) {
-                    b.classList.remove('active');
-                });
-                el.classList.add('active');
+            function lockTeam(el) {
+                var key = el.value;
+                el.disabled = true;
+                el.style.opacity = '0.6';
+                el.style.cursor = 'not-allowed';
                 var inp = document.getElementById('selected_team');
                 if (inp) {
                     inp.value = key;
