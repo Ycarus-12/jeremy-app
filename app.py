@@ -8,8 +8,8 @@ from datetime import datetime, timezone
 
 # -- Rate limiting -------------------------------------------------------------
 
-PER_USER_LIMIT = 15
-GLOBAL_LIMIT   = 500
+PER_USER_LIMIT = 30
+GLOBAL_LIMIT   = 1000
 
 _lock          = threading.Lock()
 _user_counts: dict[str, int] = {}
@@ -37,11 +37,15 @@ def make_user_id() -> str:
 
 def log_to_airtable(user_id: str, team: str, question: str, response_length: int):
     try:
-        import urllib.request, json as _json
-        base_id = os.environ.get("AIRTABLE_BASE_ID", "")
-        table   = os.environ.get("AIRTABLE_TABLE_NAME", "logs")
-        token   = os.environ.get("AIRTABLE_API_TOKEN", "")
+        import urllib.request as _urllib
+        import json as _json
+        import ssl as _ssl
+        base_id = os.environ.get("AIRTABLE_BASE_ID", "").strip()
+        table   = os.environ.get("AIRTABLE_TABLE_NAME", "logs").strip()
+        token   = os.environ.get("AIRTABLE_API_TOKEN", "").strip()
+        print(f"AIRTABLE ATTEMPT: base_id={base_id[:8] if base_id else 'MISSING'} table={table} token={'SET' if token else 'MISSING'}")
         if not all([base_id, table, token]):
+            print("AIRTABLE SKIPPED: one or more env vars missing")
             return
         url     = f"https://api.airtable.com/v0/{base_id}/{table}"
         payload = _json.dumps({
@@ -52,15 +56,21 @@ def log_to_airtable(user_id: str, team: str, question: str, response_length: int
                 "question":        question[:500],
                 "response_length": response_length,
             }
-        }).encode()
-        req = urllib.request.Request(
-            url, data=payload,
-            headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+        }).encode("utf-8")
+        req = _urllib.Request(
+            url,
+            data=payload,
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Content-Type":  "application/json",
+            },
             method="POST"
         )
-        urllib.request.urlopen(req, timeout=5)
+        ctx  = _ssl.create_default_context()
+        resp = _urllib.urlopen(req, timeout=10, context=ctx)
+        print(f"AIRTABLE OK: status={resp.status} user={user_id} team={team}")
     except Exception as e:
-        print(f"AIRTABLE ERROR: {e}")
+        print(f"AIRTABLE ERROR: {type(e).__name__}: {e}")
 
 
 # -- Team configuration --------------------------------------------------------
@@ -658,7 +668,7 @@ app_ui = ui.page_fluid(
                     "onkeydown": "handleKey(event)",
                 }
             ),
-            ui.div({"class": "j-hint"}, "?jeremy responds to the right questions"),
+
         ),
 
         ui.div(
@@ -964,11 +974,8 @@ def server(input, output, session):
             reply = message.content[0].text
             response_text.set(reply)
 
-            threading.Thread(
-                target=log_to_airtable,
-                args=(uid, team_key, question, len(reply)),
-                daemon=True
-            ).start()
+            # Call logging directly -- daemon thread was being killed before completing
+            log_to_airtable(uid, team_key, question, len(reply))
 
         except Exception as e:
             response_text.set(f"Something went wrong connecting to the API: {str(e)}")
