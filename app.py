@@ -736,7 +736,7 @@ app_ui = ui.page_fluid(
                 }
 
                 if (key === 'handoff') {
-                    var teamKey = document.getElementById('selected_team').value || 'exploring';
+                    var teamKey = document.getElementById('team_dropdown').value || 'exploring';
                     var ht = document.getElementById('handoff_team_input');
                     if (ht) { ht.value = teamKey; ht.dispatchEvent(new Event('input', { bubbles: true })); }
                     setTimeout(function() { document.getElementById('handoff_trigger').click(); }, 80);
@@ -745,7 +745,7 @@ app_ui = ui.page_fluid(
                 }
 
                 // Populate textarea with question text
-                var teamKey = document.getElementById('selected_team').value || 'exploring';
+                var teamKey = document.getElementById('team_dropdown').value || 'exploring';
                 var questions = SUGGESTED[teamKey] || SUGGESTED['exploring'];
                 var found = null;
                 for (var i = 0; i < questions.length; i++) {
