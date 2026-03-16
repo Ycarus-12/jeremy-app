@@ -736,10 +736,7 @@ app_ui = ui.page_fluid(
                 }
 
                 if (key === 'handoff') {
-                    var teamKey = document.getElementById('team_dropdown').value || 'exploring';
-                    console.log('DEBUG handoff teamKey:', teamKey, 'handoff_team_input el:', document.getElementById('handoff_team_input'));
-                    var ht = document.getElementById('handoff_team_input');
-                    if (ht) { ht.value = teamKey; ht.dispatchEvent(new Event('input', { bubbles: true })); }
+                    // Server reads selected_team directly -- just fire the trigger
                     setTimeout(function() { document.getElementById('handoff_trigger').click(); }, 80);
                     el.selectedIndex = 0;
                     return;
@@ -848,7 +845,7 @@ def server(input, output, session):
     @reactive.effect
     @reactive.event(input.handoff_trigger)
     def handle_handoff():
-        team_key = input.handoff_team_input().strip() or "exploring"
+        team_key = input.selected_team().strip() or "exploring"
         show_offtopic.set(False)
         limit_reason.set("")
         response_text.set("")
