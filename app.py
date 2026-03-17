@@ -35,7 +35,7 @@ def make_user_id() -> str:
 
 # -- Airtable logging ----------------------------------------------------------
 
-def log_to_airtable(user_id: str, team: str, question: str, response_length: int):
+def log_to_airtable(user_id: str, team: str, question: str, response_length: int, location: str = ""):
     try:
         import urllib.request as _urllib
         import json as _json
@@ -54,6 +54,7 @@ def log_to_airtable(user_id: str, team: str, question: str, response_length: int
                 "team":            team,
                 "question":        question[:500],
                 "response_length": response_length,
+                "location":        location[:100] if location else "",
             }
         }).encode("utf-8")
         req = _urllib.Request(
@@ -63,7 +64,7 @@ def log_to_airtable(user_id: str, team: str, question: str, response_length: int
         )
         ctx  = _ssl.create_default_context()
         resp = _urllib.urlopen(req, timeout=10, context=ctx)
-        print(f"AIRTABLE OK: status={resp.status} user={user_id} team={team}")
+        print(f"AIRTABLE OK: status={resp.status} user={user_id} team={team} location={location}")
     except Exception as e:
         print(f"AIRTABLE ERROR: {type(e).__name__}: {e}")
 
@@ -281,9 +282,25 @@ def get_team(key: str) -> dict:
     return TEAMS.get(key, TEAMS["exploring"])
 
 
-def parse_italic(t: str) -> list:
-    parts = re.split(r'\*(.*?)\*', t)
-    return [ui.tags.em(p) if i % 2 == 1 else p for i, p in enumerate(parts)]
+def parse_response(t: str) -> list:
+    nodes = []
+    for para in t.split("\n\n"):
+        para = para.strip()
+        if not para:
+            continue
+        parts = re.split(r'\*\*(.*?)\*\*|\*(.*?)\*', para)
+        children = []
+        for i, p in enumerate(parts):
+            if p is None:
+                continue
+            if i % 3 == 1:
+                children.append(ui.tags.strong(p))
+            elif i % 3 == 2:
+                children.append(ui.tags.em(p))
+            else:
+                children.append(p)
+        nodes.append(ui.tags.p({"style": "margin-bottom: 12px; line-height: 1.75;"}, *children))
+    return nodes
 
 
 # -- System prompts ------------------------------------------------------------
@@ -556,6 +573,7 @@ _STATIC_JS = (
     "function submitQuestion() {"
     "  var q = document.getElementById('question_display').value.trim();"
     "  if (!q) return;"
+    "  syncLastQuestion(q);"
     "  document.getElementById('ask').click();"
     "}"
 
@@ -730,6 +748,75 @@ _STATIC_JS = (
     "  var el = document.getElementById('handoff-chat-messages');"
     "  if (el) el.scrollTop = el.scrollHeight;"
     "});"
+
+    "function syncLocation(val) {"
+    "  var el = document.getElementById('user_location');"
+    "  if (el) { el.value = val; el.dispatchEvent(new Event('input', { bubbles: true })); }"
+    "}"
+
+    "function syncLastQuestion(val) {"
+    "  var el = document.getElementById('last_question_asked');"
+    "  if (el) { el.value = val; el.dispatchEvent(new Event('input', { bubbles: true })); }"
+    "}"
+
+    "function detectLocation() {"
+    "  try {"
+    "    fetch('https://ipapi.co/json/')"
+    "      .then(function(r) { return r.json(); })"
+    "      .then(function(d) {"
+    "        var loc = (d.city || '') + (d.region ? ', ' + d.region : '') + (d.country_name ? ', ' + d.country_name : '');"
+    "        if (loc.trim()) syncLocation(loc);"
+    "      })"
+    "      .catch(function() {});"
+    "  } catch(e) {}"
+    "}"
+
+    "function copyToClipboard(text, btnId) {"
+    "  navigator.clipboard.writeText(text).then(function() {"
+    "    var btn = document.getElementById(btnId);"
+    "    if (btn) {"
+    "      var orig = btn.textContent;"
+    "      btn.textContent = 'copied!';"
+    "      btn.classList.add('copied');"
+    "      setTimeout(function() { btn.textContent = orig; btn.classList.remove('copied'); }, 2000);"
+    "    }"
+    "  }).catch(function() {});"
+    "}"
+
+    "function shareResponse() {"
+    "  var body = document.querySelector('.j-response-body');"
+    "  if (body) copyToClipboard(body.innerText, 'share-text-btn');"
+    "}"
+
+    "function shareUrl() {"
+    "  var q = document.getElementById('last_question_asked');"
+    "  var qval = q ? q.value : '';"
+    "  var url = 'https://jmcoates-whyjeremy.share.connect.posit.cloud';"
+    "  if (qval) url += '?q=' + encodeURIComponent(qval);"
+    "  copyToClipboard(url, 'share-url-btn');"
+    "}"
+
+    "function shareApp() {"
+    "  var msg = 'A guy built an AI agent to make his case for a Director of Professional Services role and it\\'s genuinely the most unhinged impressive thing I\\'ve seen. https://jmcoates-whyjeremy.share.connect.posit.cloud';"
+    "  copyToClipboard(msg, 'share-app-btn');"
+    "}"
+
+    "function checkAutoQuery() {"
+    "  try {"
+    "    var params = new URLSearchParams(window.location.search);"
+    "    var q = params.get('q');"
+    "    if (q) {"
+    "      var ta = document.getElementById('question_display');"
+    "      if (ta) { ta.value = q; syncQuestion(q); }"
+    "      setTimeout(function() { document.getElementById('ask').click(); }, 600);"
+    "    }"
+    "  } catch(e) {}"
+    "}"
+
+    "document.addEventListener('DOMContentLoaded', function() {"
+    "  detectLocation();"
+    "  checkAutoQuery();"
+    "});"
 )
 
 # -- Final JS block: dynamic vars first, then static functions -----------------
@@ -843,9 +930,15 @@ body { background-color: var(--bg); color: var(--text-primary); font-family: 'DM
 .j-response-section.j-response-fresh { animation: responseReveal 0.5s ease-out; }
 @keyframes responseReveal { 0% { opacity: 0; transform: translateY(8px); } 100% { opacity: 1; transform: translateY(0); } }
 .j-response-label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 16px; }
-.j-response-body { color: var(--text-primary); font-size: 15px; line-height: 1.75; white-space: pre-wrap; }
+.j-response-body { color: var(--text-primary); font-size: 15px; line-height: 1.75; }
 .j-response-body em { color: var(--cool); font-style: italic; }
-.j-limit-panel { background: var(--surface); border: 1px solid var(--border2); border-radius: 4px; padding: 28px 24px; margin-top: 40px; text-align: center; }
+.j-response-body strong { color: #d0cec8; font-weight: 500; }
+.j-response-body p { margin-bottom: 12px; }
+.j-share-row { display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap; align-items: center; }
+.j-share-btn { background: transparent; border: 1px solid var(--border2); border-radius: 2px; color: var(--text-muted); font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.08em; padding: 6px 12px; cursor: pointer; transition: all 0.15s; text-transform: uppercase; }
+.j-share-btn:hover { border-color: var(--accent-light); color: var(--accent-light); }
+.j-share-btn.copied { border-color: var(--accent-light); color: var(--accent-light); }
+@media (max-width: 600px) { .j-shell { padding: 28px 16px 60px; } .j-title { font-size: 26px; } .j-select { max-width: 100%; font-size: 13px; } .j-header-top { flex-wrap: wrap; gap: 8px; } .j-wordmark { font-size: 10px; } .j-explainer-banner { padding: 8px 12px; } .j-modal, .j-explainer-modal, .j-riddle-modal { padding: 24px 16px; } .j-submit-btn { width: 100%; } .j-share-row { gap: 6px; } } { background: var(--surface); border: 1px solid var(--border2); border-radius: 4px; padding: 28px 24px; margin-top: 40px; text-align: center; }
 .j-limit-label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--warm); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 12px; }
 .j-limit-msg { font-size: 14px; color: var(--text-dim); line-height: 1.6; }
 .j-limit-msg a { color: var(--accent-light); text-decoration: none; }
@@ -871,7 +964,9 @@ body { background-color: var(--bg); color: var(--text-primary); font-family: 'DM
 @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 .j-footer { margin-top: 80px; padding-top: 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
 .j-footer-left, .j-footer-right { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); letter-spacing: 0.05em; }
-@media (max-width: 600px) { .j-shell { padding: 36px 20px 60px; } .j-title { font-size: 30px; } }
+.j-share-app-btn { background: transparent; border: none; color: var(--text-muted); font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.06em; padding: 0; cursor: pointer; transition: color 0.15s; }
+.j-share-app-btn:hover { color: var(--warm); }
+.j-share-app-btn.copied { color: var(--accent-light); }
 """
 
 # -- UI ------------------------------------------------------------------------
@@ -897,7 +992,7 @@ app_ui = ui.page_fluid(
                 {"class": "j-modal-body"},
                 ui.tags.p("?jeremy was built by Jeremy Coates using Anthropic's Claude API and Posit's Shiny framework -- both as a demonstration of how he thinks about AI-assisted tooling, and as a way to make his candidacy more accessible to the Posit team."),
                 ui.tags.p("The responses generated here are AI-produced based on Jeremy's actual background, experience, and portfolio materials. While every effort has been made to ensure accuracy, AI responses should be treated as a starting point for conversation -- not a definitive statement. Anything here worth exploring further is worth asking Jeremy directly."),
-                ui.tags.p("This app does not store personal information. Session activity may be logged in aggregate for quality purposes."),
+                ui.tags.p("This app does not store personal information. Session activity including approximate location is logged in aggregate for quality purposes."),
                 ui.tags.p(
                     "Jeremy can be reached at ",
                     ui.tags.a("JMCoates@protonmail.com", {"href": "mailto:JMCoates@protonmail.com"}),
@@ -989,10 +1084,17 @@ app_ui = ui.page_fluid(
             ui.div(
                 {"class": "j-header-top"},
                 ui.div({"class": "j-wordmark"}, "Posit PBC -- Director, PS & Delivery"),
-                ui.tags.button(
-                    {"class": "j-about-trigger", "onclick": "openAbout()"},
-                    ui.tags.span({"class": "j-info-icon"}, "i"),
-                    "About this app",
+                ui.div(
+                    {"style": "display:flex; align-items:center; gap:16px;"},
+                    ui.tags.button(
+                        {"class": "j-share-app-btn", "id": "share-app-btn", "onclick": "shareApp()"},
+                        "share this app with a colleague",
+                    ),
+                    ui.tags.button(
+                        {"class": "j-about-trigger", "onclick": "openAbout()"},
+                        ui.tags.span({"class": "j-info-icon"}, "i"),
+                        "About this app",
+                    ),
                 ),
             ),
             ui.tags.h1({"class": "j-title"}, ui.tags.span("?"), "jeremy"),
@@ -1076,6 +1178,10 @@ app_ui = ui.page_fluid(
         ui.input_action_button("riddle_correct", "", style="display:none;"),
         ui.input_text("riddle_team_signal", "", value=""),
         ui.tags.style("#riddle_team_signal { display: none; }"),
+        ui.input_text("user_location", "", value=""),
+        ui.tags.style("#user_location { display: none; }"),
+        ui.input_text("last_question_asked", "", value=""),
+        ui.tags.style("#last_question_asked { display: none; }"),
 
         # Response
         ui.div(
@@ -1097,17 +1203,19 @@ app_ui = ui.page_fluid(
 # -- Server --------------------------------------------------------------------
 
 def server(input, output, session):
-    response_text    = reactive.value("")
-    is_unlocked      = reactive.value(False)
-    unlocked_team    = reactive.value("")
-    is_loading       = reactive.value(False)
-    show_offtopic    = reactive.value(False)
-    show_handoff     = reactive.value(False)
-    handoff_team     = reactive.value("exploring")
-    limit_reason     = reactive.value("")
-    user_id          = reactive.value(make_user_id())
-    handoff_messages = reactive.value([])
-    handoff_loading  = reactive.value(False)
+    response_text       = reactive.value("")
+    is_unlocked         = reactive.value(False)
+    unlocked_team       = reactive.value("")
+    is_loading          = reactive.value(False)
+    show_offtopic       = reactive.value(False)
+    show_handoff        = reactive.value(False)
+    handoff_team        = reactive.value("exploring")
+    limit_reason        = reactive.value("")
+    user_id             = reactive.value(make_user_id())
+    handoff_messages    = reactive.value([])
+    handoff_loading     = reactive.value(False)
+    conversation_history = reactive.value([])
+    last_question        = reactive.value("")
 
     @reactive.effect
     @reactive.event(input.handoff_trigger)
@@ -1182,12 +1290,14 @@ def server(input, output, session):
             return
         team_key = input.selected_team() or "exploring"
         uid      = user_id()
+        location = input.user_location().strip()
 
         show_offtopic.set(False)
         show_handoff.set(False)
         limit_reason.set("")
         response_text.set("")
         is_unlocked.set(False)
+        last_question.set(question)
 
         if is_unlock(question):
             is_unlocked.set(True)
@@ -1216,15 +1326,25 @@ def server(input, output, session):
             elif has_nudge_keywords(question):
                 user_content += "\n\nAnswer the question fully, then end with this exact line on its own paragraph:\n*...some things are better discovered than explained.*"
 
+            # Build rolling conversation window (last 8 exchanges = 16 messages)
+            history = list(conversation_history())
+            history.append({"role": "user", "content": user_content})
+            messages_to_send = history[-16:]
+
             message = client.messages.create(
                 model="claude-sonnet-4-20250514",
                 max_tokens=600,
                 system=SYSTEM_PROMPT,
-                messages=[{"role": "user", "content": user_content}]
+                messages=messages_to_send
             )
             reply = message.content[0].text
             response_text.set(reply)
-            log_to_airtable(uid, team_key, question, len(reply))
+
+            # Update conversation history
+            history.append({"role": "assistant", "content": reply})
+            conversation_history.set(history[-16:])
+
+            log_to_airtable(uid, team_key, question, len(reply), location)
             await session.send_custom_message("scroll_response", True)
 
         except Exception as e:
@@ -1440,7 +1560,18 @@ def server(input, output, session):
         return ui.div(
             {"class": "j-response-section"},
             ui.div({"class": "j-response-label"}, "// response"),
-            ui.div({"class": "j-response-body"}, *parse_italic(text)),
+            ui.div({"class": "j-response-body"}, *parse_response(text)),
+            ui.div(
+                {"class": "j-share-row"},
+                ui.tags.button(
+                    "copy response",
+                    {"class": "j-share-btn", "id": "share-text-btn", "onclick": "shareResponse()"}
+                ),
+                ui.tags.button(
+                    "copy shareable link",
+                    {"class": "j-share-btn", "id": "share-url-btn", "onclick": "shareUrl()"}
+                ),
+            ),
         )
 
 
