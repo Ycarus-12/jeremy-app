@@ -135,7 +135,7 @@ SUGGESTED_QUESTIONS = {
         ("q5",       "How would Jeremy approach reducing time-to-value for customers transitioning from PS to ongoing success?"),
         ("tools",    "What kind of tools can Jeremy help put in place to make my life easier?"),
         ("handoff",  "\U0001f916 Test-Drive the PS -> CS Handoff Agent"),
-        ("lucky",    "\U0001f340 Feeling Lucky?"),
+        ("lucky",    "\U0001f50d Feeling Curious?"),
     ],
     "onboarding": [
         ("culture",  "Why is Jeremy the right cultural fit for Posit?"),
@@ -147,7 +147,7 @@ SUGGESTED_QUESTIONS = {
         ("q5",       "What's Jeremy's approach to building onboarding playbooks that scale without him in the room?"),
         ("tools",    "What kind of tools can Jeremy help put in place to make my life easier?"),
         ("handoff",  "\U0001f916 Test-Drive the PS -> Onboarding Handoff Agent"),
-        ("lucky",    "\U0001f340 Feeling Lucky?"),
+        ("lucky",    "\U0001f50d Feeling Curious?"),
     ],
     "tam": [
         ("culture",  "Why is Jeremy the right cultural fit for Posit?"),
@@ -159,7 +159,7 @@ SUGGESTED_QUESTIONS = {
         ("q5",       "What's Jeremy's approach to escalation management when a TAM relationship is at risk?"),
         ("tools",    "What kind of tools can Jeremy help put in place to make my life easier?"),
         ("handoff",  "\U0001f916 Test-Drive the PS -> TAM Handoff Agent"),
-        ("lucky",    "\U0001f340 Feeling Lucky?"),
+        ("lucky",    "\U0001f50d Feeling Curious?"),
     ],
     "delivery": [
         ("culture",  "Why is Jeremy the right cultural fit for Posit?"),
@@ -171,7 +171,7 @@ SUGGESTED_QUESTIONS = {
         ("q5",       "What early warning indicators does Jeremy watch for to catch delivery risk before it becomes an escalation?"),
         ("tools",    "What kind of tools can Jeremy help put in place to make my life easier?"),
         ("handoff",  "\U0001f916 Test-Drive the PS -> Delivery Handoff Agent"),
-        ("lucky",    "\U0001f340 Feeling Lucky?"),
+        ("lucky",    "\U0001f50d Feeling Curious?"),
     ],
     "product": [
         ("culture",  "Why is Jeremy the right cultural fit for Posit?"),
@@ -183,7 +183,7 @@ SUGGESTED_QUESTIONS = {
         ("q5",       "What role should PS play in beta programs and early access releases?"),
         ("tools",    "What kind of tools can Jeremy help put in place to make my life easier?"),
         ("handoff",  "\U0001f916 Test-Drive the PS -> Product Feedback Agent"),
-        ("lucky",    "\U0001f340 Feeling Lucky?"),
+        ("lucky",    "\U0001f50d Feeling Curious?"),
     ],
     "support": [
         ("culture",  "Why is Jeremy the right cultural fit for Posit?"),
@@ -195,7 +195,7 @@ SUGGESTED_QUESTIONS = {
         ("q5",       "How does Jeremy think about knowledge transfer from PS to Support at scale?"),
         ("tools",    "What kind of tools can Jeremy help put in place to make my life easier?"),
         ("handoff",  "\U0001f916 Test-Drive the PS -> Support Handoff Agent"),
-        ("lucky",    "\U0001f340 Feeling Lucky?"),
+        ("lucky",    "\U0001f50d Feeling Curious?"),
     ],
     "exploring": [
         ("culture",  "Why is Jeremy the right cultural fit for Posit?"),
@@ -207,7 +207,7 @@ SUGGESTED_QUESTIONS = {
         ("q5",       "What's Jeremy's honest assessment of where he'd need to ramp up at Posit?"),
         ("tools",    "What kind of tools can Jeremy help put in place to make my life easier?"),
         ("handoff",  "\U0001f916 Test-Drive the PS Implementation PM Agent"),
-        ("lucky",    "\U0001f340 Feeling Lucky?"),
+        ("lucky",    "\U0001f50d Feeling Curious?"),
     ],
 }
 
@@ -602,6 +602,8 @@ _STATIC_JS = (
     "    return;"
     "  }"
     "  setAgentMode(false);"
+    "  var dismissBtn = document.getElementById('handoff_dismiss');"
+    "  if (dismissBtn) { dismissBtn.click(); }"
     "  var teamKey = document.getElementById('team_dropdown').value || 'exploring';"
     "  var questions = SUGGESTED[teamKey] || SUGGESTED['exploring'];"
     "  var found = null;"
@@ -1053,6 +1055,7 @@ app_ui = ui.page_fluid(
         # Hidden Shiny inputs
         ui.input_action_button("ask", "", style="display:none;"),
         ui.input_action_button("handoff_trigger", "", style="display:none;"),
+        ui.input_action_button("handoff_dismiss", "", style="display:none;", id="handoff_dismiss"),
         ui.input_text("handoff_team_input", "", value=""),
         ui.tags.style("#handoff_team_input { display: none; }"),
         ui.input_text_area("handoff_chat_input", "", rows=2),
@@ -1103,6 +1106,12 @@ def server(input, output, session):
         handoff_team.set(team_key)
         handoff_messages.set([])
         show_handoff.set(True)
+
+    @reactive.effect
+    @reactive.event(input.handoff_dismiss)
+    def handle_handoff_dismiss():
+        show_handoff.set(False)
+        handoff_messages.set([])
 
     @reactive.effect
     @reactive.event(input.riddle_correct)
