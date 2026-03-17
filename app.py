@@ -1346,7 +1346,7 @@ def server(input, output, session):
 
     @reactive.effect
     @reactive.event(input.riddle_correct)
-    def handle_riddle_correct():
+    async def handle_riddle_correct():
         team_key = input.riddle_team_signal().strip() or input.selected_team().strip() or "exploring"
         show_offtopic.set(False)
         limit_reason.set("")
@@ -1354,6 +1354,7 @@ def server(input, output, session):
         show_handoff.set(False)
         unlocked_team.set(team_key)
         is_unlocked.set(True)
+        await session.send_custom_message("scroll_response", True)
 
     @reactive.effect
     @reactive.event(input.handoff_chat_send)
@@ -1609,10 +1610,10 @@ def server(input, output, session):
                     ui.div({"class": "j-unlock-desc"}, "If you're reading this, you solved the riddle -- and that's fitting, because the best CS people are the ones who stay curious."),
                     ui.div(
                         {"style": "font-size: 14px; color: var(--text-primary); line-height: 1.75; margin-bottom: 24px;"},
-                        "What you've unlocked is a working AI agent built on Anthropic's Claude -- designed to guide a PS Project Manager through a complete PS-to-CS handoff. The kind that actually sets CS up to win. The full instructions and everything you need to run it yourself are in the document below."
+                        "What you've unlocked is the full instruction set for a PS-to-CS Handoff Agent built on Anthropic's Claude. This isn't the test-drive version in the app -- these are the complete agent instructions you can drop directly into your own Claude instance and run yourself. Copy them in, and you have a working handoff agent ready to use."
                     ),
-                    ui.tags.a("Access full instructions ->", {"class": "j-unlock-link", "href": team["unlock_url"], "target": "_blank"}),
-                    ui.div({"class": "j-unlock-note", "style": "margin-top: 16px;"}, "built for the Customer Success team -- hosted on posit connect cloud"),
+                    ui.tags.a("Get the full instructions ->", {"class": "j-unlock-link", "href": team["unlock_url"], "target": "_blank"}),
+                    ui.div({"class": "j-unlock-note", "style": "margin-top: 16px;"}, "built for the Customer Success team -- paste into Claude to run"),
                 )
 
             if team_key == "exploring":
@@ -1623,11 +1624,10 @@ def server(input, output, session):
                     ui.div({"class": "j-unlock-desc"}, "You solved the riddle without a team label. That says something."),
                     ui.div(
                         {"style": "font-size: 14px; color: var(--text-primary); line-height: 1.75; margin-bottom: 24px;"},
-                        "What you've unlocked is the PS Implementation PM Agent -- the AI assistant Jeremy built to help Project Managers run SaaS implementations the right way. "
-                        "It's the tool that ties everything else in this app together. The full instructions and everything you need to run it yourself are in the document below."
+                        "What you've unlocked is the full instruction set for the PS Implementation PM Agent -- the AI assistant Jeremy built to help Project Managers run SaaS implementations the right way. These aren't a demo -- they're the complete agent instructions you can paste directly into your own Claude instance and run yourself. Drop them in, and you have a working PM agent ready to go."
                     ),
-                    ui.tags.a("Access full instructions ->", {"class": "j-unlock-link", "href": team["unlock_url"], "target": "_blank"}),
-                    ui.div({"class": "j-unlock-note", "style": "margin-top: 16px;"}, "built for curious minds -- hosted on posit connect cloud"),
+                    ui.tags.a("Get the full instructions ->", {"class": "j-unlock-link", "href": team["unlock_url"], "target": "_blank"}),
+                    ui.div({"class": "j-unlock-note", "style": "margin-top: 16px;"}, "built for curious minds -- paste into Claude to run"),
                 )
 
             return ui.div(
@@ -1635,8 +1635,12 @@ def server(input, output, session):
                 ui.div({"class": "j-unlock-header"}, "// unlocked"),
                 ui.div({"class": "j-unlock-title"}, team["tool_name"]),
                 ui.div({"class": "j-unlock-desc"}, team["tool_description"]),
-                ui.tags.a("Access full instructions ->", {"class": "j-unlock-link", "href": team["unlock_url"], "target": "_blank"}),
-                ui.div({"class": "j-unlock-note"}, "built for the " + team["label"] + " team -- hosted on posit connect cloud"),
+                ui.div(
+                    {"style": "font-size: 14px; color: var(--text-primary); line-height: 1.75; margin-bottom: 24px;"},
+                    "These are the complete agent instructions -- paste them directly into your own Claude instance to run the agent yourself."
+                ),
+                ui.tags.a("Get the full instructions ->", {"class": "j-unlock-link", "href": team["unlock_url"], "target": "_blank"}),
+                ui.div({"class": "j-unlock-note"}, "built for the " + team["label"] + " team -- paste into Claude to run"),
             )
 
         reason = limit_reason()
