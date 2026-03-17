@@ -797,13 +797,11 @@ _STATIC_JS = (
     "  var params = new URLSearchParams(window.location.search);"
     "  if (params.get('admin') === 'true') {"
     "    var pwd = prompt('Admin password:');"
-    "    if (pwd) {"
-    "      var sig = document.getElementById('admin_password_input');"
-    "      if (sig) { sig.value = pwd; sig.dispatchEvent(new Event('input', { bubbles: true })); }"
+    "    if (pwd && pwd.trim()) {"
+    "      Shiny.setInputValue('admin_password_input', pwd.trim(), {priority: 'event'});"
     "      setTimeout(function() {"
-    "        var btn = document.getElementById('admin_check_btn');"
-    "        if (btn) btn.click();"
-    "      }, 500);"
+    "        Shiny.setInputValue('admin_check_trigger', String(Date.now()), {priority: 'event'});"
+    "      }, 300);"
     "    }"
     "  }"
     "}"
@@ -1019,6 +1017,15 @@ body { background-color: var(--bg); color: var(--text-primary); font-family: 'DM
 .j-handoff-desc { font-size: 14px; color: var(--text-dim); margin-bottom: 20px; font-style: italic; line-height: 1.6; }
 .j-handoff-placeholder { background: var(--surface2); border: 1px dashed var(--border2); border-radius: 4px; padding: 28px 24px; text-align: center; }
 .j-handoff-placeholder-text { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text-muted); letter-spacing: 0.04em; }
+.j-emoji-loader { display: flex; justify-content: center; align-items: flex-end; gap: 10px; padding: 24px 0 8px; height: 72px; }
+.j-emoji-loader span { font-size: 24px; display: inline-block; animation: emojiBounce 0.8s ease-in-out infinite; line-height: 1; }
+.j-emoji-loader span:nth-child(1) { animation-delay: 0s; }
+.j-emoji-loader span:nth-child(2) { animation-delay: 0.1s; }
+.j-emoji-loader span:nth-child(3) { animation-delay: 0.2s; }
+.j-emoji-loader span:nth-child(4) { animation-delay: 0.3s; }
+.j-emoji-loader span:nth-child(5) { animation-delay: 0.4s; }
+.j-emoji-loader span:nth-child(6) { animation-delay: 0.5s; }
+.j-emoji-loader span:nth-child(7) { animation-delay: 0.6s; }
 .j-loading { color: var(--text-muted); font-family: 'DM Mono', monospace; font-size: 13px; font-style: italic; animation: pulse 1.5s ease-in-out infinite; }
 @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 .j-footer { margin-top: 80px; padding-top: 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
@@ -1259,7 +1266,8 @@ app_ui = ui.page_fluid(
 
         ui.input_text("admin_password_input", "", value=""),
         ui.tags.style("#admin_password_input { display: none; }"),
-        ui.input_action_button("admin_check_btn", "", style="display:none;"),
+        ui.input_text("admin_check_trigger", "", value=""),
+        ui.tags.style("#admin_check_trigger { display: none; }"),
 
         # Response
         ui.div(
@@ -1682,7 +1690,17 @@ def server(input, output, session):
             return ui.div(
                 {"class": "j-response-section"},
                 ui.div({"class": "j-response-label"}, "// response"),
-                ui.div({"class": "j-loading"}, "querying..."),
+                ui.div(
+                    {"class": "j-emoji-loader"},
+                    ui.tags.span("🕺"),
+                    ui.tags.span("📋"),
+                    ui.tags.span("🤝"),
+                    ui.tags.span("🎯"),
+                    ui.tags.span("💀"),
+                    ui.tags.span("🚀"),
+                    ui.tags.span("🔍"),
+                ),
+                ui.div({"class": "j-loading-label"}, "// querying..."),
             )
 
         text = response_text()
@@ -1747,7 +1765,7 @@ def server(input, output, session):
     admin_unlocked = reactive.value(False)
 
     @reactive.effect
-    @reactive.event(input.admin_check_btn)
+    @reactive.event(input.admin_check_trigger)
     def handle_admin_check():
         pwd        = input.admin_password_input().strip()
         admin_pwd  = os.environ.get("ADMIN_PASSWORD", "").strip()
