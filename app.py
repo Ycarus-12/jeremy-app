@@ -284,22 +284,21 @@ def get_team(key: str) -> dict:
 
 def parse_response(t: str) -> list:
     nodes = []
-    for para in t.split("\n\n"):
-        para = para.strip()
-        if not para:
-            continue
+    paragraphs = [p.strip() for p in t.split("\n\n") if p.strip()]
+    for para in paragraphs:
         parts = re.split(r'\*\*(.*?)\*\*|\*(.*?)\*', para)
         children = []
         for i, p in enumerate(parts):
             if p is None:
                 continue
             if i % 3 == 1:
-                children.append(ui.tags.strong(p))
+                children.append(ui.tags.strong({"style": "color:#d0cec8; font-weight:500;"}, p))
             elif i % 3 == 2:
-                children.append(ui.tags.em(p))
+                children.append(ui.tags.em({"style": "color:#a0b4b4; font-style:italic;"}, p))
             else:
-                children.append(p)
-        nodes.append(ui.tags.p({"style": "margin-bottom: 12px; line-height: 1.75;"}, *children))
+                if p:
+                    children.append(p)
+        nodes.append(ui.tags.p({"style": "margin-bottom:14px; line-height:1.75; color:var(--text-primary); font-size:15px;"}, *children))
     return nodes
 
 
@@ -771,7 +770,16 @@ _STATIC_JS = (
     "  } catch(e) {}"
     "}"
 
+    "var _lastResponseText = '';"
+    "var _lastResponseQuestion = '';"
+
+    "Shiny.addCustomMessageHandler('store_response', function(data) {"
+    "  _lastResponseText = data.text || '';"
+    "  _lastResponseQuestion = data.question || '';"
+    "});"
+
     "function copyToClipboard(text, btnId) {"
+    "  if (!text) return;"
     "  navigator.clipboard.writeText(text).then(function() {"
     "    var btn = document.getElementById(btnId);"
     "    if (btn) {"
@@ -780,19 +788,30 @@ _STATIC_JS = (
     "      btn.classList.add('copied');"
     "      setTimeout(function() { btn.textContent = orig; btn.classList.remove('copied'); }, 2000);"
     "    }"
-    "  }).catch(function() {});"
+    "  }).catch(function() {"
+    "    var ta = document.createElement('textarea');"
+    "    ta.value = text;"
+    "    document.body.appendChild(ta);"
+    "    ta.select();"
+    "    document.execCommand('copy');"
+    "    document.body.removeChild(ta);"
+    "    var btn = document.getElementById(btnId);"
+    "    if (btn) {"
+    "      var orig = btn.textContent;"
+    "      btn.textContent = 'copied!';"
+    "      btn.classList.add('copied');"
+    "      setTimeout(function() { btn.textContent = orig; btn.classList.remove('copied'); }, 2000);"
+    "    }"
+    "  });"
     "}"
 
     "function shareResponse() {"
-    "  var body = document.querySelector('.j-response-body');"
-    "  if (body) copyToClipboard(body.innerText, 'share-text-btn');"
+    "  copyToClipboard(_lastResponseText, 'share-text-btn');"
     "}"
 
     "function shareUrl() {"
-    "  var q = document.getElementById('last_question_asked');"
-    "  var qval = q ? q.value : '';"
     "  var url = 'https://jmcoates-whyjeremy.share.connect.posit.cloud';"
-    "  if (qval) url += '?q=' + encodeURIComponent(qval);"
+    "  if (_lastResponseQuestion) url += '?q=' + encodeURIComponent(_lastResponseQuestion);"
     "  copyToClipboard(url, 'share-url-btn');"
     "}"
 
@@ -964,9 +983,9 @@ body { background-color: var(--bg); color: var(--text-primary); font-family: 'DM
 @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 .j-footer { margin-top: 80px; padding-top: 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
 .j-footer-left, .j-footer-right { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); letter-spacing: 0.05em; }
-.j-share-app-btn { background: transparent; border: none; color: var(--text-muted); font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.06em; padding: 0; cursor: pointer; transition: color 0.15s; }
-.j-share-app-btn:hover { color: var(--warm); }
-.j-share-app-btn.copied { color: var(--accent-light); }
+.j-share-app-btn { background: transparent; border: 1px solid var(--border2); border-radius: 2px; color: var(--text-muted); font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.06em; padding: 5px 12px; cursor: pointer; transition: all 0.15s; text-transform: uppercase; }
+.j-share-app-btn:hover { border-color: var(--warm); color: var(--warm); }
+.j-share-app-btn.copied { border-color: var(--accent-light); color: var(--accent-light); }
 """
 
 # -- UI ------------------------------------------------------------------------
@@ -1345,6 +1364,7 @@ def server(input, output, session):
             conversation_history.set(history[-16:])
 
             log_to_airtable(uid, team_key, question, len(reply), location)
+            await session.send_custom_message("store_response", {"text": reply, "question": question})
             await session.send_custom_message("scroll_response", True)
 
         except Exception as e:
