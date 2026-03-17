@@ -708,6 +708,16 @@ _STATIC_JS = (
     "  var btn = document.getElementById('ask_btn');"
     "  if (btn) { btn.disabled = loading; btn.textContent = loading ? 'querying...' : 'run query'; }"
     "});"
+    "Shiny.addCustomMessageHandler('scroll_response', function(v) {"
+    "  setTimeout(function() {"
+    "    var el = document.getElementById('response-panel-anchor');"
+    "    if (el) {"
+    "      el.scrollIntoView({ behavior: 'smooth', block: 'start' });"
+    "      var sec = el.querySelector('.j-response-section');"
+    "      if (sec) { sec.classList.remove('j-response-fresh'); void sec.offsetWidth; sec.classList.add('j-response-fresh'); }"
+    "    }"
+    "  }, 80);"
+    "});"
 
     "Shiny.addCustomMessageHandler('clear_handoff_input', function(v) {"
     "  var ta = document.getElementById('handoff_chat_display');"
@@ -830,6 +840,8 @@ body { background-color: var(--bg); color: var(--text-primary); font-family: 'DM
 .j-submit-btn:hover { background: var(--accent-light); }
 .j-submit-btn:disabled { background: var(--surface2); color: var(--text-muted); cursor: not-allowed; }
 .j-response-section { margin-top: 40px; border-top: 1px solid var(--border); padding-top: 32px; }
+.j-response-section.j-response-fresh { animation: responseReveal 0.5s ease-out; }
+@keyframes responseReveal { 0% { opacity: 0; transform: translateY(8px); } 100% { opacity: 1; transform: translateY(0); } }
 .j-response-label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 16px; }
 .j-response-body { color: var(--text-primary); font-size: 15px; line-height: 1.75; white-space: pre-wrap; }
 .j-response-body em { color: var(--cool); font-style: italic; }
@@ -1066,7 +1078,10 @@ app_ui = ui.page_fluid(
         ui.tags.style("#riddle_team_signal { display: none; }"),
 
         # Response
-        ui.output_ui("response_panel"),
+        ui.div(
+            {"id": "response-panel-anchor"},
+            ui.output_ui("response_panel"),
+        ),
 
         # Footer
         ui.div(
@@ -1177,6 +1192,7 @@ def server(input, output, session):
         if is_unlock(question):
             is_unlocked.set(True)
             unlocked_team.set(team_key)
+            await session.send_custom_message("scroll_response", True)
             return
 
         allowed, reason = check_and_increment(uid)
@@ -1186,6 +1202,7 @@ def server(input, output, session):
 
         if is_off_topic(question):
             show_offtopic.set(True)
+            await session.send_custom_message("scroll_response", True)
             return
 
         is_loading.set(True)
@@ -1208,6 +1225,7 @@ def server(input, output, session):
             reply = message.content[0].text
             response_text.set(reply)
             log_to_airtable(uid, team_key, question, len(reply))
+            await session.send_custom_message("scroll_response", True)
 
         except Exception as e:
             response_text.set(f"Something went wrong connecting to the API: {str(e)}")
@@ -1396,10 +1414,11 @@ def server(input, output, session):
                 ui.div({"class": "j-offtopic-msg"}, "This one's outside the scope of the engagement."),
                 ui.div(
                     {"class": "j-video-wrapper"},
-                    ui.tags.video(
-                        {"autoplay": "true", "controls": "true", "loop": "true", "style": "width:100%;"},
-                        ui.tags.source({"src": "https://y.yarn.co/c286f02c-fc08-48e1-bf99-5fa48f913d0e_text.mp4", "type": "video/mp4"})
-                    )
+                    ui.tags.img({
+                        "src": "https://media.tenor.com/KLOhMhFaMiIAAAAC/you-you-de-niro.gif",
+                        "alt": "De Niro pointing",
+                        "style": "width:100%; display:block; border-radius:4px;"
+                    })
                 ),
             )
 
