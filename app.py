@@ -800,7 +800,10 @@ _STATIC_JS = (
     "    if (pwd) {"
     "      var sig = document.getElementById('admin_password_input');"
     "      if (sig) { sig.value = pwd; sig.dispatchEvent(new Event('input', { bubbles: true })); }"
-    "      setTimeout(function() { document.getElementById('admin_check_btn').click(); }, 100);"
+    "      setTimeout(function() {"
+    "        var btn = document.getElementById('admin_check_btn');"
+    "        if (btn) btn.click();"
+    "      }, 500);"
     "    }"
     "  }"
     "}"
@@ -868,6 +871,9 @@ _STATIC_JS = (
     "document.addEventListener('DOMContentLoaded', function() {"
     "  detectLocation();"
     "  checkAutoQuery();"
+    "});"
+
+    "$(document).on('shiny:connected', function() {"
     "  checkAdminAccess();"
     "});"
 )
