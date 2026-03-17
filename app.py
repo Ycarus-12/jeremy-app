@@ -1414,11 +1414,15 @@ def server(input, output, session):
                 ui.div({"class": "j-offtopic-msg"}, "This one's outside the scope of the engagement."),
                 ui.div(
                     {"class": "j-video-wrapper"},
-                    ui.tags.img({
-                        "src": "https://media.tenor.com/KLOhMhFaMiIAAAAC/you-you-de-niro.gif",
-                        "alt": "De Niro pointing",
-                        "style": "width:100%; display:block; border-radius:4px;"
-                    })
+                    ui.tags.div(
+                        {"class": "tenor-gif-embed",
+                         "data-postid": "15668327",
+                         "data-share-method": "host",
+                         "data-aspect-ratio": "1.77778",
+                         "data-width": "100%"},
+                        ui.tags.a({"href": "https://tenor.com/view/you-you-de-niro-robert-de-niro-pointing-point-gif-15668327"}, "You You De Niro GIF"),
+                    ),
+                    ui.tags.script({"src": "https://tenor.com/embed.js", "async": "true"}),
                 ),
             )
 
