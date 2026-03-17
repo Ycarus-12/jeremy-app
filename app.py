@@ -770,7 +770,40 @@ _STATIC_JS = (
     "  } catch(e) {}"
     "}"
 
-    "var _lastResponseText = '';"
+    "var _lengthMap = ['short','balanced','detailed'];"
+    "var _lengthLabels = ['concise','balanced','detailed'];"
+
+    "function handleLengthChange(val) {"
+    "  var idx = parseInt(val);"
+    "  var label = document.getElementById('length-label');"
+    "  if (label) label.textContent = _lengthLabels[idx];"
+    "  var inp = document.getElementById('length_pref');"
+    "  if (inp) { inp.value = _lengthMap[idx]; inp.dispatchEvent(new Event('input', { bubbles: true })); }"
+    "}"
+
+    "function resetConversation() {"
+    "  document.getElementById('reset_conversation').click();"
+    "  var ta = document.getElementById('question_display');"
+    "  if (ta) { ta.value = ''; syncQuestion(''); }"
+    "}"
+
+    "function setFollowup(q) {"
+    "  var ta = document.getElementById('question_display');"
+    "  if (ta) { ta.value = q; syncQuestion(q); ta.focus(); }"
+    "  window.scrollTo({ top: document.getElementById('question_display').getBoundingClientRect().top + window.pageYOffset - 80, behavior: 'smooth' });"
+    "}"
+
+    "function checkAdminAccess() {"
+    "  var params = new URLSearchParams(window.location.search);"
+    "  if (params.get('admin') === 'true') {"
+    "    var pwd = prompt('Admin password:');"
+    "    if (pwd) {"
+    "      var sig = document.getElementById('admin_password_input');"
+    "      if (sig) { sig.value = pwd; sig.dispatchEvent(new Event('input', { bubbles: true })); }"
+    "      setTimeout(function() { document.getElementById('admin_check_btn').click(); }, 100);"
+    "    }"
+    "  }"
+    "}"
     "var _lastResponseQuestion = '';"
 
     "Shiny.addCustomMessageHandler('store_response', function(data) {"
@@ -835,6 +868,7 @@ _STATIC_JS = (
     "document.addEventListener('DOMContentLoaded', function() {"
     "  detectLocation();"
     "  checkAutoQuery();"
+    "  checkAdminAccess();"
     "});"
 )
 
@@ -1181,6 +1215,18 @@ app_ui = ui.page_fluid(
         ),
 
         ui.div(
+            {"style": "display:flex; align-items:center; gap:12px; margin-top:10px; margin-bottom:4px;"},
+            ui.tags.span({"style": "font-family:'DM Mono',monospace; font-size:10px; color:var(--text-muted); letter-spacing:0.1em; text-transform:uppercase; white-space:nowrap;"}, "response length"),
+            ui.tags.input({
+                "type": "range", "min": "0", "max": "2", "step": "1", "value": "1",
+                "id": "length-slider",
+                "oninput": "handleLengthChange(this.value)",
+                "style": "flex:1; max-width:140px; accent-color:var(--accent-light);"
+            }),
+            ui.tags.span({"id": "length-label", "style": "font-family:'DM Mono',monospace; font-size:10px; color:var(--accent-light); min-width:48px;"}, "balanced"),
+        ),
+
+        ui.div(
             {"class": "j-submit-row", "id": "submit-row"},
             ui.tags.button("run query", {"class": "j-submit-btn", "id": "ask_btn", "onclick": "submitQuestion()"}),
         ),
@@ -1194,6 +1240,9 @@ app_ui = ui.page_fluid(
         ui.input_text_area("handoff_chat_input", "", rows=2),
         ui.tags.style("#handoff_chat_input { display: none; }"),
         ui.input_action_button("handoff_chat_send", "", style="display:none;"),
+        ui.input_action_button("reset_conversation", "", style="display:none;"),
+        ui.input_text("length_pref", "", value="balanced"),
+        ui.tags.style("#length_pref { display: none; }"),
         ui.input_action_button("riddle_correct", "", style="display:none;"),
         ui.input_text("riddle_team_signal", "", value=""),
         ui.tags.style("#riddle_team_signal { display: none; }"),
@@ -1202,11 +1251,18 @@ app_ui = ui.page_fluid(
         ui.input_text("last_question_asked", "", value=""),
         ui.tags.style("#last_question_asked { display: none; }"),
 
+        ui.input_text("admin_password_input", "", value=""),
+        ui.tags.style("#admin_password_input { display: none; }"),
+        ui.input_action_button("admin_check_btn", "", style="display:none;"),
+
         # Response
         ui.div(
             {"id": "response-panel-anchor"},
             ui.output_ui("response_panel"),
         ),
+
+        # Admin panel
+        ui.output_ui("admin_panel"),
 
         # Footer
         ui.div(
@@ -1222,19 +1278,21 @@ app_ui = ui.page_fluid(
 # -- Server --------------------------------------------------------------------
 
 def server(input, output, session):
-    response_text       = reactive.value("")
-    is_unlocked         = reactive.value(False)
-    unlocked_team       = reactive.value("")
-    is_loading          = reactive.value(False)
-    show_offtopic       = reactive.value(False)
-    show_handoff        = reactive.value(False)
-    handoff_team        = reactive.value("exploring")
-    limit_reason        = reactive.value("")
-    user_id             = reactive.value(make_user_id())
-    handoff_messages    = reactive.value([])
-    handoff_loading     = reactive.value(False)
+    response_text        = reactive.value("")
+    is_unlocked          = reactive.value(False)
+    unlocked_team        = reactive.value("")
+    is_loading           = reactive.value(False)
+    show_offtopic        = reactive.value(False)
+    show_handoff         = reactive.value(False)
+    handoff_team         = reactive.value("exploring")
+    limit_reason         = reactive.value("")
+    user_id              = reactive.value(make_user_id())
+    handoff_messages     = reactive.value([])
+    handoff_loading      = reactive.value(False)
     conversation_history = reactive.value([])
     last_question        = reactive.value("")
+    response_length_pref = reactive.value("balanced")
+    followup_questions   = reactive.value([])
 
     @reactive.effect
     @reactive.event(input.handoff_trigger)
@@ -1254,6 +1312,23 @@ def server(input, output, session):
     def handle_handoff_dismiss():
         show_handoff.set(False)
         handoff_messages.set([])
+
+    @reactive.effect
+    @reactive.event(input.reset_conversation)
+    def handle_reset():
+        conversation_history.set([])
+        response_text.set("")
+        followup_questions.set([])
+        show_offtopic.set(False)
+        limit_reason.set("")
+        is_unlocked.set(False)
+
+    @reactive.effect
+    @reactive.event(input.length_pref)
+    def handle_length_pref():
+        val = input.length_pref().strip()
+        if val in ("short", "balanced", "detailed"):
+            response_length_pref.set(val)
 
     @reactive.effect
     @reactive.event(input.riddle_correct)
@@ -1310,12 +1385,14 @@ def server(input, output, session):
         team_key = input.selected_team() or "exploring"
         uid      = user_id()
         location = input.user_location().strip()
+        length   = response_length_pref()
 
         show_offtopic.set(False)
         show_handoff.set(False)
         limit_reason.set("")
         response_text.set("")
         is_unlocked.set(False)
+        followup_questions.set([])
         last_question.set(question)
 
         if is_unlock(question):
@@ -1340,10 +1417,20 @@ def server(input, output, session):
         try:
             client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
             user_content = question
+
+            # Length preference instruction
+            length_instruction = ""
+            if length == "short":
+                length_instruction = "\n\nIMPORTANT: Keep your response concise -- 2-3 short paragraphs maximum. Lead with the most important point."
+            elif length == "detailed":
+                length_instruction = "\n\nIMPORTANT: Give a thorough, detailed response. Use examples, specifics, and cover the topic comprehensively."
+
             if "cultural fit" in question.lower():
-                user_content = question + "\n\nIMPORTANT: Begin your response with exactly this sentence: 'Expertise is becoming a commodity. What differentiates teams now is leadership, culture, and how people work together.' Then continue with the short-form cultural fit summary."
+                user_content = question + "\n\nIMPORTANT: Begin your response with exactly this sentence: 'Expertise is becoming a commodity. What differentiates teams now is leadership, culture, and how people work together.' Then continue with the short-form cultural fit summary." + length_instruction
             elif has_nudge_keywords(question):
-                user_content += "\n\nAnswer the question fully, then end with this exact line on its own paragraph:\n*...some things are better discovered than explained.*"
+                user_content += "\n\nAnswer the question fully, then end with this exact line on its own paragraph:\n*...some things are better discovered than explained.*" + length_instruction
+            else:
+                user_content += length_instruction
 
             # Build rolling conversation window (last 8 exchanges = 16 messages)
             history = list(conversation_history())
@@ -1352,7 +1439,7 @@ def server(input, output, session):
 
             message = client.messages.create(
                 model="claude-sonnet-4-20250514",
-                max_tokens=600,
+                max_tokens=600 if length == "short" else 1000 if length == "detailed" else 700,
                 system=SYSTEM_PROMPT,
                 messages=messages_to_send
             )
@@ -1362,6 +1449,25 @@ def server(input, output, session):
             # Update conversation history
             history.append({"role": "assistant", "content": reply})
             conversation_history.set(history[-16:])
+
+            # Generate follow-up questions
+            try:
+                followup_msg = client.messages.create(
+                    model="claude-sonnet-4-20250514",
+                    max_tokens=200,
+                    system="You generate short follow-up question suggestions. Return exactly 3 follow-up questions as a JSON array of strings. Questions should be natural continuations of the conversation, relevant to the answer just given. No preamble, no explanation, just the JSON array.",
+                    messages=[
+                        {"role": "user", "content": f"The user asked: {question}\n\nThe response was: {reply[:500]}\n\nGenerate 3 follow-up questions."}
+                    ]
+                )
+                import json as _j
+                raw = followup_msg.content[0].text.strip()
+                raw = re.sub(r'^```json|^```|```$', '', raw, flags=re.MULTILINE).strip()
+                suggestions = _j.loads(raw)
+                if isinstance(suggestions, list):
+                    followup_questions.set(suggestions[:3])
+            except Exception:
+                followup_questions.set([])
 
             log_to_airtable(uid, team_key, question, len(reply), location)
             await session.send_custom_message("store_response", {"text": reply, "question": question})
@@ -1523,12 +1629,12 @@ def server(input, output, session):
         if reason == "user":
             return ui.div(
                 {"class": "j-limit-panel"},
-                ui.div({"class": "j-limit-label"}, "// query limit reached"),
+                ui.div({"class": "j-limit-label"}, "// that was thorough"),
                 ui.div(
                     {"class": "j-limit-msg"},
-                    f"You've reached the {PER_USER_LIMIT}-query limit for this session. Reach Jeremy at ",
+                    "You've asked a lot of great questions -- Jeremy appreciates the curiosity. You've hit the session limit, but the conversation doesn't have to stop here. Reach out directly at ",
                     ui.tags.a("JMCoates@protonmail.com", {"href": "mailto:JMCoates@protonmail.com"}),
-                    " or on ",
+                    " or connect on ",
                     ui.tags.a("LinkedIn", {"href": "https://www.linkedin.com/in/jeremymcoates/", "target": "_blank"}),
                     "."
                 ),
@@ -1536,10 +1642,10 @@ def server(input, output, session):
         if reason == "global":
             return ui.div(
                 {"class": "j-limit-panel"},
-                ui.div({"class": "j-limit-label"}, "// offline"),
+                ui.div({"class": "j-limit-label"}, "// taking a breather"),
                 ui.div(
                     {"class": "j-limit-msg"},
-                    "?jeremy has fielded a lot of questions and is taking a breather. Reach Jeremy at ",
+                    "?jeremy has been busy today and needs a moment. In the meantime, reach Jeremy directly at ",
                     ui.tags.a("JMCoates@protonmail.com", {"href": "mailto:JMCoates@protonmail.com"}),
                     " or on ",
                     ui.tags.a("LinkedIn", {"href": "https://www.linkedin.com/in/jeremymcoates/", "target": "_blank"}),
@@ -1577,10 +1683,47 @@ def server(input, output, session):
         if not text:
             return ui.div()
 
+        followups = followup_questions()
+
+        followup_nodes = []
+        if followups:
+            followup_nodes = [
+                ui.div(
+                    {"style": "margin-bottom: 8px;"},
+                    ui.tags.span({"style": "font-family:'DM Mono',monospace; font-size:10px; color:var(--text-muted); letter-spacing:0.12em; text-transform:uppercase;"}, "// keep going"),
+                ),
+                ui.div(
+                    {"style": "display:flex; flex-wrap:wrap; gap:8px; margin-bottom:24px;"},
+                    *[
+                        ui.tags.button(
+                            q,
+                            {
+                                "style": "background:var(--surface); border:1px solid var(--border); border-radius:2px; color:var(--text-dim); font-family:'DM Sans',sans-serif; font-size:13px; padding:7px 12px; cursor:pointer; text-align:left; transition:border-color 0.15s; line-height:1.4;",
+                                "onclick": f"setFollowup({repr(q)})",
+                            }
+                        )
+                        for q in followups
+                    ]
+                )
+            ]
+
         return ui.div(
             {"class": "j-response-section"},
-            ui.div({"class": "j-response-label"}, "// response"),
+            ui.div(
+                {"style": "display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;"},
+                ui.div({"class": "j-response-label", "style": "margin-bottom:0;"}, "// response"),
+                ui.tags.button(
+                    "clear conversation",
+                    {
+                        "style": "background:none; border:none; color:var(--text-muted); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.06em; cursor:pointer; padding:0; transition:color 0.15s;",
+                        "onclick": "resetConversation()",
+                        "onmouseover": "this.style.color='var(--text-dim)'",
+                        "onmouseout": "this.style.color='var(--text-muted)'",
+                    }
+                ),
+            ),
             ui.div({"class": "j-response-body"}, *parse_response(text)),
+            *followup_nodes,
             ui.div(
                 {"class": "j-share-row"},
                 ui.tags.button(
@@ -1592,6 +1735,63 @@ def server(input, output, session):
                     {"class": "j-share-btn", "id": "share-url-btn", "onclick": "shareUrl()"}
                 ),
             ),
+        )
+
+
+    admin_unlocked = reactive.value(False)
+
+    @reactive.effect
+    @reactive.event(input.admin_check_btn)
+    def handle_admin_check():
+        pwd        = input.admin_password_input().strip()
+        admin_pwd  = os.environ.get("ADMIN_PASSWORD", "").strip()
+        if admin_pwd and pwd == admin_pwd:
+            admin_unlocked.set(True)
+
+    @output
+    @render.ui
+    def admin_panel():
+        if not admin_unlocked():
+            return ui.div()
+        with _lock:
+            total_queries  = _global_count
+            unique_users   = len(_user_counts)
+            top_users      = sorted(_user_counts.items(), key=lambda x: x[1], reverse=True)[:5]
+            queries_left   = max(0, GLOBAL_LIMIT - total_queries)
+            pct_used       = round((total_queries / GLOBAL_LIMIT) * 100, 1)
+
+        rows = [
+            ui.tags.tr(
+                ui.tags.td({"style": "padding:6px 12px; font-family:'DM Mono',monospace; font-size:11px; color:var(--text-muted);"}, uid),
+                ui.tags.td({"style": "padding:6px 12px; font-family:'DM Mono',monospace; font-size:11px; color:var(--accent-light); text-align:right;"}, str(count)),
+            )
+            for uid, count in top_users
+        ]
+
+        return ui.div(
+            {"style": "margin-top:40px; border:1px solid rgba(106,128,96,0.3); border-radius:4px; padding:28px; background:var(--surface);"},
+            ui.div({"style": "font-family:'DM Mono',monospace; font-size:11px; color:var(--accent-light); letter-spacing:0.14em; text-transform:uppercase; margin-bottom:20px;"}, "// admin -- session stats"),
+            ui.div(
+                {"style": "display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:24px;"},
+                *[
+                    ui.div(
+                        {"style": "background:var(--surface2); border-radius:3px; padding:16px;"},
+                        ui.div({"style": "font-family:'DM Mono',monospace; font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:6px;"}, label),
+                        ui.div({"style": "font-size:24px; font-weight:500; color:#d0cec8;"}, value),
+                    )
+                    for label, value in [
+                        ("total queries", str(total_queries)),
+                        ("unique users", str(unique_users)),
+                        ("queries left", f"{queries_left} ({pct_used}% used)"),
+                    ]
+                ]
+            ),
+            ui.div({"style": "font-family:'DM Mono',monospace; font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:10px;"}, "top users this session"),
+            ui.tags.table(
+                {"style": "width:100%; border-collapse:collapse;"},
+                *rows
+            ) if rows else ui.div({"style": "font-size:13px; color:var(--text-muted); font-style:italic;"}, "no queries yet"),
+            ui.div({"style": "font-family:'DM Mono',monospace; font-size:10px; color:var(--text-muted); margin-top:16px; font-style:italic;"}, "note: stats reset when the app restarts. for persistent analytics check airtable."),
         )
 
 
