@@ -1055,7 +1055,7 @@ app_ui = ui.page_fluid(
         # Hidden Shiny inputs
         ui.input_action_button("ask", "", style="display:none;"),
         ui.input_action_button("handoff_trigger", "", style="display:none;"),
-        ui.input_action_button("handoff_dismiss", "", style="display:none;", id="handoff_dismiss"),
+        ui.input_action_button("handoff_dismiss", "", style="display:none;"),
         ui.input_text("handoff_team_input", "", value=""),
         ui.tags.style("#handoff_team_input { display: none; }"),
         ui.input_text_area("handoff_chat_input", "", rows=2),
