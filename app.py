@@ -934,9 +934,9 @@ app_ui = ui.page_fluid(
             }
 
             function checkRiddleAnswer(text) {
-                var words = text.toLowerCase().replace(/[^\\w\\s]/g, '').split(/\\s+/);
+                var words = text.toLowerCase().replace(/[^a-z0-9 ]/g, '').split(' ');
                 var wordSet = {};
-                words.forEach(function(w) { wordSet[w] = true; });
+                words.forEach(function(w) { if (w) wordSet[w] = true; });
                 return wordSet['kind'] && wordSet['humble'] && wordSet['curious'];
             }
 
