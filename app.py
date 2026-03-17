@@ -209,7 +209,6 @@ SUGGESTED_QUESTIONS = {
 UNLOCK_PHRASE   = os.environ.get("UNLOCK_PHRASE", "REPLACE_WITH_YOUR_UNLOCK_PHRASE")
 RIDDLE_TEXT     = "Posit says there are three things that mean you belong here. What are they?"
 RIDDLE_HINT_URL = "https://www.linkedin.com/company/posit-software/life"
-CELEBRATION_GIF = "https://media.tenor.com/xwARyAaoSJEAAAAM/all-good-its-all-good.gif"
 
 HANDOFF_SCENARIO = (
     "I'm handing off BioStat Labs, a university research group that just went live on "
@@ -424,12 +423,344 @@ Always ask which audience a deliverable is for before producing it.
 Keep responses focused. Ask one or two questions at a time."""
 
 
-# -- Build JS constants --------------------------------------------------------
+# -- Build JS data constants (injected separately, never inside triple-quoted blocks) --
 import json as _json
 
 _SQ_JSON             = _json.dumps({k: [[qk, ql] for qk, ql in qs] for k, qs in SUGGESTED_QUESTIONS.items()}, ensure_ascii=False)
-_HANDOFF_SCENARIO_JS = HANDOFF_SCENARIO.replace("'", "\\'").replace("\n", " ")
-_PM_SCENARIO_JS      = PM_SCENARIO.replace("'", "\\'").replace("\n", " ")
+_HANDOFF_SCENARIO_JS = HANDOFF_SCENARIO.replace("\\", "\\\\").replace("'", "\\'").replace("\n", " ")
+_PM_SCENARIO_JS      = PM_SCENARIO.replace("\\", "\\\\").replace("'", "\\'").replace("\n", " ")
+_RIDDLE_HINT_URL_JS  = RIDDLE_HINT_URL.replace("'", "\\'")
+
+# -- Static JS (no dynamic injection inside -- all single-quoted strings) ------
+# RULE: never put Python variables inside this block.
+# RULE: use only single quotes for JS strings inside this block.
+# RULE: no triple-quote sequences anywhere inside this block.
+_STATIC_JS = (
+    "var _riddleAttempts = 0;"
+
+    "function showCelebration() {"
+    "  var el = document.getElementById('celebration-overlay');"
+    "  if (!el) return;"
+    "  el.innerHTML = '<img src=\\'https://media.tenor.com/xwARyAaoSJEAAAAM/all-good-its-all-good.gif\\'>';"
+    "  el.classList.add('active');"
+    "  setTimeout(function() { el.classList.remove('active'); el.innerHTML = ''; }, 4000);"
+    "}"
+
+    "function syncQuestion(val) {"
+    "  var el = document.getElementById('question');"
+    "  if (el) { el.value = val; el.dispatchEvent(new Event('input', { bubbles: true })); }"
+    "}"
+
+    "function handleKey(e) {"
+    "  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); submitQuestion(); }"
+    "}"
+
+    "function submitQuestion() {"
+    "  var q = document.getElementById('question_display').value.trim();"
+    "  if (!q) return;"
+    "  document.getElementById('ask').click();"
+    "}"
+
+    "function setAgentMode(on) {"
+    "  var normal = document.getElementById('question_display');"
+    "  var agentPan = document.getElementById('agent-input-panel');"
+    "  var submitRow = document.getElementById('submit-row');"
+    "  if (on) {"
+    "    normal.style.display = 'none';"
+    "    agentPan.classList.add('active');"
+    "    submitRow.style.display = 'none';"
+    "  } else {"
+    "    normal.style.display = '';"
+    "    agentPan.classList.remove('active');"
+    "    submitRow.style.display = '';"
+    "  }"
+    "}"
+
+    "function handleTeamChange(el) {"
+    "  var key = el.value;"
+    "  var inp = document.getElementById('selected_team');"
+    "  if (inp) { inp.value = key; inp.dispatchEvent(new Event('input', { bubbles: true })); }"
+    "  var qd = document.getElementById('question_dropdown');"
+    "  if (!qd) return;"
+    "  var questions = SUGGESTED[key] || SUGGESTED['exploring'];"
+    "  qd.innerHTML = '<option value=\"\" disabled selected>-- choose a question or type your own --</option>';"
+    "  questions.forEach(function(pair) {"
+    "    var opt = document.createElement('option');"
+    "    opt.value = pair[0];"
+    "    opt.textContent = pair[1];"
+    "    qd.appendChild(opt);"
+    "  });"
+    "  setAgentMode(false);"
+    "}"
+
+    "function handleSuggestedQuestion(el) {"
+    "  var key = el.value;"
+    "  if (!key) return;"
+    "  if (key === 'lucky') { openRiddle(); el.selectedIndex = 0; return; }"
+    "  if (key === 'handoff') {"
+    "    setAgentMode(true);"
+    "    setTimeout(function() { document.getElementById('handoff_trigger').click(); }, 80);"
+    "    el.selectedIndex = 0;"
+    "    return;"
+    "  }"
+    "  setAgentMode(false);"
+    "  var teamKey = document.getElementById('team_dropdown').value || 'exploring';"
+    "  var questions = SUGGESTED[teamKey] || SUGGESTED['exploring'];"
+    "  var found = null;"
+    "  for (var i = 0; i < questions.length; i++) {"
+    "    if (questions[i][0] === key) { found = questions[i]; break; }"
+    "  }"
+    "  if (found) {"
+    "    var ta = document.getElementById('question_display');"
+    "    if (ta) { ta.value = found[1]; syncQuestion(found[1]); }"
+    "  }"
+    "  el.selectedIndex = 0;"
+    "}"
+
+    "function syncHandoffInput(val) {"
+    "  var el = document.getElementById('handoff_chat_input');"
+    "  if (el) { el.value = val; el.dispatchEvent(new Event('input', { bubbles: true })); }"
+    "}"
+
+    "function handleHandoffKey(e) {"
+    "  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); submitHandoffChat(); }"
+    "}"
+
+    "function submitHandoffChat() {"
+    "  var q = document.getElementById('handoff_chat_display').value.trim();"
+    "  if (!q) return;"
+    "  document.getElementById('handoff_chat_send').click();"
+    "}"
+
+    "function prefillHandoffScenario() {"
+    "  var ta = document.getElementById('handoff_chat_display');"
+    "  if (ta) { ta.value = HANDOFF_SCENARIO; syncHandoffInput(HANDOFF_SCENARIO); ta.focus(); }"
+    "}"
+
+    "function prefillPMScenario() {"
+    "  var ta = document.getElementById('handoff_chat_display');"
+    "  if (ta) { ta.value = PM_SCENARIO; syncHandoffInput(PM_SCENARIO); ta.focus(); }"
+    "}"
+
+    "function openAbout() { document.getElementById('about-overlay').classList.add('active'); }"
+    "function closeAbout() { document.getElementById('about-overlay').classList.remove('active'); }"
+    "function closeAboutOnOverlay(e) { if (e.target === document.getElementById('about-overlay')) closeAbout(); }"
+
+    "function openExplainer() { document.getElementById('explainer-overlay').classList.add('active'); }"
+    "function closeExplainer() { document.getElementById('explainer-overlay').classList.remove('active'); }"
+    "function closeExplainerOnOverlay(e) { if (e.target === document.getElementById('explainer-overlay')) closeExplainer(); }"
+
+    "function openRiddle() {"
+    "  _riddleAttempts = 0;"
+    "  var inp = document.getElementById('riddle-answer-input');"
+    "  var fb = document.getElementById('riddle-feedback');"
+    "  if (inp) inp.value = '';"
+    "  if (fb) { fb.textContent = ''; fb.className = 'j-riddle-feedback'; }"
+    "  document.getElementById('riddle-overlay').classList.add('active');"
+    "  setTimeout(function() { if (inp) inp.focus(); }, 120);"
+    "}"
+
+    "function closeRiddle() {"
+    "  document.getElementById('riddle-overlay').classList.remove('active');"
+    "}"
+
+    "function handleRiddleKey(e) {"
+    "  if (e.key === 'Enter') { e.preventDefault(); submitRiddleAnswer(); }"
+    "  if (e.key === 'Escape') { closeRiddle(); }"
+    "}"
+
+    "function checkRiddleAnswer(text) {"
+    "  var words = text.toLowerCase().replace(/[^a-z0-9 ]/g, '').split(' ');"
+    "  var s = {};"
+    "  for (var i = 0; i < words.length; i++) { if (words[i]) s[words[i]] = true; }"
+    "  return s['kind'] && s['humble'] && s['curious'];"
+    "}"
+
+    "function submitRiddleAnswer() {"
+    "  var inp = document.getElementById('riddle-answer-input');"
+    "  var fb = document.getElementById('riddle-feedback');"
+    "  if (!inp) return;"
+    "  var val = inp.value.trim();"
+    "  if (!val) return;"
+    "  if (checkRiddleAnswer(val)) {"
+    "    closeRiddle();"
+    "    showCelebration();"
+    "    var teamKey = document.getElementById('team_dropdown').value || 'exploring';"
+    "    var sig = document.getElementById('riddle_team_signal');"
+    "    if (sig) { sig.value = teamKey; sig.dispatchEvent(new Event('input', { bubbles: true })); }"
+    "    setTimeout(function() { document.getElementById('riddle_correct').click(); }, 100);"
+    "  } else {"
+    "    _riddleAttempts++;"
+    "    inp.value = '';"
+    "    if (_riddleAttempts >= 2) {"
+    "      fb.className = 'j-riddle-feedback hint';"
+    "      fb.innerHTML = 'hint: <a href=\"' + RIDDLE_HINT_URL + '\" target=\"_blank\" style=\"color:var(--accent-light)\">the answer is on posit linkedin</a>';"
+    "    } else {"
+    "      fb.className = 'j-riddle-feedback wrong';"
+    "      fb.textContent = 'not quite -- try again';"
+    "      setTimeout(function() { fb.textContent = ''; fb.className = 'j-riddle-feedback'; }, 2000);"
+    "    }"
+    "    inp.focus();"
+    "  }"
+    "}"
+
+    "Shiny.addCustomMessageHandler('set_loading', function(loading) {"
+    "  var btn = document.getElementById('ask_btn');"
+    "  if (btn) { btn.disabled = loading; btn.textContent = loading ? 'querying...' : 'run query'; }"
+    "});"
+
+    "Shiny.addCustomMessageHandler('clear_handoff_input', function(v) {"
+    "  var ta = document.getElementById('handoff_chat_display');"
+    "  var inp = document.getElementById('handoff_chat_input');"
+    "  if (ta) ta.value = '';"
+    "  if (inp) { inp.value = ''; inp.dispatchEvent(new Event('input', { bubbles: true })); }"
+    "});"
+
+    "Shiny.addCustomMessageHandler('scroll_handoff', function(v) {"
+    "  var el = document.getElementById('handoff-chat-messages');"
+    "  if (el) el.scrollTop = el.scrollHeight;"
+    "});"
+)
+
+# -- Final JS block: dynamic vars first, then static functions -----------------
+def _build_js() -> str:
+    return (
+        "var SUGGESTED = " + _SQ_JSON + ";"
+        + "var HANDOFF_SCENARIO = '" + _HANDOFF_SCENARIO_JS + "';"
+        + "var PM_SCENARIO = '" + _PM_SCENARIO_JS + "';"
+        + "var RIDDLE_HINT_URL = '" + _RIDDLE_HINT_URL_JS + "';"
+        + _STATIC_JS
+    )
+
+
+# -- CSS -----------------------------------------------------------------------
+
+_CSS = """
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+    --bg:           #141414;
+    --surface:      #1c1c18;
+    --surface2:     #242420;
+    --border:       #2e2e28;
+    --border2:      #3a3a32;
+    --text-primary: #b4b4aa;
+    --text-dim:     #787870;
+    --text-muted:   #3e3e38;
+    --accent:       #506450;
+    --accent-light: #6a8060;
+    --accent-glow:  rgba(80,100,80,0.15);
+    --warm:         #a0a08c;
+    --cool:         #a0b4b4;
+}
+body { background-color: var(--bg); color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 15px; line-height: 1.65; min-height: 100vh; }
+.page-fluid { padding: 0 !important; }
+.j-shell { max-width: 780px; margin: 0 auto; padding: 56px 32px 80px; }
+.j-header { margin-bottom: 48px; }
+.j-header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.j-wordmark { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--warm); letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.7; }
+.j-about-trigger { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); letter-spacing: 0.06em; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: color 0.15s; background: none; border: none; padding: 0; }
+.j-about-trigger:hover { color: var(--warm); }
+.j-info-icon { width: 14px; height: 14px; border: 1px solid currentColor; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 9px; font-style: italic; flex-shrink: 0; }
+.j-explainer-banner { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid rgba(106,128,96,0.25); border-radius: 3px; padding: 10px 16px; margin-bottom: 28px; cursor: pointer; transition: border-color 0.15s; }
+.j-explainer-banner:hover { border-color: rgba(106,128,96,0.5); }
+.j-explainer-icon { font-family: 'DM Mono', monospace; font-size: 14px; color: var(--accent-light); flex-shrink: 0; }
+.j-explainer-text { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--warm); letter-spacing: 0.08em; }
+.j-explainer-arrow { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); margin-left: auto; }
+.j-title { font-family: 'DM Mono', monospace; font-size: clamp(32px, 5vw, 48px); font-weight: 300; color: #d0cec8; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 12px; }
+.j-title span { color: var(--accent-light); }
+.j-subtitle { font-size: 14px; color: var(--text-dim); font-style: italic; }
+.j-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center; padding: 24px; }
+.j-modal-overlay.active { display: flex; }
+.j-modal { background: var(--surface); border: 1px solid var(--border2); border-radius: 4px; max-width: 520px; width: 100%; padding: 32px; position: relative; }
+.j-modal-header { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent-light); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 16px; }
+.j-modal-body { font-size: 14px; color: var(--text-dim); line-height: 1.75; }
+.j-modal-body a { color: var(--accent-light); text-decoration: none; }
+.j-modal-body p + p { margin-top: 12px; }
+.j-modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--text-muted); font-size: 18px; cursor: pointer; line-height: 1; padding: 4px; }
+.j-modal-close:hover { color: var(--text-primary); }
+.j-explainer-modal { background: var(--surface); border: 1px solid var(--border2); border-radius: 4px; max-width: 560px; width: 100%; padding: 36px 32px; position: relative; }
+.j-explainer-modal-header { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent-light); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 20px; }
+.j-explainer-modal-body { font-size: 14px; color: var(--text-dim); line-height: 1.8; }
+.j-explainer-modal-body p + p { margin-top: 14px; }
+.j-explainer-modal-body strong { color: var(--text-primary); font-weight: 500; }
+.j-explainer-modal-section { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
+.j-explainer-modal-section-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text-muted); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px; }
+.j-explainer-step { display: flex; gap: 10px; margin-bottom: 10px; align-items: flex-start; }
+.j-explainer-step-num { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent-light); min-width: 18px; padding-top: 1px; }
+.j-explainer-step-text { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+.j-explainer-egg-note { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); font-style: italic; margin-top: 16px; padding: 10px 14px; border: 1px dashed var(--border2); border-radius: 3px; }
+.j-riddle-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 1000; align-items: center; justify-content: center; padding: 24px; }
+.j-riddle-overlay.active { display: flex; }
+.j-riddle-modal { background: var(--surface); border: 1px solid rgba(106,128,96,0.4); border-radius: 4px; max-width: 480px; width: 100%; padding: 36px 32px; position: relative; text-align: center; }
+.j-riddle-header { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent-light); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 20px; }
+.j-riddle-text { font-size: 16px; color: #d0cec8; line-height: 1.7; margin-bottom: 24px; font-style: italic; }
+.j-riddle-input { width: 100%; background: var(--surface2); border: 1px solid var(--border2); border-radius: 2px; color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 10px 14px; outline: none; transition: border-color 0.15s; margin-bottom: 10px; }
+.j-riddle-input:focus { border-color: var(--accent-light); }
+.j-riddle-input::placeholder { color: var(--text-muted); }
+.j-riddle-btn-row { display: flex; gap: 8px; justify-content: center; margin-top: 4px; }
+.j-riddle-submit { background: var(--accent); border: none; border-radius: 2px; color: #e8e4dc; font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; letter-spacing: 0.08em; padding: 9px 20px; cursor: pointer; transition: background 0.15s; text-transform: uppercase; }
+.j-riddle-submit:hover { background: var(--accent-light); }
+.j-riddle-cancel { background: transparent; border: 1px solid var(--border2); border-radius: 2px; color: var(--text-muted); font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.06em; padding: 9px 16px; cursor: pointer; transition: color 0.15s; text-transform: uppercase; }
+.j-riddle-cancel:hover { color: var(--text-primary); }
+.j-riddle-feedback { font-family: 'DM Mono', monospace; font-size: 12px; margin-top: 10px; min-height: 18px; }
+.j-riddle-feedback.wrong { color: #a05050; }
+.j-riddle-feedback.hint { color: var(--warm); }
+.j-riddle-feedback.hint a { color: var(--accent-light); }
+.j-riddle-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--text-muted); font-size: 18px; cursor: pointer; line-height: 1; padding: 4px; }
+.j-riddle-close:hover { color: var(--text-primary); }
+#celebration-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; pointer-events: none; }
+#celebration-overlay.active { display: flex; }
+#celebration-overlay img { max-width: 480px; width: 80%; border-radius: 8px; }
+.j-team-section { margin-bottom: 24px; }
+.j-question-section { margin-bottom: 24px; }
+.j-label { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; color: var(--text-muted); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 10px; display: block; }
+.j-select { background: var(--surface); border: 1px solid var(--border); border-radius: 2px; color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 9px 36px 9px 14px; width: 100%; max-width: 380px; outline: none; cursor: pointer; transition: border-color 0.15s; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23787870' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; }
+.j-select:focus { border-color: var(--accent-light); }
+.j-select option { background: var(--surface2); color: var(--text-primary); }
+.j-input-section { margin-bottom: 8px; }
+.j-textarea { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 3px; color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 15px; line-height: 1.6; padding: 16px 18px; resize: none; outline: none; transition: border-color 0.15s; min-height: 80px; }
+.j-textarea:focus { border-color: var(--accent-light); }
+.j-textarea::placeholder { color: var(--border2); }
+.j-agent-input-panel { display: none; background: var(--surface); border: 1px solid rgba(106,128,96,0.35); border-radius: 3px; padding: 16px 18px; }
+.j-agent-input-panel.active { display: block; }
+.j-agent-input-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--accent-light); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px; }
+.j-agent-input-desc { font-size: 13px; color: var(--text-dim); font-style: italic; line-height: 1.6; }
+.j-submit-row { display: flex; justify-content: flex-end; margin-top: 12px; }
+.j-submit-btn { background: var(--accent); border: none; border-radius: 2px; color: #e8e4dc; font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; letter-spacing: 0.08em; padding: 10px 24px; cursor: pointer; transition: all 0.15s; text-transform: uppercase; }
+.j-submit-btn:hover { background: var(--accent-light); }
+.j-submit-btn:disabled { background: var(--surface2); color: var(--text-muted); cursor: not-allowed; }
+.j-response-section { margin-top: 40px; border-top: 1px solid var(--border); padding-top: 32px; }
+.j-response-label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 16px; }
+.j-response-body { color: var(--text-primary); font-size: 15px; line-height: 1.75; white-space: pre-wrap; }
+.j-response-body em { color: var(--cool); font-style: italic; }
+.j-limit-panel { background: var(--surface); border: 1px solid var(--border2); border-radius: 4px; padding: 28px 24px; margin-top: 40px; text-align: center; }
+.j-limit-label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--warm); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 12px; }
+.j-limit-msg { font-size: 14px; color: var(--text-dim); line-height: 1.6; }
+.j-limit-msg a { color: var(--accent-light); text-decoration: none; }
+.j-offtopic-panel { margin-top: 40px; border-top: 1px solid var(--border); padding-top: 32px; }
+.j-offtopic-label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 16px; }
+.j-offtopic-msg { font-size: 14px; color: var(--text-dim); font-style: italic; margin-bottom: 20px; }
+.j-video-wrapper { max-width: 480px; border-radius: 4px; overflow: hidden; border: 1px solid var(--border2); }
+.j-video-wrapper video { width: 100%; display: block; }
+.j-unlock-panel { background: linear-gradient(135deg, var(--accent-glow), rgba(80,100,80,0.04)); border: 1px solid rgba(106,128,96,0.3); border-radius: 4px; padding: 32px 28px; margin-top: 40px; }
+.j-unlock-header { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent-light); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 16px; }
+.j-unlock-title { font-size: 20px; font-weight: 500; color: #d0cec8; margin-bottom: 8px; }
+.j-unlock-desc { font-size: 14px; color: var(--text-dim); margin-bottom: 24px; font-style: italic; }
+.j-unlock-link { display: inline-block; background: var(--accent); color: #e8e4dc; font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; letter-spacing: 0.08em; padding: 11px 28px; border-radius: 2px; text-decoration: none; text-transform: uppercase; transition: background 0.15s; }
+.j-unlock-link:hover { background: var(--accent-light); }
+.j-unlock-note { font-size: 12px; color: var(--text-muted); margin-top: 16px; font-family: 'DM Mono', monospace; }
+.j-handoff-panel { margin-bottom: 24px; border: 1px solid var(--border); border-radius: 4px; padding: 24px; background: var(--surface); }
+.j-handoff-label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent-light); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 12px; }
+.j-handoff-title { font-size: 18px; font-weight: 500; color: #d0cec8; margin-bottom: 8px; }
+.j-handoff-desc { font-size: 14px; color: var(--text-dim); margin-bottom: 20px; font-style: italic; line-height: 1.6; }
+.j-handoff-placeholder { background: var(--surface2); border: 1px dashed var(--border2); border-radius: 4px; padding: 28px 24px; text-align: center; }
+.j-handoff-placeholder-text { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text-muted); letter-spacing: 0.04em; }
+.j-loading { color: var(--text-muted); font-family: 'DM Mono', monospace; font-size: 13px; font-style: italic; animation: pulse 1.5s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+.j-footer { margin-top: 80px; padding-top: 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+.j-footer-left, .j-footer-right { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); letter-spacing: 0.05em; }
+@media (max-width: 600px) { .j-shell { padding: 36px 20px 60px; } .j-title { font-size: 30px; } }
+"""
 
 # -- UI ------------------------------------------------------------------------
 
@@ -438,151 +769,7 @@ app_ui = ui.page_fluid(
         rel="stylesheet",
         href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&display=swap"
     ),
-    ui.tags.style("""
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        :root {
-            --bg:           #141414;
-            --surface:      #1c1c18;
-            --surface2:     #242420;
-            --border:       #2e2e28;
-            --border2:      #3a3a32;
-            --text-primary: #b4b4aa;
-            --text-dim:     #787870;
-            --text-muted:   #3e3e38;
-            --accent:       #506450;
-            --accent-light: #6a8060;
-            --accent-glow:  rgba(80,100,80,0.15);
-            --warm:         #a0a08c;
-            --cool:         #a0b4b4;
-        }
-        body { background-color: var(--bg); color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 15px; line-height: 1.65; min-height: 100vh; }
-        .page-fluid { padding: 0 !important; }
-        .j-shell { max-width: 780px; margin: 0 auto; padding: 56px 32px 80px; }
-        .j-header { margin-bottom: 48px; }
-        .j-header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
-        .j-wordmark { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--warm); letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.7; }
-        .j-header-right { display: flex; align-items: center; gap: 16px; }
-        .j-about-trigger { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); letter-spacing: 0.06em; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: color 0.15s; background: none; border: none; padding: 0; }
-        .j-about-trigger:hover { color: var(--warm); }
-        .j-info-icon { width: 14px; height: 14px; border: 1px solid currentColor; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 9px; font-style: italic; flex-shrink: 0; }
-
-        /* What am I looking at banner */
-        .j-explainer-banner { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid rgba(106,128,96,0.25); border-radius: 3px; padding: 10px 16px; margin-bottom: 28px; cursor: pointer; transition: border-color 0.15s; }
-        .j-explainer-banner:hover { border-color: rgba(106,128,96,0.5); }
-        .j-explainer-icon { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--accent-light); flex-shrink: 0; }
-        .j-explainer-text { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--warm); letter-spacing: 0.08em; }
-        .j-explainer-arrow { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); margin-left: auto; }
-
-        .j-title { font-family: 'DM Mono', monospace; font-size: clamp(32px, 5vw, 48px); font-weight: 300; color: #d0cec8; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 12px; }
-        .j-title span { color: var(--accent-light); }
-        .j-subtitle { font-size: 14px; color: var(--text-dim); font-style: italic; }
-
-        /* Generic modal base */
-        .j-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center; padding: 24px; }
-        .j-modal-overlay.active { display: flex; }
-        .j-modal { background: var(--surface); border: 1px solid var(--border2); border-radius: 4px; max-width: 520px; width: 100%; padding: 32px; position: relative; }
-        .j-modal-header { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent-light); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 16px; }
-        .j-modal-body { font-size: 14px; color: var(--text-dim); line-height: 1.75; }
-        .j-modal-body a { color: var(--accent-light); text-decoration: none; }
-        .j-modal-body p + p { margin-top: 12px; }
-        .j-modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--text-muted); font-size: 18px; cursor: pointer; line-height: 1; padding: 4px; }
-        .j-modal-close:hover { color: var(--text-primary); }
-
-        /* Explainer modal */
-        .j-explainer-modal { background: var(--surface); border: 1px solid var(--border2); border-radius: 4px; max-width: 560px; width: 100%; padding: 36px 32px; position: relative; }
-        .j-explainer-modal-header { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent-light); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 20px; }
-        .j-explainer-modal-body { font-size: 14px; color: var(--text-dim); line-height: 1.8; }
-        .j-explainer-modal-body p + p { margin-top: 14px; }
-        .j-explainer-modal-body strong { color: var(--text-primary); font-weight: 500; }
-        .j-explainer-modal-section { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
-        .j-explainer-modal-section-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text-muted); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px; }
-        .j-explainer-step { display: flex; gap: 10px; margin-bottom: 10px; align-items: flex-start; }
-        .j-explainer-step-num { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent-light); min-width: 18px; padding-top: 1px; }
-        .j-explainer-step-text { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
-        .j-explainer-egg-note { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); font-style: italic; margin-top: 16px; padding: 10px 14px; border: 1px dashed var(--border2); border-radius: 3px; }
-
-        /* Riddle modal (redesigned -- all action inside) */
-        .j-riddle-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 1000; align-items: center; justify-content: center; padding: 24px; }
-        .j-riddle-overlay.active { display: flex; }
-        .j-riddle-modal { background: var(--surface); border: 1px solid rgba(106,128,96,0.4); border-radius: 4px; max-width: 480px; width: 100%; padding: 36px 32px; position: relative; text-align: center; }
-        .j-riddle-header { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent-light); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 20px; }
-        .j-riddle-text { font-size: 16px; color: #d0cec8; line-height: 1.7; margin-bottom: 24px; font-style: italic; }
-        .j-riddle-input-wrap { margin-bottom: 12px; }
-        .j-riddle-input { width: 100%; background: var(--surface2); border: 1px solid var(--border2); border-radius: 2px; color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 10px 14px; outline: none; transition: border-color 0.15s; text-align: left; }
-        .j-riddle-input:focus { border-color: var(--accent-light); }
-        .j-riddle-input::placeholder { color: var(--text-muted); }
-        .j-riddle-btn-row { display: flex; gap: 8px; justify-content: center; margin-top: 4px; }
-        .j-riddle-submit { background: var(--accent); border: none; border-radius: 2px; color: #e8e4dc; font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; letter-spacing: 0.08em; padding: 9px 20px; cursor: pointer; transition: background 0.15s; text-transform: uppercase; }
-        .j-riddle-submit:hover { background: var(--accent-light); }
-        .j-riddle-cancel { background: transparent; border: 1px solid var(--border2); border-radius: 2px; color: var(--text-muted); font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.06em; padding: 9px 16px; cursor: pointer; transition: color 0.15s; text-transform: uppercase; }
-        .j-riddle-cancel:hover { color: var(--text-primary); }
-        .j-riddle-feedback { font-family: 'DM Mono', monospace; font-size: 12px; margin-top: 12px; min-height: 18px; transition: color 0.2s; }
-        .j-riddle-feedback.wrong { color: #a05050; }
-        .j-riddle-feedback.hint { color: var(--warm); }
-        .j-riddle-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--text-muted); font-size: 18px; cursor: pointer; line-height: 1; padding: 4px; }
-        .j-riddle-close:hover { color: var(--text-primary); }
-
-        /* Celebration: hidden by default via CSS, shown via .active class */
-        #celebration-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; pointer-events: none; }
-        #celebration-overlay.active { display: flex; }
-        #celebration-overlay img { max-width: 480px; width: 80%; border-radius: 8px; box-shadow: 0 0 60px rgba(106,128,96,0.8); }
-
-        .j-team-section { margin-bottom: 24px; }
-        .j-question-section { margin-bottom: 24px; }
-        .j-label { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; color: var(--text-muted); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 10px; display: block; }
-        .j-select { background: var(--surface); border: 1px solid var(--border); border-radius: 2px; color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 9px 36px 9px 14px; width: 100%; max-width: 380px; outline: none; cursor: pointer; transition: border-color 0.15s; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23787870' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; }
-        .j-select:focus { border-color: var(--accent-light); }
-        .j-select option { background: var(--surface2); color: var(--text-primary); }
-        .j-input-section { margin-bottom: 8px; }
-        .j-textarea { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 3px; color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 15px; line-height: 1.6; padding: 16px 18px; resize: none; outline: none; transition: border-color 0.15s; min-height: 80px; }
-        .j-textarea:focus { border-color: var(--accent-light); }
-        .j-textarea::placeholder { color: var(--border2); }
-
-        /* AI agent mode input box */
-        .j-agent-input-panel { display: none; background: var(--surface); border: 1px solid rgba(106,128,96,0.35); border-radius: 3px; padding: 16px 18px; }
-        .j-agent-input-panel.active { display: block; }
-        .j-agent-input-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--accent-light); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 10px; }
-        .j-agent-input-desc { font-size: 13px; color: var(--text-dim); font-style: italic; margin-bottom: 12px; line-height: 1.6; }
-        .j-agent-textarea { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 2px; color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 14px; line-height: 1.6; padding: 12px 14px; resize: none; outline: none; transition: border-color 0.15s; min-height: 72px; }
-        .j-agent-textarea:focus { border-color: var(--accent-light); }
-        .j-agent-textarea::placeholder { color: var(--text-muted); }
-
-        .j-submit-row { display: flex; justify-content: flex-end; margin-top: 12px; }
-        .j-submit-btn { background: var(--accent); border: none; border-radius: 2px; color: #e8e4dc; font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; letter-spacing: 0.08em; padding: 10px 24px; cursor: pointer; transition: all 0.15s; text-transform: uppercase; }
-        .j-submit-btn:hover { background: var(--accent-light); }
-        .j-submit-btn:disabled { background: var(--surface2); color: var(--text-muted); cursor: not-allowed; }
-        .j-response-section { margin-top: 40px; border-top: 1px solid var(--border); padding-top: 32px; }
-        .j-response-label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 16px; }
-        .j-response-body { color: var(--text-primary); font-size: 15px; line-height: 1.75; white-space: pre-wrap; }
-        .j-response-body em { color: var(--cool); font-style: italic; }
-        .j-limit-panel { background: var(--surface); border: 1px solid var(--border2); border-radius: 4px; padding: 28px 24px; margin-top: 40px; text-align: center; }
-        .j-limit-label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--warm); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 12px; }
-        .j-limit-msg { font-size: 14px; color: var(--text-dim); line-height: 1.6; }
-        .j-limit-msg a { color: var(--accent-light); text-decoration: none; }
-        .j-offtopic-panel { margin-top: 40px; border-top: 1px solid var(--border); padding-top: 32px; }
-        .j-offtopic-label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 16px; }
-        .j-offtopic-msg { font-size: 14px; color: var(--text-dim); font-style: italic; margin-bottom: 20px; }
-        .j-video-wrapper { max-width: 480px; border-radius: 4px; overflow: hidden; border: 1px solid var(--border2); }
-        .j-video-wrapper video { width: 100%; display: block; }
-        .j-unlock-panel { background: linear-gradient(135deg, var(--accent-glow), rgba(80,100,80,0.04)); border: 1px solid rgba(106,128,96,0.3); border-radius: 4px; padding: 32px 28px; margin-top: 40px; }
-        .j-unlock-header { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent-light); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 16px; }
-        .j-unlock-title { font-size: 20px; font-weight: 500; color: #d0cec8; margin-bottom: 8px; }
-        .j-unlock-desc { font-size: 14px; color: var(--text-dim); margin-bottom: 24px; font-style: italic; }
-        .j-unlock-link { display: inline-block; background: var(--accent); color: #e8e4dc; font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; letter-spacing: 0.08em; padding: 11px 28px; border-radius: 2px; text-decoration: none; text-transform: uppercase; transition: background 0.15s; }
-        .j-unlock-link:hover { background: var(--accent-light); }
-        .j-unlock-note { font-size: 12px; color: var(--text-muted); margin-top: 16px; font-family: 'DM Mono', monospace; }
-        .j-handoff-panel { margin-bottom: 24px; border: 1px solid var(--border); border-radius: 4px; padding: 24px; background: var(--surface); }
-        .j-handoff-label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent-light); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 12px; }
-        .j-handoff-title { font-size: 18px; font-weight: 500; color: #d0cec8; margin-bottom: 8px; }
-        .j-handoff-desc { font-size: 14px; color: var(--text-dim); margin-bottom: 20px; font-style: italic; line-height: 1.6; }
-        .j-handoff-placeholder { background: var(--surface2); border: 1px dashed var(--border2); border-radius: 4px; padding: 28px 24px; text-align: center; }
-        .j-handoff-placeholder-text { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text-muted); letter-spacing: 0.04em; }
-        .j-loading { color: var(--text-muted); font-family: 'DM Mono', monospace; font-size: 13px; font-style: italic; animation: pulse 1.5s ease-in-out infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
-        .j-footer { margin-top: 80px; padding-top: 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
-        .j-footer-left, .j-footer-right { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); letter-spacing: 0.05em; }
-        @media (max-width: 600px) { .j-shell { padding: 36px 20px 60px; } .j-title { font-size: 30px; } }
-    """),
+    ui.tags.style(_CSS),
 
     # Celebration overlay
     ui.tags.div(id="celebration-overlay"),
@@ -610,7 +797,7 @@ app_ui = ui.page_fluid(
         ),
     ),
 
-    # Explainer modal (new -- "What am I looking at?")
+    # Explainer modal
     ui.div(
         {"class": "j-modal-overlay", "id": "explainer-overlay", "onclick": "closeExplainerOnOverlay(event)"},
         ui.div(
@@ -621,10 +808,10 @@ app_ui = ui.page_fluid(
                 {"class": "j-explainer-modal-body"},
                 ui.tags.p(
                     ui.tags.strong("This is ?jeremy"),
-                    " — an AI agent built by Jeremy Coates, candidate for Director of Professional Services & Delivery at Posit. It's connected to Jeremy's own AI running on Anthropic's Claude API, trained on his actual background, frameworks, and portfolio materials."
+                    " -- an AI agent built by Jeremy Coates, candidate for Director of Professional Services & Delivery at Posit. It runs on Anthropic's Claude API, trained on Jeremy's actual background, frameworks, and portfolio materials."
                 ),
                 ui.tags.p(
-                    "This app is itself a demonstration of the value Jeremy can bring to Posit — showing how thoughtfully-applied AI can make a team more effective, not just faster."
+                    "The app itself is a demonstration of the value Jeremy can bring to Posit -- showing how thoughtfully-applied AI can make a team more effective, not just faster."
                 ),
             ),
             ui.div(
@@ -632,28 +819,31 @@ app_ui = ui.page_fluid(
                 ui.div({"class": "j-explainer-modal-section-label"}, "how to use it"),
                 ui.div({"class": "j-explainer-step"},
                     ui.div({"class": "j-explainer-step-num"}, "01"),
-                    ui.div({"class": "j-explainer-step-text"}, ui.tags.strong("Pick your team"), " from the dropdown. Questions are tailored to how PS would interact with your function specifically."),
+                    ui.div({"class": "j-explainer-step-text"},
+                        ui.tags.strong("Pick your team"), " from the dropdown. Questions are tailored to how PS would interact with your function specifically."),
                 ),
                 ui.div({"class": "j-explainer-step"},
                     ui.div({"class": "j-explainer-step-num"}, "02"),
-                    ui.div({"class": "j-explainer-step-text"}, ui.tags.strong("Choose a suggested question"), " or type your own. The AI will answer from Jeremy's perspective using his real experience."),
+                    ui.div({"class": "j-explainer-step-text"},
+                        ui.tags.strong("Choose a suggested question"), " or type your own. The AI will answer from Jeremy's perspective using his real experience."),
                 ),
                 ui.div({"class": "j-explainer-step"},
                     ui.div({"class": "j-explainer-step-num"}, "03"),
-                    ui.div({"class": "j-explainer-step-text"}, ui.tags.strong("Try the Agent Test-Drive"), " — each team has a live AI agent you can interact with directly. It's a working prototype, not a mockup."),
+                    ui.div({"class": "j-explainer-step-text"},
+                        ui.tags.strong("Try the Agent Test-Drive"), " -- each team has a live AI agent you can interact with directly. It is a working prototype, not a mockup."),
                 ),
             ),
             ui.div(
                 {"class": "j-explainer-modal-section"},
                 ui.div(
                     {"class": "j-explainer-egg-note"},
-                    "// there's an easter egg somewhere in here. it's not hard to find — just follow your curiosity."
+                    "// there's an easter egg somewhere in here. it's not hard to find -- just follow your curiosity."
                 ),
             ),
         ),
     ),
 
-    # Riddle modal (all-in-one -- input, feedback, hint, close)
+    # Riddle modal
     ui.div(
         {"class": "j-riddle-overlay", "id": "riddle-overlay"},
         ui.div(
@@ -661,18 +851,15 @@ app_ui = ui.page_fluid(
             ui.tags.button({"class": "j-riddle-close", "onclick": "closeRiddle()"}, "x"),
             ui.div({"class": "j-riddle-header"}, "// feeling lucky?"),
             ui.div({"class": "j-riddle-text"}, RIDDLE_TEXT),
-            ui.div(
-                {"class": "j-riddle-input-wrap"},
-                ui.tags.input({
-                    "type": "text",
-                    "id": "riddle-answer-input",
-                    "class": "j-riddle-input",
-                    "placeholder": "type your answer here...",
-                    "onkeydown": "handleRiddleKey(event)",
-                    "autocomplete": "off",
-                }),
-            ),
-            ui.div({"class": "j-riddle-feedback", "id": "riddle-feedback"}, ""),
+            ui.tags.input({
+                "type": "text",
+                "id": "riddle-answer-input",
+                "class": "j-riddle-input",
+                "placeholder": "type your answer here...",
+                "onkeydown": "handleRiddleKey(event)",
+                "autocomplete": "off",
+            }),
+            ui.div({"class": "j-riddle-feedback", "id": "riddle-feedback"}),
             ui.div(
                 {"class": "j-riddle-btn-row"},
                 ui.tags.button("submit", {"class": "j-riddle-submit", "onclick": "submitRiddleAnswer()"}),
@@ -690,20 +877,17 @@ app_ui = ui.page_fluid(
             ui.div(
                 {"class": "j-header-top"},
                 ui.div({"class": "j-wordmark"}, "Posit PBC -- Director, PS & Delivery"),
-                ui.div(
-                    {"class": "j-header-right"},
-                    ui.tags.button(
-                        {"class": "j-about-trigger", "onclick": "openAbout()"},
-                        ui.tags.span({"class": "j-info-icon"}, "i"),
-                        "About this app",
-                    ),
+                ui.tags.button(
+                    {"class": "j-about-trigger", "onclick": "openAbout()"},
+                    ui.tags.span({"class": "j-info-icon"}, "i"),
+                    "About this app",
                 ),
             ),
             ui.tags.h1({"class": "j-title"}, ui.tags.span("?"), "jeremy"),
             ui.div({"class": "j-subtitle"}, "An AI agent built to answer one question: why is Jeremy the right fit for Posit?"),
         ),
 
-        # "What am I looking at?" banner
+        # Explainer banner
         ui.div(
             {"class": "j-explainer-banner", "onclick": "openExplainer()"},
             ui.div({"class": "j-explainer-icon"}, "?"),
@@ -719,11 +903,6 @@ app_ui = ui.page_fluid(
                 {"id": "team_dropdown", "class": "j-select", "onchange": "handleTeamChange(this)"},
                 ui.tags.option({"value": "exploring", "selected": "selected"}, "Just exploring"),
                 ui.tags.option({"value": "cs"}, "Customer Success"),
-                # ui.tags.option({"value": "onboarding"}, "Onboarding"),
-                # ui.tags.option({"value": "tam"}, "TAM Team"),
-                # ui.tags.option({"value": "delivery"}, "Delivery & Escalations"),
-                # ui.tags.option({"value": "product"}, "Product"),
-                # ui.tags.option({"value": "support"}, "Support"),
             ),
             ui.input_text("selected_team", "", value="exploring"),
             ui.tags.style("#selected_team { display: none; }"),
@@ -740,32 +919,30 @@ app_ui = ui.page_fluid(
             ),
         ),
 
-        # Handoff panel (rendered by server)
+        # Handoff panel (server-rendered)
         ui.output_ui("handoff_panel"),
 
-        # Input section: normal textarea + agent mode panel (mutually exclusive)
+        # Input: normal textarea + agent mode panel
         ui.div(
             {"class": "j-input-section"},
-            # Normal Q&A textarea
             ui.input_text_area("question", "", rows=3),
             ui.tags.style("#question { display: none; }"),
             ui.tags.textarea(
                 {
                     "class": "j-textarea",
                     "id": "question_display",
-                    "placeholder": "Ask anything about Jeremy — or choose a suggested question above...",
+                    "placeholder": "Ask anything about Jeremy -- or choose a suggested question above...",
                     "rows": "3",
                     "oninput": "syncQuestion(this.value)",
                     "onkeydown": "handleKey(event)",
                 }
             ),
-            # Agent mode panel (shown when handoff question selected)
             ui.div(
                 {"class": "j-agent-input-panel", "id": "agent-input-panel"},
                 ui.div({"class": "j-agent-input-label"}, "// agent test-drive mode"),
                 ui.div(
                     {"class": "j-agent-input-desc"},
-                    "You've selected the agent test-drive. Use the chat interface below — or start a conversation directly from the panel that just appeared above."
+                    "You've selected the agent test-drive. Use the chat interface above -- or pick a different question to return to the standard Q&A."
                 ),
             ),
         ),
@@ -783,7 +960,6 @@ app_ui = ui.page_fluid(
         ui.input_text_area("handoff_chat_input", "", rows=2),
         ui.tags.style("#handoff_chat_input { display: none; }"),
         ui.input_action_button("handoff_chat_send", "", style="display:none;"),
-        # Hidden input to signal riddle correct answer
         ui.input_action_button("riddle_correct", "", style="display:none;"),
         ui.input_text("riddle_team_signal", "", value=""),
         ui.tags.style("#riddle_team_signal { display: none; }"),
@@ -798,197 +974,7 @@ app_ui = ui.page_fluid(
             ui.div({"class": "j-footer-right"}, "built on posit connect cloud"),
         ),
 
-        ui.tags.script(
-            "var SUGGESTED = " + _SQ_JSON + ";"
-            + "var HANDOFF_SCENARIO = '" + _HANDOFF_SCENARIO_JS + "';"
-            + "var PM_SCENARIO = '" + _PM_SCENARIO_JS + "';"
-            + """
-
-            var _riddleAttempts = 0;
-
-            function showCelebration() {
-                var el = document.getElementById('celebration-overlay');
-                if (!el) return;
-                el.innerHTML = '<img src="https://media.tenor.com/xwARyAaoSJEAAAAM/all-good-its-all-good.gif">';
-                el.classList.add('active');
-                setTimeout(function() { el.classList.remove('active'); el.innerHTML = ''; }, 4000);
-            }
-
-            function syncQuestion(val) {
-                var el = document.getElementById('question');
-                if (el) { el.value = val; el.dispatchEvent(new Event('input', { bubbles: true })); }
-            }
-            function handleKey(e) {
-                if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); submitQuestion(); }
-            }
-            function submitQuestion() {
-                var q = document.getElementById('question_display').value.trim();
-                if (!q) return;
-                document.getElementById('ask').click();
-            }
-
-            function setAgentMode(on) {
-                var normal   = document.getElementById('question_display');
-                var agentPan = document.getElementById('agent-input-panel');
-                var submitRow = document.getElementById('submit-row');
-                if (on) {
-                    normal.style.display = 'none';
-                    agentPan.classList.add('active');
-                    submitRow.style.display = 'none';
-                } else {
-                    normal.style.display = '';
-                    agentPan.classList.remove('active');
-                    submitRow.style.display = '';
-                }
-            }
-
-            function handleTeamChange(el) {
-                var key = el.value;
-                var inp = document.getElementById('selected_team');
-                if (inp) { inp.value = key; inp.dispatchEvent(new Event('input', { bubbles: true })); }
-                var qd = document.getElementById('question_dropdown');
-                if (!qd) return;
-                var questions = SUGGESTED[key] || SUGGESTED['exploring'];
-                qd.innerHTML = '<option value="" disabled selected>-- choose a question or type your own --</option>';
-                questions.forEach(function(pair) {
-                    var opt = document.createElement('option');
-                    opt.value = pair[0];
-                    opt.textContent = pair[1];
-                    qd.appendChild(opt);
-                });
-                // Reset to normal mode when team changes
-                setAgentMode(false);
-            }
-
-            function handleSuggestedQuestion(el) {
-                var key = el.value;
-                if (!key) return;
-                if (key === 'lucky') { openRiddle(); el.selectedIndex = 0; return; }
-                if (key === 'handoff') {
-                    setAgentMode(true);
-                    setTimeout(function() { document.getElementById('handoff_trigger').click(); }, 80);
-                    el.selectedIndex = 0;
-                    return;
-                }
-                // Any non-handoff selection: restore normal mode
-                setAgentMode(false);
-                var teamKey = document.getElementById('team_dropdown').value || 'exploring';
-                var questions = SUGGESTED[teamKey] || SUGGESTED['exploring'];
-                var found = null;
-                for (var i = 0; i < questions.length; i++) {
-                    if (questions[i][0] === key) { found = questions[i]; break; }
-                }
-                if (found) {
-                    var ta = document.getElementById('question_display');
-                    if (ta) { ta.value = found[1]; syncQuestion(found[1]); }
-                }
-                el.selectedIndex = 0;
-            }
-
-            function syncHandoffInput(val) {
-                var el = document.getElementById('handoff_chat_input');
-                if (el) { el.value = val; el.dispatchEvent(new Event('input', { bubbles: true })); }
-            }
-            function handleHandoffKey(e) {
-                if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); submitHandoffChat(); }
-            }
-            function submitHandoffChat() {
-                var q = document.getElementById('handoff_chat_display').value.trim();
-                if (!q) return;
-                document.getElementById('handoff_chat_send').click();
-            }
-            function prefillHandoffScenario() {
-                var ta = document.getElementById('handoff_chat_display');
-                if (ta) { ta.value = HANDOFF_SCENARIO; syncHandoffInput(HANDOFF_SCENARIO); ta.focus(); }
-            }
-            function prefillPMScenario() {
-                var ta = document.getElementById('handoff_chat_display');
-                if (ta) { ta.value = PM_SCENARIO; syncHandoffInput(PM_SCENARIO); ta.focus(); }
-            }
-
-            // -- Modal open/close helpers --
-            function openAbout()    { document.getElementById('about-overlay').classList.add('active'); }
-            function closeAbout()   { document.getElementById('about-overlay').classList.remove('active'); }
-            function closeAboutOnOverlay(e) { if (e.target === document.getElementById('about-overlay')) closeAbout(); }
-
-            function openExplainer()  { document.getElementById('explainer-overlay').classList.add('active'); }
-            function closeExplainer() { document.getElementById('explainer-overlay').classList.remove('active'); }
-            function closeExplainerOnOverlay(e) { if (e.target === document.getElementById('explainer-overlay')) closeExplainer(); }
-
-            function openRiddle() {
-                _riddleAttempts = 0;
-                var inp = document.getElementById('riddle-answer-input');
-                var fb  = document.getElementById('riddle-feedback');
-                if (inp) inp.value = '';
-                if (fb)  { fb.textContent = ''; fb.className = 'j-riddle-feedback'; }
-                document.getElementById('riddle-overlay').classList.add('active');
-                setTimeout(function() { if (inp) inp.focus(); }, 120);
-            }
-            function closeRiddle() {
-                document.getElementById('riddle-overlay').classList.remove('active');
-            }
-
-            function handleRiddleKey(e) {
-                if (e.key === 'Enter') { e.preventDefault(); submitRiddleAnswer(); }
-                if (e.key === 'Escape') { closeRiddle(); }
-            }
-
-            function checkRiddleAnswer(text) {
-                var words = text.toLowerCase().replace(/[^a-z0-9 ]/g, '').split(' ');
-                var wordSet = {};
-                words.forEach(function(w) { if (w) wordSet[w] = true; });
-                return wordSet['kind'] && wordSet['humble'] && wordSet['curious'];
-            }
-
-            function submitRiddleAnswer() {
-                var inp = document.getElementById('riddle-answer-input');
-                var fb  = document.getElementById('riddle-feedback');
-                if (!inp) return;
-                var val = inp.value.trim();
-                if (!val) return;
-
-                if (checkRiddleAnswer(val)) {
-                    // Correct!
-                    closeRiddle();
-                    showCelebration();
-                    // Signal Shiny
-                    var teamKey = document.getElementById('team_dropdown').value || 'exploring';
-                    var sig = document.getElementById('riddle_team_signal');
-                    if (sig) { sig.value = teamKey; sig.dispatchEvent(new Event('input', { bubbles: true })); }
-                    setTimeout(function() { document.getElementById('riddle_correct').click(); }, 100);
-                } else {
-                    _riddleAttempts++;
-                    inp.value = '';
-                    if (_riddleAttempts >= 2) {
-                        fb.className = 'j-riddle-feedback hint';
-                        fb.innerHTML = 'hint: <a href="https://www.linkedin.com/company/posit-software/life" target="_blank" style="color: var(--accent-light);">the answer is on posit\'s linkedin page \u2192</a>';
-                    } else {
-                        fb.className = 'j-riddle-feedback wrong';
-                        fb.textContent = 'not quite — try again';
-                        setTimeout(function() {
-                            fb.textContent = '';
-                            fb.className = 'j-riddle-feedback';
-                        }, 2000);
-                    }
-                    inp.focus();
-                }
-            }
-
-            Shiny.addCustomMessageHandler('set_loading', function(loading) {
-                var btn = document.getElementById('ask_btn');
-                if (btn) { btn.disabled = loading; btn.textContent = loading ? 'querying...' : 'run query'; }
-            });
-            Shiny.addCustomMessageHandler('clear_handoff_input', function(v) {
-                var ta  = document.getElementById('handoff_chat_display');
-                var inp = document.getElementById('handoff_chat_input');
-                if (ta)  ta.value = '';
-                if (inp) { inp.value = ''; inp.dispatchEvent(new Event('input', { bubbles: true })); }
-            });
-            Shiny.addCustomMessageHandler('scroll_handoff', function(v) {
-                var el = document.getElementById('handoff-chat-messages');
-                if (el) el.scrollTop = el.scrollHeight;
-            });
-        """),
+        ui.tags.script(_build_js()),
     )
 )
 
@@ -1137,7 +1123,7 @@ def server(input, output, session):
             is_pm     = team_key == "exploring"
             label     = "// agent test-drive -- ps to cs handoff" if not is_pm else "// agent test-drive -- ps implementation pm agent"
             title     = "PS -> CS Handoff Agent" if not is_pm else "PS Implementation PM Agent"
-            desc      = "Live agent powered by Claude. Start a handoff scenario below — or try the sample one."
+            desc      = "Live agent powered by Claude. Start a handoff scenario below -- or try the sample one."
             btn_fn    = "prefillHandoffScenario()" if not is_pm else "prefillPMScenario()"
             placeholder = "Tell the agent which customer you are handing off..." if not is_pm else "Tell the agent what implementation project you're working on..."
 
@@ -1210,7 +1196,7 @@ def server(input, output, session):
                 ),
                 ui.div(
                     {"style": "font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text-muted); margin-top: 6px;"},
-                    "ctrl+enter to send — counts against your query limit"
+                    "ctrl+enter to send -- counts against your query limit"
                 ),
             )
 
@@ -1235,13 +1221,13 @@ def server(input, output, session):
                     {"class": "j-unlock-panel"},
                     ui.div({"class": "j-unlock-header"}, "// unlocked"),
                     ui.div({"class": "j-unlock-title"}, "A Tool Built for You"),
-                    ui.div({"class": "j-unlock-desc"}, "If you're reading this, you solved the riddle — and that's fitting, because the best CS people are the ones who stay curious."),
+                    ui.div({"class": "j-unlock-desc"}, "If you're reading this, you solved the riddle -- and that's fitting, because the best CS people are the ones who stay curious."),
                     ui.div(
                         {"style": "font-size: 14px; color: var(--text-primary); line-height: 1.75; margin-bottom: 24px;"},
-                        "What you've unlocked is a working AI agent built on Anthropic's Claude — designed to guide a PS Project Manager through a complete PS-to-CS handoff. The kind that actually sets CS up to win. The full instructions and everything you need to run it yourself are in the document below."
+                        "What you've unlocked is a working AI agent built on Anthropic's Claude -- designed to guide a PS Project Manager through a complete PS-to-CS handoff. The kind that actually sets CS up to win. The full instructions and everything you need to run it yourself are in the document below."
                     ),
                     ui.tags.a("Access full instructions ->", {"class": "j-unlock-link", "href": team["unlock_url"], "target": "_blank"}),
-                    ui.div({"class": "j-unlock-note", "style": "margin-top: 16px;"}, "built for the Customer Success team — hosted on posit connect cloud"),
+                    ui.div({"class": "j-unlock-note", "style": "margin-top: 16px;"}, "built for the Customer Success team -- hosted on posit connect cloud"),
                 )
 
             if team_key == "exploring":
@@ -1252,11 +1238,11 @@ def server(input, output, session):
                     ui.div({"class": "j-unlock-desc"}, "You solved the riddle without a team label. That says something."),
                     ui.div(
                         {"style": "font-size: 14px; color: var(--text-primary); line-height: 1.75; margin-bottom: 24px;"},
-                        "What you've unlocked is the PS Implementation PM Agent — the AI assistant Jeremy built to help Project Managers run SaaS implementations the right way. "
+                        "What you've unlocked is the PS Implementation PM Agent -- the AI assistant Jeremy built to help Project Managers run SaaS implementations the right way. "
                         "It's the tool that ties everything else in this app together. The full instructions and everything you need to run it yourself are in the document below."
                     ),
                     ui.tags.a("Access full instructions ->", {"class": "j-unlock-link", "href": team["unlock_url"], "target": "_blank"}),
-                    ui.div({"class": "j-unlock-note", "style": "margin-top: 16px;"}, "built for curious minds — hosted on posit connect cloud"),
+                    ui.div({"class": "j-unlock-note", "style": "margin-top: 16px;"}, "built for curious minds -- hosted on posit connect cloud"),
                 )
 
             return ui.div(
@@ -1265,7 +1251,7 @@ def server(input, output, session):
                 ui.div({"class": "j-unlock-title"}, team["tool_name"]),
                 ui.div({"class": "j-unlock-desc"}, team["tool_description"]),
                 ui.tags.a("Access full instructions ->", {"class": "j-unlock-link", "href": team["unlock_url"], "target": "_blank"}),
-                ui.div({"class": "j-unlock-note"}, "built for the " + team["label"] + " team — hosted on posit connect cloud"),
+                ui.div({"class": "j-unlock-note"}, "built for the " + team["label"] + " team -- hosted on posit connect cloud"),
             )
 
         reason = limit_reason()
