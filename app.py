@@ -133,7 +133,6 @@ SUGGESTED_QUESTIONS = {
         ("q2",       "What does Jeremy see as the biggest failure modes when PS and CS aren't aligned?"),
         ("q3",       "How would Jeremy help CS identify expansion opportunities surfaced during implementation?"),
         ("q4",       "How does Jeremy think about the relationship between implementation quality and long-term retention?"),
-        ("q5",       "How would Jeremy approach reducing time-to-value for customers transitioning from PS to ongoing success?"),
         ("90days",   "What would Jeremy's first 90 days look like if he got this role?"),
         ("tools",    "What kind of tools can Jeremy help put in place to make my life easier?"),
         ("handoff",  "\U0001f916 Test-Drive the PS -> CS Handoff Agent"),
@@ -208,10 +207,9 @@ SUGGESTED_QUESTIONS = {
         ("culture",  "Why is Jeremy the right cultural fit for Posit?"),
         ("collab",   "What would it be like working with Jeremy as a colleague at Posit?"),
         ("q1",       "Why is Jeremy making a move now, and why Posit specifically?"),
-        ("q2",       "What's the hardest PS org challenge Jeremy has faced, and how did he handle it?"),
-        ("q3",       "How does Jeremy think about building a PS team culture in a fully distributed environment?"),
-        ("q4",       "What's Jeremy's honest assessment of where he'd need to ramp up at Posit?"),
-        ("q5",       "What's Jeremy's philosophy on the PS-to-CS handoff, and how has he structured it in the past?"),
+        ("q2",       "How does Jeremy think about building a PS team culture in a fully distributed environment?"),
+        ("q3",       "What's Jeremy's honest assessment of where he'd need to ramp up at Posit?"),
+        ("q4",       "What's Jeremy's philosophy on the PS-to-CS handoff, and how has he structured it in the past?"),
         ("90days",   "What would Jeremy's first 90 days look like if he got this role?"),
         ("tools",    "What kind of tools can Jeremy help put in place to make my life easier?"),
         ("handoff",  "\U0001f916 Test-Drive the PS Implementation PM Agent"),
@@ -356,7 +354,7 @@ Jeremy brings three things that don't show up on a skills matrix:
 
 **He leads by serving.** His job is to remove obstacles and give his people what they need to do their best work. The 90% retention rate at Authorium wasn't an accident -- it was a culture. He instituted a Friday afternoon no-meetings policy, ran remote team happy hours with a "guess who" game where each person shared three facts and the team voted on who it was about.
 
-**He builds teams that actually feel like teams.** Fully remote for over a decade. Async-first by default. Trusts outcomes over clock-watching.
+**He builds teams that actually feel like teams -- including across functions.** Fully remote for over a decade. Async-first by default. Trusts outcomes over clock-watching. And he applies the same thinking to cross-functional relationships. His approach with peer leaders would be recurring 1:1s and joint roundtables -- bringing CS, Sales, Support, and Product together with his team on a cadence that's deliberate without being burdensome. At Authorium, those roundtables became the source of some of the most effective changes the teams made together. The decision to embed a CSM in the final weeks of every implementation didn't come from a framework -- it came out of one of those sessions, where both sides were in the room and said out loud what they'd each been experiencing separately. When leaders model that kind of collaboration, the teams follow.
 
 **He's here for the mission.** Jeremy has spent his career in the private sector and is ready for something better -- not more. Posit's commitment to open source, to underfunded researchers, to a model where commercial work funds public good -- that's not a perk. That's the point. And he understands the balance: the paid engagements he'd be responsible for are what fund the free ones.
 
@@ -495,13 +493,13 @@ When asked what Jeremy's first 90 days would look like, use this answer for all 
 
 The temptation in a new leadership role is to arrive with a plan. Jeremy has frameworks and tools that address several of the problems he already suspects Posit is working through -- any PS org at this stage of growth is dealing with versions of the same structural challenges. But the fastest way to waste those assets is to deploy them before earning the right to. So the first thirty days are deliberately about listening from the inside, not from a conference room.
 
-That means embedding with the onboarding function in actual working sessions -- seeing how structured delivery is functioning in practice, where it's creating clarity and where it's still fuzzy. Shadowing TAMs in customer engagements to understand what the technical journey actually looks like from the customer's seat, not from a dashboard. Evaluating the partner delivery model directly -- talking to partners, understanding where they feel unsupported and where the quality gaps are. Sitting on customer calls across all four areas of responsibility, because the patterns across those calls are where the real picture lives. And establishing the cross-functional relationships with CS, Sales, Support, Product, and Engineering leadership that make everything else possible -- because that trust has to be built before asking for anything.
+That means embedding with the onboarding function in actual working sessions -- seeing how structured delivery is functioning in practice, where it's creating clarity and where it's still fuzzy. Shadowing TAMs in customer engagements to understand what the technical journey actually looks like from the customer's seat, not from a dashboard. Evaluating the partner delivery model directly -- talking to partners, understanding where they feel unsupported and where the quality gaps are. Sitting on customer calls across all four areas of responsibility, because the patterns across those calls are where the real picture lives. And establishing the cross-functional relationships with CS, Sales, Support, and Product leadership that make everything else possible -- because that trust has to be built before asking for anything.
 
 Alongside all of that: reviewing the current KPIs and understanding what data is actually driving them. Not to redesign anything yet -- just to know what's being measured, what's not, and where the gaps are between what the numbers say and what's happening on the ground.
 
 By day sixty: three specific deliverables. First, a Time-to-Value and Project Duration baseline across all onboarding segments -- because you can't improve what you haven't defined, and TTV tracked per phase rather than as a vanity metric at close is where the real signal lives. Second, a Partner Gap Analysis -- a formal assessment of where the delivery network stands, what partners need to increase their self-sufficiency, and what the path to consistent delivery quality looks like. Third, a formalized TAM offering with a clear definition of what proactive technical account management means at Posit and what it needs from CS, Sales, and Support to actually work. All three are analytical outputs built from month one observations -- not assumptions brought in the door.
 
-Month three is execution on all three simultaneously. The partner enablement framework gets rolled out with the structure and quality standards that make partner delivery indistinguishable from direct delivery. The TAM engagement model goes live with the tracking and reporting cadence that lets the team see customer technical progression -- not just respond to it. And the delivery scoping process gets tightened so ad-hoc engagements are profitable, scalable, and feeding insights back into Product and Engineering rather than disappearing into individual project files.
+Month three is execution on all three simultaneously. The partner enablement framework gets rolled out with the structure and quality standards that make partner delivery indistinguishable from direct delivery. The TAM engagement model goes live with the tracking and reporting cadence that lets the team see customer technical progression -- not just respond to it. And the delivery scoping process gets tightened so ad-hoc engagements are profitable, scalable, and feeding insights back into Product rather than disappearing into individual project files.
 
 The operational win Jeremy would point to by day ninety is the PS-to-CS handoff process -- because in his experience the gap between what PS delivers and what CS inherits is one of the clearest and most predictable sources of downstream churn, and it's almost always structural rather than a people problem. He's built AI-assisted tooling that addresses this directly. By day sixty he'd know exactly where Posit's version of this problem lives. By day ninety he'd have a working version running with the team.
 
