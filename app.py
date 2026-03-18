@@ -288,22 +288,122 @@ def get_team(key: str) -> dict:
 
 
 def parse_response(t: str) -> list:
+    """Convert Claude markdown to Shiny UI nodes with proper formatting."""
     nodes = []
-    paragraphs = [p.strip() for p in t.split("\n\n") if p.strip()]
-    for para in paragraphs:
-        parts = re.split(r'\*\*(.*?)\*\*|\*(.*?)\*', para)
+
+    def render_inline(text):
+        """Parse bold and italic within a string into UI elements."""
+        parts = re.split(r'\*\*(.*?)\*\*|\*(.*?)\*', text)
         children = []
         for i, p in enumerate(parts):
             if p is None:
                 continue
             if i % 3 == 1:
-                children.append(ui.tags.strong({"style": "color:#d0cec8; font-weight:500;"}, p))
+                children.append(ui.tags.strong({"style": "color:var(--text-primary); font-weight:600;"}, p))
             elif i % 3 == 2:
-                children.append(ui.tags.em({"style": "color:#a0b4b4; font-style:italic;"}, p))
+                children.append(ui.tags.em({"style": "color:var(--accent-light); font-style:italic;"}, p))
             else:
                 if p:
                     children.append(p)
-        nodes.append(ui.tags.p({"style": "margin-bottom:14px; line-height:1.75; color:var(--text-primary); font-size:15px;"}, *children))
+        return children
+
+    lines = t.split("\n")
+    i = 0
+    while i < len(lines):
+        line = lines[i].rstrip()
+
+        # Skip blank lines
+        if not line.strip():
+            i += 1
+            continue
+
+        # ## Heading
+        if line.startswith("## "):
+            text = line[3:].strip()
+            nodes.append(ui.tags.p(
+                {"style": "font-family:'DM Mono',monospace; font-size:11px; color:var(--accent-light); letter-spacing:0.12em; text-transform:uppercase; margin-top:20px; margin-bottom:6px;"},
+                text
+            ))
+            i += 1
+            continue
+
+        # # Heading
+        if line.startswith("# "):
+            text = line[2:].strip()
+            nodes.append(ui.tags.p(
+                {"style": "font-size:16px; font-weight:600; color:var(--text-primary); margin-top:20px; margin-bottom:8px;"},
+                text
+            ))
+            i += 1
+            continue
+
+        # Numbered list item: "1. " or "1) "
+        if re.match(r'^\d+[\.\)]\s', line):
+            match = re.match(r'^(\d+[\.\)])\s+(.*)', line)
+            if match:
+                num = match.group(1)
+                content = match.group(2)
+                nodes.append(ui.div(
+                    {"style": "display:flex; gap:10px; margin-bottom:8px; padding-left:4px;"},
+                    ui.tags.span({"style": "font-family:'DM Mono',monospace; font-size:12px; color:var(--accent-light); min-width:20px; padding-top:2px; flex-shrink:0;"}, num),
+                    ui.tags.span({"style": "font-size:15px; line-height:1.7; color:var(--text-primary);"}, *render_inline(content))
+                ))
+            i += 1
+            continue
+
+        # Bullet list item: "- " or "* "
+        if re.match(r'^[-\*]\s', line):
+            content = line[2:].strip()
+            nodes.append(ui.div(
+                {"style": "display:flex; gap:10px; margin-bottom:8px; padding-left:4px;"},
+                ui.tags.span({"style": "color:var(--accent-light); min-width:14px; flex-shrink:0; padding-top:3px; font-size:12px;"}, "–"),
+                ui.tags.span({"style": "font-size:15px; line-height:1.7; color:var(--text-primary);"}, *render_inline(content))
+            ))
+            i += 1
+            continue
+
+        # Risk block: line containing "RISK:" and "|" separators
+        if "RISK:" in line and "|" in line:
+            parts = [p.strip() for p in line.split("|")]
+            risk_nodes = []
+            for part in parts:
+                if not part:
+                    continue
+                # Each segment rendered with inline formatting
+                risk_nodes.append(
+                    ui.tags.span(
+                        {"style": "display:block; font-size:14px; line-height:1.6; color:var(--text-primary); margin-bottom:4px;"},
+                        *render_inline(part)
+                    )
+                )
+            nodes.append(ui.div(
+                {"style": "background:var(--surface2); border-left:3px solid var(--warm); border-radius:0 3px 3px 0; padding:12px 16px; margin-bottom:12px;"},
+                *risk_nodes
+            ))
+            i += 1
+            continue
+
+        # Regular paragraph — accumulate consecutive non-special lines
+        para_lines = []
+        while i < len(lines):
+            l = lines[i].rstrip()
+            if not l.strip():
+                break
+            if (l.startswith("## ") or l.startswith("# ") or
+                re.match(r'^[-\*]\s', l) or re.match(r'^\d+[\.\)]\s', l) or
+                ("RISK:" in l and "|" in l)):
+                break
+            para_lines.append(l)
+            i += 1
+
+        if para_lines:
+            combined = " ".join(para_lines)
+            nodes.append(ui.tags.p(
+                {"style": "margin-bottom:14px; line-height:1.75; color:var(--text-primary); font-size:15px;"},
+                *render_inline(combined)
+            ))
+        continue
+
     return nodes
 
 
