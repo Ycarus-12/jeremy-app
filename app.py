@@ -754,7 +754,7 @@ _STATIC_JS = (
     "  }"
     "  if (found) {"
     "    var ta = document.getElementById('question_display');"
-    "    if (ta) { ta.value = found[1]; syncQuestion(found[1]); }"
+    "    if (ta) { ta.value = found[1]; syncQuestion(found[1]); autoExpand(ta); }"
     "  }"
     "  el.selectedIndex = 0;"
     "}"
@@ -776,12 +776,12 @@ _STATIC_JS = (
 
     "function prefillHandoffScenario() {"
     "  var ta = document.getElementById('handoff_chat_display');"
-    "  if (ta) { ta.value = HANDOFF_SCENARIO; syncHandoffInput(HANDOFF_SCENARIO); ta.focus(); }"
+    "  if (ta) { ta.value = HANDOFF_SCENARIO; syncHandoffInput(HANDOFF_SCENARIO); autoExpand(ta); ta.focus(); }"
     "}"
 
     "function prefillPMScenario() {"
     "  var ta = document.getElementById('handoff_chat_display');"
-    "  if (ta) { ta.value = PM_SCENARIO; syncHandoffInput(PM_SCENARIO); ta.focus(); }"
+    "  if (ta) { ta.value = PM_SCENARIO; syncHandoffInput(PM_SCENARIO); autoExpand(ta); ta.focus(); }"
     "}"
 
     "function openAbout() { document.getElementById('about-overlay').classList.add('active'); }"
@@ -864,13 +864,24 @@ _STATIC_JS = (
     "Shiny.addCustomMessageHandler('clear_handoff_input', function(v) {"
     "  var ta = document.getElementById('handoff_chat_display');"
     "  var inp = document.getElementById('handoff_chat_input');"
-    "  if (ta) ta.value = '';"
+    "  if (ta) { ta.value = ''; ta.style.height = 'auto'; }"
     "  if (inp) { inp.value = ''; inp.dispatchEvent(new Event('input', { bubbles: true })); }"
     "});"
 
     "Shiny.addCustomMessageHandler('scroll_handoff', function(v) {"
     "  var el = document.getElementById('handoff-chat-messages');"
-    "  if (el) el.scrollTop = el.scrollHeight;"
+    "  if (!el) return;"
+    "  el.scrollTop = el.scrollHeight;"
+    "  setTimeout(function() {"
+    "    var msgs = el.querySelectorAll('div[style*=\"DM Mono\"]');"
+    "    var allBubbles = el.children;"
+    "    if (allBubbles.length > 0) {"
+    "      var last = allBubbles[allBubbles.length - 1];"
+    "      var rect = last.getBoundingClientRect();"
+    "      var scrollTop = window.pageYOffset + rect.top - 80;"
+    "      window.scrollTo({ top: scrollTop, behavior: 'smooth' });"
+    "    }"
+    "  }, 50);"
     "});"
 
     "function syncLocation(val) {"
@@ -913,6 +924,12 @@ _STATIC_JS = (
     "  if (label) label.textContent = _lengthLabels[idx];"
     "  var inp = document.getElementById('length_pref');"
     "  if (inp) { inp.value = _lengthMap[idx]; inp.dispatchEvent(new Event('input', { bubbles: true })); }"
+    "}"
+
+    "function generateHandoffDoc(prompt) {"
+    "  var ta = document.getElementById('handoff_chat_display');"
+    "  if (ta) { ta.value = prompt; syncHandoffInput(prompt); autoExpand(ta); }"
+    "  setTimeout(function() { submitHandoffChat(); }, 150);"
     "}"
 
     "function resetConversation() {"
@@ -1016,7 +1033,7 @@ _STATIC_JS = (
     "    var q = params.get('q');"
     "    if (q) {"
     "      var ta = document.getElementById('question_display');"
-    "      if (ta) { ta.value = q; syncQuestion(q); }"
+    "      if (ta) { ta.value = q; syncQuestion(q); autoExpand(ta); }"
     "      setTimeout(function() { document.getElementById('ask').click(); }, 600);"
     "    }"
     "  } catch(e) {}"
@@ -1703,6 +1720,41 @@ def server(input, output, session):
             if loading:
                 msg_nodes.append(ui.div({"class": "j-loading", "style": "margin-top: 8px;"}, "agent is thinking..."))
 
+            # Count agent responses to decide whether to show nudge
+            agent_turn_count = sum(1 for m in messages if m["role"] == "assistant")
+            show_nudge = agent_turn_count >= 3 and not loading
+
+            nudge_node = ui.div()
+            if show_nudge:
+                generate_prompt = "Based on everything we've discussed, please generate the complete PS-to-CS handoff document for this customer. Include the full customer intelligence profile, open items with ownership, expansion signals, go-live communication draft, and a recommended priority roadmap for CS to work from."
+                nudge_node = ui.div(
+                    {"style": "margin: 16px 0; padding: 16px 20px; background: linear-gradient(135deg, rgba(196,114,42,0.08) 0%, rgba(45,106,79,0.06) 100%); border: 1px solid rgba(196,114,42,0.3); border-left: 3px solid #C4722A; border-radius: 0 3px 3px 0;"},
+                    ui.div(
+                        {"style": "font-family:'DM Mono',monospace; font-size:10px; color:var(--warm); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:8px;"},
+                        "// demo nudge -- from the app, not the agent"
+                    ),
+                    ui.div(
+                        {"style": "font-size:14px; color:var(--text-primary); line-height:1.7; margin-bottom:12px;"},
+                        "Feel free to keep going -- but the real payoff of this demo is the ",
+                        ui.tags.strong({"style": "color:var(--text-primary);"}, "actual handoff document output."),
+                        " Click below to see what the agent generates from everything you've shared so far."
+                    ),
+                    ui.div(
+                        {"style": "font-size:13px; color:var(--text-dim); line-height:1.65; margin-bottom:14px;"},
+                        "Phase 1 of this tool is exactly what you're seeing -- a guided conversation that produces a structured handoff document. ",
+                        "Phase 2 is a direct Salesforce integration: the output gets written to the account record automatically, cutting the manual data entry step out of the process entirely."
+                    ),
+                    ui.tags.button(
+                        "Generate the handoff document ->",
+                        {
+                            "style": "background: transparent; border: 1px solid var(--warm); color: var(--warm); font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.06em; padding:8px 16px; border-radius:2px; cursor:pointer; transition: all 0.15s;",
+                            "onclick": f"generateHandoffDoc({repr(generate_prompt)})",
+                            "onmouseover": "this.style.background='rgba(196,114,42,0.1)'",
+                            "onmouseout": "this.style.background='transparent'",
+                        }
+                    ),
+                )
+
             return ui.div(
                 {"class": "j-handoff-panel"},
                 ui.div({"class": "j-handoff-label"}, label),
@@ -1719,9 +1771,10 @@ def server(input, output, session):
                     ),
                 ),
                 ui.div(
-                    {"id": "handoff-chat-messages", "style": "max-height: 380px; overflow-y: auto; margin-bottom: 12px;"},
+                    {"id": "handoff-chat-messages", "style": "margin-bottom: 12px;"},
                     *msg_nodes
                 ),
+                nudge_node,
                 ui.div(
                     {"style": "display: flex; gap: 8px; align-items: flex-end;"},
                     ui.tags.textarea(
@@ -1742,7 +1795,7 @@ def server(input, output, session):
                 ),
                 ui.div(
                     {"style": "font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text-muted); margin-top: 6px;"},
-                    "ctrl+enter to send -- counts against your query limit"
+                    "ctrl+enter to send"
                 ),
             )
 
