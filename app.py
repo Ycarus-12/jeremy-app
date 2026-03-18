@@ -906,6 +906,8 @@ _STATIC_JS = (
     "function autoExpandAll() {"
     "  document.querySelectorAll('.j-textarea').forEach(function(el) { autoExpand(el); });"
     "}"
+
+    "function handleLengthChange(val) {"
     "  var idx = parseInt(val);"
     "  var label = document.getElementById('length-label');"
     "  if (label) label.textContent = _lengthLabels[idx];"
