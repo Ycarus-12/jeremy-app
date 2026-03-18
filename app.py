@@ -1726,7 +1726,7 @@ def server(input, output, session):
 
             nudge_node = ui.div()
             if show_nudge:
-                generate_prompt = "Based on everything we've discussed, please generate the complete PS-to-CS handoff document for this customer. Include the full customer intelligence profile, open items with ownership, expansion signals, go-live communication draft, and a recommended priority roadmap for CS to work from."
+                generate_prompt = "Please generate the handoff document now based on everything we've discussed so far. This is a demo — produce the best possible output from the information available, and clearly note any gaps or fields that would need to be completed in a real engagement. Do not ask for more information before generating. Show the full document structure even where sections are incomplete."
                 nudge_node = ui.div(
                     {"style": "margin: 16px 0; padding: 16px 20px; background: linear-gradient(135deg, rgba(196,114,42,0.08) 0%, rgba(45,106,79,0.06) 100%); border: 1px solid rgba(196,114,42,0.3); border-left: 3px solid #C4722A; border-radius: 0 3px 3px 0;"},
                     ui.div(
