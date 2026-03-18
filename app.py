@@ -686,6 +686,8 @@ _STATIC_JS = (
     "function syncQuestion(val) {"
     "  var el = document.getElementById('question');"
     "  if (el) { el.value = val; el.dispatchEvent(new Event('input', { bubbles: true })); }"
+    "  var ta = document.getElementById('question_display');"
+    "  if (ta) autoExpand(ta);"
     "}"
 
     "function handleKey(e) {"
@@ -896,7 +898,14 @@ _STATIC_JS = (
     "var _lengthMap = ['short','balanced','detailed'];"
     "var _lengthLabels = ['concise','balanced','detailed'];"
 
-    "function handleLengthChange(val) {"
+    "function autoExpand(el) {"
+    "  el.style.height = 'auto';"
+    "  el.style.height = Math.max(80, el.scrollHeight) + 'px';"
+    "}"
+
+    "function autoExpandAll() {"
+    "  document.querySelectorAll('.j-textarea').forEach(function(el) { autoExpand(el); });"
+    "}"
     "  var idx = parseInt(val);"
     "  var label = document.getElementById('length-label');"
     "  if (label) label.textContent = _lengthLabels[idx];"
@@ -1117,7 +1126,7 @@ body { background-color: var(--bg); color: var(--text-primary); font-family: 'DM
 .j-select:focus { border-color: var(--accent-light); }
 .j-select option { background: var(--surface2); color: var(--text-primary); }
 .j-input-section { margin-bottom: 8px; }
-.j-textarea { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 3px; color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 15px; line-height: 1.6; padding: 16px 18px; resize: none; outline: none; transition: border-color 0.15s; min-height: 80px; }
+.j-textarea { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 3px; color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 15px; line-height: 1.6; padding: 16px 18px; resize: none; overflow: hidden; outline: none; transition: border-color 0.15s; min-height: 80px; }
 .j-textarea:focus { border-color: var(--accent-light); }
 .j-textarea::placeholder { color: var(--border2); }
 .j-agent-input-panel { display: none; background: var(--surface); border: 1px solid rgba(106,128,96,0.35); border-radius: 3px; padding: 16px 18px; }
@@ -1358,7 +1367,7 @@ app_ui = ui.page_fluid(
                     "id": "question_display",
                     "placeholder": "Ask anything about Jeremy -- or choose a suggested question above...",
                     "rows": "3",
-                    "oninput": "syncQuestion(this.value)",
+                    "oninput": "syncQuestion(this.value); autoExpand(this);",
                     "onkeydown": "handleKey(event)",
                 }
             ),
@@ -1670,18 +1679,19 @@ def server(input, output, session):
 
             for m in messages:
                 is_user = m["role"] == "user"
+                content = m["content"]
                 msg_nodes.append(
                     ui.div(
                         {"style": (
-                            "padding: 10px 14px; border-radius: 3px; margin-bottom: 10px; font-size: 14px; line-height: 1.6; "
-                            + ("background: var(--surface2); color: var(--text-dim); text-align: right;" if is_user
-                               else "background: var(--bg); border: 1px solid var(--border); color: var(--text-primary);")
+                            "padding: 10px 14px; border-radius: 3px; margin-bottom: 10px; line-height: 1.6; "
+                            + ("font-size: 14px; background: var(--surface2); color: var(--text-dim); text-align: right;" if is_user
+                               else "font-size: 14px; background: var(--bg); border: 1px solid var(--border); color: var(--text-primary);")
                         )},
                         ui.tags.span(
                             {"style": "font-family: 'DM Mono', monospace; font-size: 10px; opacity: 0.5; display: block; margin-bottom: 4px;"},
                             "you" if is_user else "agent"
                         ),
-                        m["content"]
+                        *(parse_response(content) if not is_user else [content])
                     )
                 )
 
@@ -1716,7 +1726,7 @@ def server(input, output, session):
                             "style": "min-height: 52px; flex: 1; font-size: 14px;",
                             "placeholder": placeholder,
                             "rows": "2",
-                            "oninput": "syncHandoffInput(this.value)",
+                            "oninput": "syncHandoffInput(this.value); autoExpand(this);",
                             "onkeydown": "handleHandoffKey(event)",
                         }
                     ),
