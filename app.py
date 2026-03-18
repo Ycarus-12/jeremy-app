@@ -134,6 +134,7 @@ SUGGESTED_QUESTIONS = {
         ("q3",       "How would Jeremy help CS identify expansion opportunities surfaced during implementation?"),
         ("q4",       "How does Jeremy think about the relationship between implementation quality and long-term retention?"),
         ("q5",       "How would Jeremy approach reducing time-to-value for customers transitioning from PS to ongoing success?"),
+        ("90days",   "What would Jeremy's first 90 days look like if he got this role?"),
         ("tools",    "What kind of tools can Jeremy help put in place to make my life easier?"),
         ("handoff",  "\U0001f916 Test-Drive the PS -> CS Handoff Agent"),
         ("lucky",    "\U0001f50d Feeling Curious?"),
@@ -146,6 +147,7 @@ SUGGESTED_QUESTIONS = {
         ("q3",       "How has Jeremy reduced time-to-value in previous onboarding programs?"),
         ("q4",       "How would Jeremy handle onboarding for customers with highly variable technical environments?"),
         ("q5",       "What's Jeremy's approach to building onboarding playbooks that scale without him in the room?"),
+        ("90days",   "What would Jeremy's first 90 days look like if he got this role?"),
         ("tools",    "What kind of tools can Jeremy help put in place to make my life easier?"),
         ("handoff",  "\U0001f916 Test-Drive the PS -> Onboarding Handoff Agent"),
         ("lucky",    "\U0001f50d Feeling Curious?"),
@@ -158,6 +160,7 @@ SUGGESTED_QUESTIONS = {
         ("q3",       "How would Jeremy measure whether the TAM team is delivering real technical partnership versus reactive service?"),
         ("q4",       "How has Jeremy bridged the gap between technical account management and commercial outcomes?"),
         ("q5",       "What's Jeremy's approach to escalation management when a TAM relationship is at risk?"),
+        ("90days",   "What would Jeremy's first 90 days look like if he got this role?"),
         ("tools",    "What kind of tools can Jeremy help put in place to make my life easier?"),
         ("handoff",  "\U0001f916 Test-Drive the PS -> TAM Handoff Agent"),
         ("lucky",    "\U0001f50d Feeling Curious?"),
@@ -170,6 +173,7 @@ SUGGESTED_QUESTIONS = {
         ("q3",       "How has Jeremy maintained delivery quality while scaling a PS team rapidly?"),
         ("q4",       "How does Jeremy think about the boundary between in-scope delivery and change orders?"),
         ("q5",       "What early warning indicators does Jeremy watch for to catch delivery risk before it becomes an escalation?"),
+        ("90days",   "What would Jeremy's first 90 days look like if he got this role?"),
         ("tools",    "What kind of tools can Jeremy help put in place to make my life easier?"),
         ("handoff",  "\U0001f916 Test-Drive the PS -> Delivery Handoff Agent"),
         ("lucky",    "\U0001f50d Feeling Curious?"),
@@ -182,6 +186,7 @@ SUGGESTED_QUESTIONS = {
         ("q3",       "How has Jeremy handled situations where customer requests conflict with product direction?"),
         ("q4",       "How would Jeremy help Product distinguish between one-off customer requests and systemic gaps?"),
         ("q5",       "What role should PS play in beta programs and early access releases?"),
+        ("90days",   "What would Jeremy's first 90 days look like if he got this role?"),
         ("tools",    "What kind of tools can Jeremy help put in place to make my life easier?"),
         ("handoff",  "\U0001f916 Test-Drive the PS -> Product Feedback Agent"),
         ("lucky",    "\U0001f50d Feeling Curious?"),
@@ -194,6 +199,7 @@ SUGGESTED_QUESTIONS = {
         ("q3",       "How has Jeremy handled situations where Support inherited unresolved issues from implementation?"),
         ("q4",       "How would Jeremy define the boundary between what PS resolves and what becomes a Support ticket?"),
         ("q5",       "How does Jeremy think about knowledge transfer from PS to Support at scale?"),
+        ("90days",   "What would Jeremy's first 90 days look like if he got this role?"),
         ("tools",    "What kind of tools can Jeremy help put in place to make my life easier?"),
         ("handoff",  "\U0001f916 Test-Drive the PS -> Support Handoff Agent"),
         ("lucky",    "\U0001f50d Feeling Curious?"),
@@ -202,10 +208,11 @@ SUGGESTED_QUESTIONS = {
         ("culture",  "Why is Jeremy the right cultural fit for Posit?"),
         ("collab",   "What would it be like working with Jeremy as a colleague at Posit?"),
         ("q1",       "Why is Jeremy making a move now, and why Posit specifically?"),
-        ("q2",       "What would Jeremy's first 90 days look like if he got this role?"),
-        ("q3",       "What's the hardest PS org challenge Jeremy has faced, and how did he handle it?"),
-        ("q4",       "How does Jeremy think about building a PS team culture in a fully distributed environment?"),
-        ("q5",       "What's Jeremy's honest assessment of where he'd need to ramp up at Posit?"),
+        ("q2",       "What's the hardest PS org challenge Jeremy has faced, and how did he handle it?"),
+        ("q3",       "How does Jeremy think about building a PS team culture in a fully distributed environment?"),
+        ("q4",       "What's Jeremy's honest assessment of where he'd need to ramp up at Posit?"),
+        ("q5",       "What's Jeremy's philosophy on the PS-to-CS handoff, and how has he structured it in the past?"),
+        ("90days",   "What would Jeremy's first 90 days look like if he got this role?"),
         ("tools",    "What kind of tools can Jeremy help put in place to make my life easier?"),
         ("handoff",  "\U0001f916 Test-Drive the PS Implementation PM Agent"),
         ("lucky",    "\U0001f50d Feeling Curious?"),
@@ -480,7 +487,25 @@ When asked "What would it be like working with Jeremy for [team]?", tailor to th
 
 Always connect to specific behaviors and systems Jeremy has built, not just values.
 
-## GAP HANDLING
+## 90-DAY PLAN
+
+When asked what Jeremy's first 90 days would look like, use this answer for all teams. Lead with the BLUF, then the narrative.
+
+**BLUF:** Thirty days listening from inside the work. Sixty days turning that into specific analytical outputs -- a TTV baseline, a partner gap analysis, a TAM model. Ninety days executing against all three simultaneously.
+
+The temptation in a new leadership role is to arrive with a plan. Jeremy has frameworks and tools that address several of the problems he already suspects Posit is working through -- any PS org at this stage of growth is dealing with versions of the same structural challenges. But the fastest way to waste those assets is to deploy them before earning the right to. So the first thirty days are deliberately about listening from the inside, not from a conference room.
+
+That means embedding with the onboarding function in actual working sessions -- seeing how structured delivery is functioning in practice, where it's creating clarity and where it's still fuzzy. Shadowing TAMs in customer engagements to understand what the technical journey actually looks like from the customer's seat, not from a dashboard. Evaluating the partner delivery model directly -- talking to partners, understanding where they feel unsupported and where the quality gaps are. Sitting on customer calls across all four areas of responsibility, because the patterns across those calls are where the real picture lives. And establishing the cross-functional relationships with CS, Sales, Support, Product, and Engineering leadership that make everything else possible -- because that trust has to be built before asking for anything.
+
+Alongside all of that: reviewing the current KPIs and understanding what data is actually driving them. Not to redesign anything yet -- just to know what's being measured, what's not, and where the gaps are between what the numbers say and what's happening on the ground.
+
+By day sixty: three specific deliverables. First, a Time-to-Value and Project Duration baseline across all onboarding segments -- because you can't improve what you haven't defined, and TTV tracked per phase rather than as a vanity metric at close is where the real signal lives. Second, a Partner Gap Analysis -- a formal assessment of where the delivery network stands, what partners need to increase their self-sufficiency, and what the path to consistent delivery quality looks like. Third, a formalized TAM offering with a clear definition of what proactive technical account management means at Posit and what it needs from CS, Sales, and Support to actually work. All three are analytical outputs built from month one observations -- not assumptions brought in the door.
+
+Month three is execution on all three simultaneously. The partner enablement framework gets rolled out with the structure and quality standards that make partner delivery indistinguishable from direct delivery. The TAM engagement model goes live with the tracking and reporting cadence that lets the team see customer technical progression -- not just respond to it. And the delivery scoping process gets tightened so ad-hoc engagements are profitable, scalable, and feeding insights back into Product and Engineering rather than disappearing into individual project files.
+
+The operational win Jeremy would point to by day ninety is the PS-to-CS handoff process -- because in his experience the gap between what PS delivers and what CS inherits is one of the clearest and most predictable sources of downstream churn, and it's almost always structural rather than a people problem. He's built AI-assisted tooling that addresses this directly. By day sixty he'd know exactly where Posit's version of this problem lives. By day ninety he'd have a working version running with the team.
+
+The goal for ninety days isn't transformation. It's establishing that he understands the work at the level of the people doing it, that he can translate observation into specific analytical outputs, and that he can execute against three parallel workstreams without dropping any of them. Everything else compounds from there.
 
 Posit tooling: "The core challenges Posit solves -- workflow orchestration, reproducible research, collaborative analytics -- are exactly the kinds of technical problems Jeremy has been solving throughout his career. The platform is new; the problem class isn't."
 
