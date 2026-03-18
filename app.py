@@ -870,20 +870,38 @@ _STATIC_JS = (
 
     "Shiny.addCustomMessageHandler('scroll_handoff', function(v) {"
     "  var el = document.getElementById('handoff-chat-messages');"
-    "  if (!el) return;"
-    "  function scrollToLastAgent() {"
-    "    var bubbles = el.querySelectorAll('div[style*=\"linear-gradient\"]');"
-    "    if (bubbles.length > 0) {"
-    "      var last = bubbles[bubbles.length - 1];"
-    "      var rect = last.getBoundingClientRect();"
-    "      var scrollTop = window.pageYOffset + rect.top - 20;"
-    "      window.scrollTo({ top: scrollTop, behavior: 'smooth' });"
-    "    }"
-    "  }"
-    "  setTimeout(scrollToLastAgent, 150);"
-    "  setTimeout(scrollToLastAgent, 500);"
-    "  setTimeout(scrollToLastAgent, 1100);"
+    "  if (el) el.scrollTop = el.scrollHeight;"
     "});"
+
+    "Shiny.addCustomMessageHandler('show_handoff_doc', function(html) {"
+    "  var body = document.getElementById('handoff-doc-body');"
+    "  if (body) body.innerHTML = html;"
+    "  var modal = document.getElementById('handoff-doc-modal');"
+    "  if (modal) { modal.classList.add('active'); document.body.style.overflow = 'hidden'; }"
+    "});"
+
+    "function closeHandoffDoc() {"
+    "  var modal = document.getElementById('handoff-doc-modal');"
+    "  if (modal) { modal.classList.remove('active'); document.body.style.overflow = ''; }"
+    "}"
+
+    "function copyHandoffDoc() {"
+    "  var body = document.getElementById('handoff-doc-body');"
+    "  if (!body) return;"
+    "  var text = body.innerText || body.textContent;"
+    "  navigator.clipboard.writeText(text).then(function() {"
+    "    var btn = document.getElementById('copy-doc-btn');"
+    "    var btn2 = document.getElementById('copy-doc-btn2');"
+    "    if (btn) { btn.textContent = 'copied!'; setTimeout(function() { btn.textContent = 'copy to clipboard'; }, 2000); }"
+    "    if (btn2) { btn2.textContent = 'copied!'; setTimeout(function() { btn2.textContent = 'copy to clipboard'; }, 2000); }"
+    "  }).catch(function() {"
+    "    var ta = document.createElement('textarea');"
+    "    ta.value = body.innerText;"
+    "    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);"
+    "    var btn = document.getElementById('copy-doc-btn');"
+    "    if (btn) { btn.textContent = 'copied!'; setTimeout(function() { btn.textContent = 'copy to clipboard'; }, 2000); }"
+    "  });"
+    "}"
 
     "function syncLocation(val) {"
     "  var el = document.getElementById('user_location');"
@@ -1178,6 +1196,17 @@ body { background-color: var(--bg); color: var(--text-primary); font-family: 'DM
 .j-offtopic-msg { font-size: 14px; color: var(--text-dim); font-style: italic; margin-bottom: 20px; }
 .j-video-wrapper { max-width: 480px; border-radius: 4px; overflow: hidden; border: 1px solid var(--border2); }
 .j-video-wrapper video { width: 100%; display: block; }
+.j-handoff-doc-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); z-index: 1000; justify-content: center; padding: 40px 20px; overflow-y: auto; }
+.j-handoff-doc-modal.active { display: flex; }
+.j-handoff-doc-inner { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; width: 100%; max-width: 760px; padding: 32px; position: relative; margin: auto; flex-shrink: 0; }
+.j-handoff-doc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.j-handoff-doc-title { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--accent-light); letter-spacing: 0.12em; text-transform: uppercase; }
+.j-handoff-doc-close { background: none; border: none; color: var(--text-muted); font-size: 22px; cursor: pointer; padding: 0; line-height: 1; transition: color 0.15s; }
+.j-handoff-doc-close:hover { color: var(--text-primary); }
+.j-handoff-doc-copy { background: transparent; border: 1px solid var(--accent-light); color: var(--accent-light); font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.06em; padding: 8px 16px; border-radius: 2px; cursor: pointer; transition: all 0.15s; margin-bottom: 24px; display: inline-block; }
+.j-handoff-doc-copy:hover { background: rgba(45,106,79,0.1); }
+.j-handoff-doc-body { font-size: 14px; line-height: 1.75; color: var(--text-primary); }
+.j-handoff-doc-footer { margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
 .j-unlock-panel { background: linear-gradient(135deg, var(--accent-glow), rgba(80,100,80,0.04)); border: 1px solid rgba(106,128,96,0.3); border-radius: 4px; padding: 32px 28px; margin-top: 40px; }
 .j-unlock-header { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent-light); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 16px; }
 .j-unlock-title { font-size: 20px; font-weight: 500; color: #d0cec8; margin-bottom: 8px; }
@@ -1431,6 +1460,37 @@ app_ui = ui.page_fluid(
         ui.input_text("length_pref", "", value="balanced"),
         ui.tags.style("#length_pref { display: none; }"),
         ui.input_action_button("riddle_correct", "", style="display:none;"),
+
+        # Handoff doc modal
+        ui.div(
+            {"class": "j-handoff-doc-modal", "id": "handoff-doc-modal",
+             "onclick": "if(event.target===this) closeHandoffDoc()"},
+            ui.div(
+                {"class": "j-handoff-doc-inner"},
+                ui.div(
+                    {"class": "j-handoff-doc-header"},
+                    ui.div({"class": "j-handoff-doc-title"}, "// ps-to-cs handoff document"),
+                    ui.tags.button("\u00d7", {"class": "j-handoff-doc-close", "onclick": "closeHandoffDoc()"}),
+                ),
+                ui.tags.button(
+                    "copy to clipboard",
+                    {"class": "j-handoff-doc-copy", "id": "copy-doc-btn", "onclick": "copyHandoffDoc()"}
+                ),
+                ui.div({"class": "j-handoff-doc-body", "id": "handoff-doc-body"}),
+                ui.div(
+                    {"class": "j-handoff-doc-footer"},
+                    ui.tags.button(
+                        "copy to clipboard",
+                        {"class": "j-handoff-doc-copy", "id": "copy-doc-btn2", "onclick": "copyHandoffDoc()"}
+                    ),
+                    ui.tags.button(
+                        "close",
+                        {"style": "background:transparent; border:1px solid var(--border); color:var(--text-muted); font-family:'DM Mono',monospace; font-size:11px; padding:8px 16px; border-radius:2px; cursor:pointer;",
+                         "onclick": "closeHandoffDoc()"}
+                    ),
+                ),
+            ),
+        ),
         ui.input_text("riddle_team_signal", "", value=""),
         ui.tags.style("#riddle_team_signal { display: none; }"),
         ui.input_text("user_location", "", value=""),
@@ -1545,11 +1605,14 @@ def server(input, output, session):
         handoff_messages.set(messages)
         handoff_loading.set(True)
         await session.send_custom_message("clear_handoff_input", True)
+
+        is_doc_request = "generate the handoff document" in msg.lower() or "generate the full handoff" in msg.lower()
+
         try:
             client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
             resp   = client.messages.create(
                 model="claude-sonnet-4-20250514",
-                max_tokens=600,
+                max_tokens=2000 if is_doc_request else 600,
                 system=system_prompt,
                 messages=messages
             )
@@ -1557,7 +1620,33 @@ def server(input, output, session):
             messages = list(handoff_messages())
             messages.append({"role": "assistant", "content": reply})
             handoff_messages.set(messages)
-            await session.send_custom_message("scroll_handoff", True)
+
+            if is_doc_request:
+                # Build HTML from parse_response and send to modal
+                nodes = parse_response(reply)
+                import re as _re
+                def node_to_html(node):
+                    try:
+                        tag = node.tag if hasattr(node, 'tag') else 'span'
+                        children = getattr(node, 'children', [])
+                        style = ''
+                        if hasattr(node, 'attrs') and node.attrs:
+                            style = node.attrs.get('style', '')
+                        inner = ''.join(
+                            c if isinstance(c, str) else node_to_html(c)
+                            for c in children
+                        )
+                        if style:
+                            return f'<{tag} style="{style}">{inner}</{tag}>'
+                        return f'<{tag}>{inner}</{tag}>'
+                    except Exception:
+                        return str(node)
+                html_parts = [node_to_html(n) for n in nodes]
+                html = ''.join(html_parts)
+                await session.send_custom_message("show_handoff_doc", html)
+            else:
+                await session.send_custom_message("scroll_handoff", True)
+
         except Exception as e:
             messages = list(handoff_messages())
             messages.append({"role": "assistant", "content": f"Something went wrong: {str(e)}"})
