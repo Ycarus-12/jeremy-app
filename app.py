@@ -1687,11 +1687,14 @@ def server(input, output, session):
                         {"style": (
                             "padding: 10px 14px; border-radius: 3px; margin-bottom: 10px; line-height: 1.6; "
                             + ("font-size: 14px; background: var(--surface2); color: var(--text-dim); text-align: right;" if is_user
-                               else "font-size: 14px; background: var(--bg); border: 1px solid var(--border); color: var(--text-primary);")
+                               else "font-size: 14px; background: linear-gradient(135deg, rgba(45,106,79,0.08) 0%, rgba(196,114,42,0.05) 100%); border: 1px solid rgba(45,106,79,0.25); border-left: 3px solid; border-image: linear-gradient(180deg, #2D6A4F, #C4722A) 1; color: var(--text-primary);")
                         )},
                         ui.tags.span(
-                            {"style": "font-family: 'DM Mono', monospace; font-size: 10px; opacity: 0.5; display: block; margin-bottom: 4px;"},
-                            "you" if is_user else "agent"
+                            {"style": (
+                                "font-family: 'DM Mono', monospace; font-size: 10px; display: block; margin-bottom: 4px; "
+                                + ("opacity: 0.4;" if is_user else "color: #6aab78; letter-spacing: 0.08em; text-shadow: 0 0 8px rgba(106,171,120,0.4);")
+                            )},
+                            "you" if is_user else "// agent"
                         ),
                         *(parse_response(content) if not is_user else [content])
                     )
