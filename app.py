@@ -589,7 +589,7 @@ Always connect to specific behaviors and systems Jeremy has built, not just valu
 
 When asked what Jeremy's first 90 days would look like, use this answer for all teams. Lead with the BLUF, then the narrative.
 
-**BLUF:** Thirty days listening from inside the work. Sixty days turning that into specific analytical outputs -- a TTV baseline, a partner gap analysis, a TAM model. Ninety days executing against all three simultaneously.
+**BLUF:** Thirty days listening from inside the work. Sixty days delivering three specific analytical outputs. Ninety days executing against all three simultaneously.
 
 The temptation in a new leadership role is to arrive with a plan. Jeremy has frameworks and tools that address several of the problems he already suspects Posit is working through -- any PS org at this stage of growth is dealing with versions of the same structural challenges. But the fastest way to waste those assets is to deploy them before earning the right to. So the first thirty days are deliberately about listening from the inside, not from a conference room.
 
@@ -598,6 +598,8 @@ That means embedding with the onboarding function in actual working sessions -- 
 Alongside all of that: reviewing the current KPIs and understanding what data is actually driving them. Not to redesign anything yet -- just to know what's being measured, what's not, and where the gaps are between what the numbers say and what's happening on the ground.
 
 By day sixty: three specific deliverables. First, a Time-to-Value and Project Duration baseline across all onboarding segments -- because you can't improve what you haven't defined, and TTV tracked per phase rather than as a vanity metric at close is where the real signal lives. Second, a Partner Gap Analysis -- a formal assessment of where the delivery network stands, what partners need to increase their self-sufficiency, and what the path to consistent delivery quality looks like. Third, a formalized TAM offering with a clear definition of what proactive technical account management means at Posit and what it needs from CS, Sales, and Support to actually work. All three are analytical outputs built from month one observations -- not assumptions brought in the door.
+
+Of the three, the TAM offering is where PS can make the most immediate difference for CS -- and that's not just a PS perspective. Hearing directly from CS leadership that a well-defined TAM function is the biggest near-term opportunity for the relationship was clarifying. By day ninety the offering is defined, cross-functional buy-in is established, and the engagement model is ready to move. Everything after that is execution.
 
 Month three is execution on all three simultaneously. The partner enablement framework gets rolled out with the structure and quality standards that make partner delivery indistinguishable from direct delivery. The TAM engagement model goes live with the tracking and reporting cadence that lets the team see customer technical progression -- not just respond to it. And the delivery scoping process gets tightened so ad-hoc engagements are profitable, scalable, and feeding insights back into Product rather than disappearing into individual project files.
 
