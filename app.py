@@ -74,7 +74,7 @@ def log_to_airtable(user_id: str, team: str, question: str, response_length: int
 TEAMS = {
     "cs": {
         "label":            "Customer Success",
-        "unlock_url":       "https://connect.posit.cloud/jmcoates/content/019cf76a-1a38-d87d-07d3-b834f0dec0a4",
+        "unlock_url":       "https://019cf76a-1a38-d87d-07d3-b834f0dec0a4.share.connect.posit.cloud",
         "tool_name":        "Customer Success Intelligence Assistant",
         "tool_description": "A custom AI assistant built for CS workflows and customer health management",
         "handoff_label":    "PS -> CS Handoff Agent",
@@ -116,7 +116,7 @@ TEAMS = {
     },
     "exploring": {
         "label":            "Just exploring",
-        "unlock_url":       "https://connect.posit.cloud/jmcoates/content/019cf80e-e102-b179-07c7-18bf5f63839a",
+        "unlock_url":       "https://019cf80e-e102-b179-07c7-18bf5f63839a.share.connect.posit.cloud",
         "tool_name":        "PS Implementation PM Agent",
         "tool_description": "A custom AI assistant built for SaaS implementation project management",
         "handoff_label":    "PS Implementation PM Agent",
