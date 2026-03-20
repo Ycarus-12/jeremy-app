@@ -825,6 +825,7 @@ _STATIC_JS = (
     "  if (fb) { fb.textContent = ''; fb.className = 'j-riddle-feedback'; }"
     "  document.getElementById('riddle-overlay').classList.add('active');"
     "  setTimeout(function() { if (inp) inp.focus(); }, 120);"
+    "  Shiny.setInputValue('riddle_opened', String(Date.now()), {priority: 'event'});"
     "}"
 
     "function closeRiddle() {"
@@ -1518,6 +1519,8 @@ app_ui = ui.page_fluid(
         ),
         ui.input_text("riddle_team_signal", "", value=""),
         ui.tags.style("#riddle_team_signal { display: none; }"),
+        ui.input_text("riddle_opened", "", value=""),
+        ui.tags.style("#riddle_opened { display: none; }"),
         ui.input_text("user_location", "", value=""),
         ui.tags.style("#user_location { display: none; }"),
         ui.input_text("last_question_asked", "", value=""),
@@ -1604,6 +1607,12 @@ def server(input, output, session):
             response_length_pref.set(val)
 
     @reactive.effect
+    @reactive.event(input.riddle_opened)
+    def handle_riddle_opened():
+        team_key = input.selected_team().strip() or "exploring"
+        log_to_airtable(user_id(), team_key, "// feeling curious clicked", 0, input.user_location().strip())
+
+    @reactive.effect
     @reactive.event(input.riddle_correct)
     async def handle_riddle_correct():
         team_key = input.riddle_team_signal().strip() or input.selected_team().strip() or "exploring"
@@ -1613,6 +1622,7 @@ def server(input, output, session):
         show_handoff.set(False)
         unlocked_team.set(team_key)
         is_unlocked.set(True)
+        log_to_airtable(user_id(), team_key, "// riddle solved", 0, input.user_location().strip())
         await session.send_custom_message("scroll_response", True)
 
     @reactive.effect
