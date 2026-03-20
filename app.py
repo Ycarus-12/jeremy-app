@@ -1672,6 +1672,9 @@ def server(input, output, session):
             else:
                 await session.send_custom_message("scroll_handoff", True)
 
+            agent_label = "cs-handoff-agent" if team_key == "cs" else "pm-agent"
+            log_to_airtable(user_id(), agent_label, msg, len(reply), input.user_location().strip())
+
         except Exception as e:
             messages = list(handoff_messages())
             messages.append({"role": "assistant", "content": f"Something went wrong: {str(e)}"})
@@ -1799,7 +1802,7 @@ def server(input, output, session):
             title     = "PS -> CS Handoff Agent" if not is_pm else "PS Implementation PM Agent"
             desc      = "Live agent powered by Claude. Start a handoff scenario below -- or try the sample one."
             btn_fn    = "prefillHandoffScenario()" if not is_pm else "prefillPMScenario()"
-            placeholder = "Tell the agent which customer you are handing off..." if not is_pm else "Tell the agent what implementation project you're working on..."
+            placeholder = "Continue the conversation..." if messages else ("Tell the agent which customer you are handing off..." if not is_pm else "Tell the agent what implementation project you're working on...")
 
             msg_nodes = []
             if not messages and not loading:
