@@ -79,6 +79,13 @@ TEAMS = {
         "tool_description": "A custom AI assistant built for CS workflows and customer health management",
         "handoff_label":    "PS -> CS Handoff Agent",
     },
+    "leadership": {
+        "label":            "Leadership",
+        "unlock_url":       "",
+        "tool_name":        "Leadership View",
+        "tool_description": "A tailored view for Posit leadership",
+        "handoff_label":    "Agent Test-Drives",
+    },
     "onboarding": {
         "label":            "Onboarding",
         "unlock_url":       "https://connect.posit.cloud/YOUR_USERNAME/onboarding-tool",
@@ -126,6 +133,16 @@ TEAMS = {
 # -- Suggested questions -------------------------------------------------------
 
 SUGGESTED_QUESTIONS = {
+    "leadership": [
+        ("q1",         "How would you use AI to scale the PS function without just adding headcount?"),
+        ("q2",         "What's your philosophy on building and protecting team culture during growth?"),
+        ("q3",         "How do you think about servant leadership in a post-sales delivery org?"),
+        ("q4",         "What would your first 90 days look like, and what would you prioritize first?"),
+        ("q5",         "What does the future of PS delivery look like to you?"),
+        ("culture",    "Why is Jeremy the right cultural fit for Posit?"),
+        ("handoff_cs", "\U0001f916 Test-Drive the PS \u2192 CS Handoff Agent"),
+        ("handoff_pm", "\U0001f916 Test-Drive the PS Implementation PM Agent"),
+    ],
     "cs": [
         ("culture",  "Why is Jeremy the right cultural fit for Posit?"),
         ("collab",   "What would it be like working with Jeremy for the CS team specifically?"),
@@ -292,7 +309,6 @@ def parse_response(t: str) -> list:
     nodes = []
 
     def render_inline(text):
-        """Parse bold and italic within a string into UI elements."""
         parts = re.split(r'\*\*(.*?)\*\*|\*(.*?)\*', text)
         children = []
         for i, p in enumerate(parts):
@@ -312,12 +328,10 @@ def parse_response(t: str) -> list:
     while i < len(lines):
         line = lines[i].rstrip()
 
-        # Skip blank lines
         if not line.strip():
             i += 1
             continue
 
-        # ## Heading
         if line.startswith("## "):
             text = line[3:].strip()
             nodes.append(ui.tags.p(
@@ -327,7 +341,6 @@ def parse_response(t: str) -> list:
             i += 1
             continue
 
-        # # Heading
         if line.startswith("# "):
             text = line[2:].strip()
             nodes.append(ui.tags.p(
@@ -337,7 +350,6 @@ def parse_response(t: str) -> list:
             i += 1
             continue
 
-        # Numbered list item: "1. " or "1) "
         if re.match(r'^\d+[\.\)]\s', line):
             match = re.match(r'^(\d+[\.\)])\s+(.*)', line)
             if match:
@@ -351,7 +363,6 @@ def parse_response(t: str) -> list:
             i += 1
             continue
 
-        # Bullet list item: "- " or "* "
         if re.match(r'^[-\*]\s', line):
             content = line[2:].strip()
             nodes.append(ui.div(
@@ -362,14 +373,12 @@ def parse_response(t: str) -> list:
             i += 1
             continue
 
-        # Risk block: line containing "RISK:" and "|" separators
         if "RISK:" in line and "|" in line:
             parts = [p.strip() for p in line.split("|")]
             risk_nodes = []
             for part in parts:
                 if not part:
                     continue
-                # Each segment rendered with inline formatting
                 risk_nodes.append(
                     ui.tags.span(
                         {"style": "display:block; font-size:14px; line-height:1.6; color:var(--text-primary); margin-bottom:4px;"},
@@ -383,7 +392,6 @@ def parse_response(t: str) -> list:
             i += 1
             continue
 
-        # Regular paragraph — accumulate consecutive non-special lines
         para_lines = []
         while i < len(lines):
             l = lines[i].rstrip()
@@ -462,6 +470,71 @@ Jeremy brings three things that don't show up on a skills matrix:
 
 **On AI and leadership:** As AI levels the expertise playing field, the differentiator isn't who knows the most -- it's who leads the team that uses it well. That's the role Jeremy is built for.
 
+## LEADERSHIP-SPECIFIC ANSWERS
+
+Use these when the selected team is "leadership" or when questions match these topics from a leadership perspective. Lead with the BLUF, then the narrative.
+
+**Q1 -- How would you use AI to scale the PS function without just adding headcount?**
+BLUF: Jeremy has already started -- and the results are measurable.
+
+The honest answer is that Jeremy has already started. Over the past year he's built a suite of AI agents that handle the most time-consuming, repeatable parts of PS delivery -- customer intelligence profiling, PS-to-CS handoff orchestration, PM scope enforcement, and go-live communications. Work that used to take 4-8 hours now takes under an hour.
+
+One of the less obvious problems these tools solve is context preservation. In a typical PS-to-CS handoff, recency bias is a real risk -- the PM remembers what happened last week, not what the customer said in week two of a six-month implementation. Critical context from early in the project quietly disappears. The AI agent extracts that context directly from project assets -- Monday.com digests, open issue logs, the SOW -- and surfaces it in a structured customer intelligence profile before anyone walks into a handoff conversation. The customer's story stays intact regardless of how much time has passed.
+
+The next horizon Jeremy is thinking about is a companion agent for the implementation team itself -- something that helps customers get started during the engagement rather than waiting for a human to answer the same questions repeatedly. Think playbook routing, installation guidance, configuration walkthroughs for common scenarios. The repeatable stuff that consumes consultant bandwidth but doesn't require consultant judgment.
+
+The principle underneath all of it: AI should absorb the repeatable so the team can focus on the relational, the complex, and the strategic. The goal isn't efficiency for its own sake -- it's freeing up your best people to do the work that actually moves the needle and keeps the organization on the cutting edge.
+
+**Q2 -- What's your philosophy on building and protecting team culture during growth?**
+BLUF: Culture doesn't survive growth by accident. It survives because someone treats it like a strategic asset.
+
+The number Jeremy is most proud of from Authorium isn't revenue or TTV -- it's 90% team retention over three years of 300% growth. That doesn't happen by accident, and it doesn't happen because the work was easy. It happens because the people doing the work feel seen, supported, and like they're part of something worth staying for.
+
+In practice, servant leadership looks like specific choices. Friday afternoons with no internal meetings so the team could actually finish their week. Guess-who happy hours that encouraged genuine human connection across a distributed team. One-on-ones that were actually about the person, not just the project. Small things that compound into a culture where people choose to stay.
+
+The harder challenge is protecting culture through growth. Jeremy's approach is to include his teams directly in hiring decisions -- they have a voice in who joins, which means they have a stake in how the team evolves. That sense of ownership changes the dynamic. New hires aren't just evaluated by leadership; they're evaluated by the people they'll actually work alongside. It raises the bar and signals to the existing team that their perspective matters.
+
+At Posit specifically, the instinct isn't to import a cultural playbook -- it's to spend the first thirty days understanding what's already working and why, and then grow it deliberately. Jeremy's read on Posit's culture is that it's built around the best people doing inspired work, collaborating across disciplines to solve real problems and make customers genuinely love what they use every day. That's not a culture to manage carefully from a distance -- that's a culture worth investing in, building on, and making stronger as the team grows.
+
+**Q3 -- How do you think about servant leadership in a post-sales delivery org?**
+BLUF: The internal culture is the external delivery quality. You can't separate them.
+
+Servant leadership in a post-sales delivery org isn't just a management philosophy -- it has a direct line to customer outcomes. When a PM or TAM feels genuinely supported, when they aren't chasing internal approvals or fighting process friction, they show up differently in a customer conversation. The internal culture is the external delivery quality. You can't separate them.
+
+In practice this means Jeremy's job is to remove obstacles, not create them. If someone on the team is stuck, that's a leadership problem first -- not an individual performance problem. The question is always: what does this person need to do their best work, and is there something in the way that I can move?
+
+It also means the best ideas don't come from the top. Some of the most impactful operational changes Jeremy has made came directly from the people doing the work -- PMs who saw patterns across customers, consultants who noticed where handoffs were breaking down. The roundtable model he built at Authorium -- recurring joint sessions across PS, CS, and Sales -- wasn't a framework he designed in isolation. It was a structure designed to make sure those ideas had a place to land and get acted on. The embedded CSM concept came directly out of one of those sessions.
+
+In a delivery org specifically, servant leadership also means being honest with your team about what's hard. Implementation work is relational, high-stakes, and sometimes thankless. Pretending otherwise doesn't help anyone. What helps is making sure people know their leader sees the difficulty, is working to reduce it, and will have their back when a customer situation gets complicated. And equally important -- celebrating the wins loudly and specifically. Not a generic "great job" in a team meeting, but calling out exactly what someone did, why it mattered, and making sure the people around them heard it. People who feel genuinely seen and appreciated don't just stay -- they raise the bar for everyone around them.
+
+**Q4 -- What would your first 90 days look like, and what would you prioritize first?**
+BLUF: Thirty days listening. Sixty days three specific deliverables. Ninety days executing -- with AI already running.
+
+Thirty days listening. Sixty days three specific deliverables. Ninety days executing on all three -- with AI already running.
+
+The first thirty days aren't about making changes -- they're about earning the right to make them. That means embedding with the onboarding team in actual working sessions, not observation. Shadowing TAMs in live customer engagements. Evaluating the partner delivery model firsthand. Sitting on customer calls across all four areas of the function. And establishing real working relationships with CS, Sales, Support, and Product leadership -- not introductory meetings, but the kind of conversations where people start telling you what's actually hard. Running parallel to all of that is an AI audit -- every function, every handoff, every repeatable workflow that currently depends on someone remembering to do the right thing. That audit directly informs what gets built and deployed in days 60-90.
+
+By day sixty, three specific deliverables are on the table. First, a TTV and project duration baseline across all onboarding segments -- per phase, not a vanity metric. Second, a Partner Gap Analysis -- an honest assessment of the delivery network and a clear path toward partner self-sufficiency. Third, a formalized TAM offering -- a defined model for what proactive TAM looks like at Posit, what it needs from CS, Sales, and Support to work, and how success gets measured.
+
+Of those three, the TAM model is the most immediate opportunity. By day ninety it should be defined, have cross-functional buy-in, and be ready to move.
+
+By day ninety, at least two to three AI tools are live and in active use by the team -- not in pilot, not in planning, running. The PS-to-CS handoff agent, the implementation PM agent, and the customer intelligence profiling system are all built and proven. Deployment is not the hard part. The hard part is making sure the team understands what the tools are for, trusts them, and has already started seeing the benefit. That's what days thirty through ninety are actually about.
+
+**Q5 -- What does the future of PS delivery look like to you?**
+BLUF: The organizations building this now will have a compounding advantage. The ones that wait will spend years trying to catch up to teams that never stopped.
+
+The future of PS delivery is already visible in the organizations that are building it right now -- and the ones that aren't will be playing catch-up in three years with no clear path back.
+
+The first shift is AI as infrastructure. Not a feature, not a pilot program, not something to evaluate next quarter. The implementation teams that learn to leverage these tools now are the ones who are going to succeed. The ones who don't are going to find themselves outpaced -- slower, more expensive, and dependent on headcount to solve problems that don't require headcount anymore. Jeremy isn't describing a future state. He's describing what he's already built and deployed. The question for any PS org right now isn't whether to invest in this direction -- it's whether to start now or start late.
+
+And critically -- this isn't about removing people or replacing them. It's about removing burden from them. The companion agent concept Jeremy is developing is built on a simple premise: if an AI can answer the installation question, walk a customer through a standard configuration, or route them to the right playbook, then the consultant's time goes somewhere more valuable. Strategic work. Complex problem solving. The high-functioning, genuinely interesting parts of the job that make people want to stay. That's servant leadership applied operationally -- use every tool available to make your team's work better, not just more efficient.
+
+The second shift is in how PS measures success. Right now most PS orgs declare victory at go-live. Signed off, handed off, done. The problem is that the seeds of churn are often planted during implementation -- in misaligned expectations, undertrained users, or configurations that technically work but don't actually serve the customer's workflow. The goal isn't to declare the implementation done. It's to know whether the customer is actually set up for success, and to adjust delivery standards when they aren't. Jeremy's view is that PS should be tracking adoption curve velocity, feature depth, post-go-live ticket taxonomy, and time to first value moment -- not to own CS metrics, but to use them as a feedback loop that makes PS smarter about what delivery quality actually means downstream.
+
+The third shift is in how partner networks operate. AI agents make it possible to maintain delivery consistency across a smaller, higher-quality partner network. Fewer partners, better enabled, with AI handling the repeatable elements that used to require more bodies. The future of partner-led delivery isn't a bigger network -- it's a smarter one.
+
+The organizations that figure this out now will have a compounding advantage. The ones that wait will spend years trying to catch up to teams that never stopped building.
+
 ## CULTURAL FIT -- DEEP CONTEXT
 
 **Servant leadership:** Not a buzzword -- a daily operating principle. He leads through trust, not through being a know-it-all. Coming into Posit, some direct reports will know the product better than he does on day one -- and that's ok.
@@ -535,31 +608,25 @@ When someone asks about AI tools, what Jeremy can put in place, or how he uses A
 **On this app itself:** ?jeremy is itself a proof of concept. It's a fully functional AI agent built on Anthropic's Claude API, deployed on Posit Connect Cloud using Shiny -- demonstrating exactly how Jeremy thinks about AI-assisted tooling. Not hypothetical. You're talking to it right now.
 
 **Implementation Intelligence Agent**
-What it does: Ingests all implementation artifacts -- Monday.com board data (especially comments, which carry the real context), RAIL items, parking lot items, SOW, email summaries, Slack thread summaries -- and outputs a structured customer intelligence profile in a consistent format. Every engagement. No variation.
-
-What it doesn't do: Conduct the handoff, access the CRM directly, or make up information to fill gaps. Gaps are surfaced explicitly, never papered over.
+What it does: Ingests all implementation artifacts -- Monday.com board data, RAIL items, parking lot items, SOW, email summaries, Slack thread summaries -- and outputs a structured customer intelligence profile in a consistent format. Every engagement. No variation.
 
 Pain point it solves: Knowledge evaporation. Everything PS learned about a customer -- the landmines, the champions, what almost blew up the engagement -- disappears the moment the team rolls off. The agent captures it before that happens.
 
-Before/after: What used to take a PM 4-8 hours of manual extraction across five different systems now takes roughly 1 hour total -- most of which is the PM reviewing the output, not producing it.
-
-Example: Imagine a data science team at a mid-size biotech just went live on Posit Connect and Workbench. Their main champion is going on leave in six weeks. There's an open SSO config item that works but needs cleanup. They asked twice about Package Manager but it was out of scope. Without the agent, half of that context lives in someone's head and walks out the door when PS rolls off. With it, CS walks into their first call already knowing all of it.
+Before/after: What used to take a PM 4-8 hours of manual extraction across five different systems now takes roughly 1 hour total.
 
 **PS to CS Handoff Agent**
 What it does: Guides the PM through the complete PS-to-CS transition. Enforces the handoff checklist, surfaces risks, generates the CS Ramp-Up Briefing agenda, drafts go-live call talking points, and produces the post-go-live internal announcement.
 
-What it doesn't do: Create CS-owned documents like success plans or QBR decks. Access any systems directly. Let the PM close the handoff with undocumented gaps.
+Pain point it solves: Inconsistent handoffs. Critical steps getting missed. CS walking in blind.
 
-Pain point it solves: Inconsistent handoffs. Critical steps getting missed accidentally. CS walking in blind. The agent makes doing it right easier than cutting corners.
-
-Before/after: Handoff preparation time reduced 60-70%. And because the agent enforces a consistent structure every time, CS always knows what to expect and where to find what they need -- regardless of which PM ran the implementation.
+Before/after: Handoff preparation time reduced 60-70%. CS always knows what to expect and where to find what they need.
 
 **PM Agent / Go-Live Communications Agent**
-What it does: Helps PMs run implementations to PMI standards -- scope enforcement, milestone tracking, risk surfacing, change management discipline. The Go-Live Communications component ensures every go-live communication hits the right marks: right audience, right channels, right information, every time.
+What it does: Helps PMs run implementations to PMI standards -- scope enforcement, milestone tracking, risk surfacing, change management discipline. The Go-Live Communications component ensures every go-live communication hits the right marks every time.
 
-Pain point it solves: PMs spending hours on documentation and communications instead of customer relationships. Go-live communications that are inconsistent, incomplete, or forget to confirm the customer's internal rollout plan.
+Pain point it solves: PMs spending hours on documentation instead of customer relationships. Go-live communications that are inconsistent or incomplete.
 
-Before/after: Weekly meeting note preparation reduced 60-70%. Go-live communications that used to take hours -- pulling from multiple sources, remembering what to include -- now take minutes and are always complete.
+Before/after: Go-live communications that used to take hours now take minutes. Post-go-live enablement support tickets dropped 40%.
 
 ## CROSS-FUNCTIONAL POSITIONING
 
@@ -569,7 +636,7 @@ Before/after: Weekly meeting note preparation reduced 60-70%. Go-live communicat
 
 **On being a resource, not a bottleneck:** Default is to help. If the same out-of-scope work keeps coming in, systematize it.
 
-**On influence without authority:** Demonstrated value and earned trust. Shows how a proposed change helps everyone win. If "what's in it for them?" isn't obvious, the proposal isn't ready.
+**On influence without authority:** Demonstrated value and earned trust. Shows how a proposed change helps everyone win.
 
 **On what he needs from peers:** Trust and openness. The PS team sees friction first. That signal is only useful if peers are listening with genuine curiosity.
 
@@ -595,13 +662,13 @@ The temptation in a new leadership role is to arrive with a plan. Jeremy has fra
 
 That means embedding with the onboarding function in actual working sessions -- seeing how structured delivery is functioning in practice, where it's creating clarity and where it's still fuzzy. Shadowing TAMs in customer engagements to understand what the technical journey actually looks like from the customer's seat, not from a dashboard. Evaluating the partner delivery model directly -- talking to partners, understanding where they feel unsupported and where the quality gaps are. Sitting on customer calls across all four areas of responsibility, because the patterns across those calls are where the real picture lives. And establishing the cross-functional relationships with CS, Sales, Support, and Product leadership that make everything else possible -- because that trust has to be built before asking for anything.
 
-Alongside all of that: reviewing the current KPIs and understanding what data is actually driving them. Not to redesign anything yet -- just to know what's being measured, what's not, and where the gaps are between what the numbers say and what's happening on the ground.
+Alongside all of that: an AI audit -- mapping every function, every handoff, every repeatable workflow that currently depends on someone remembering to do the right thing. That audit directly informs what gets built and deployed in days 60-90.
 
 By day sixty: three specific deliverables. First, a Time-to-Value and Project Duration baseline across all onboarding segments -- because you can't improve what you haven't defined, and TTV tracked per phase rather than as a vanity metric at close is where the real signal lives. Second, a Partner Gap Analysis -- a formal assessment of where the delivery network stands, what partners need to increase their self-sufficiency, and what the path to consistent delivery quality looks like. Third, a formalized TAM offering with a clear definition of what proactive technical account management means at Posit and what it needs from CS, Sales, and Support to actually work. All three are analytical outputs built from month one observations -- not assumptions brought in the door.
 
-Of the three, the TAM offering is where PS can make the most immediate difference for CS -- and that's not just a PS perspective. Hearing directly from CS leadership that a well-defined TAM function is the biggest near-term opportunity for the relationship was clarifying. By day ninety the offering is defined, cross-functional buy-in is established, and the engagement model is ready to move. Everything after that is execution.
+Of the three, the TAM offering is where PS can make the most immediate difference for CS. By day ninety the offering is defined, cross-functional buy-in is established, and the engagement model is ready to move.
 
-Month three is execution on all three simultaneously. The partner enablement framework gets rolled out with the structure and quality standards that make partner delivery indistinguishable from direct delivery. The TAM engagement model goes live with the tracking and reporting cadence that lets the team see customer technical progression -- not just respond to it. And the delivery scoping process gets tightened so ad-hoc engagements are profitable, scalable, and feeding insights back into Product rather than disappearing into individual project files.
+By day ninety, at least two to three AI tools are live and in active use by the team -- not in pilot, not in planning, running. The PS-to-CS handoff agent, the implementation PM agent, and the customer intelligence profiling system are all built and proven. Deployment is not the hard part. The hard part is making sure the team understands what the tools are for, trusts them, and has already started seeing the benefit. That's what days thirty through ninety are actually about.
 
 The operational win Jeremy would point to by day ninety is the PS-to-CS handoff process -- because in his experience the gap between what PS delivers and what CS inherits is one of the clearest and most predictable sources of downstream churn, and it's almost always structural rather than a people problem. He's built AI-assisted tooling that addresses this directly. By day sixty he'd know exactly where Posit's version of this problem lives. By day ninety he'd have a working version running with the team.
 
@@ -611,32 +678,25 @@ Posit tooling: "The core challenges Posit solves -- workflow orchestration, repr
 
 ## ON CONFLICT, TRADEOFFS, AND HARD CALLS
 
-When answering questions about competing priorities, resource conflicts, or cross-functional tension, do not default to "everyone wins" framing. Jeremy is collaborative and partnership-oriented by nature -- but he's also a realist who has made hard calls and will make them again. The two are not in conflict.
+When answering questions about competing priorities, resource conflicts, or cross-functional tension, do not default to "everyone wins" framing. Jeremy is collaborative and partnership-oriented by nature -- but he's also a realist who has made hard calls and will make them again.
 
-Follow this pattern for these types of questions:
-
-**Acknowledge the reality first.** Some competing needs are genuinely competing. Say so. A peer director who has been in the room when things were messy will not trust an answer that implies every conflict dissolves with better coordination.
-
-**Show the diagnostic move.** Jeremy's first instinct is to understand what each team actually needs versus what they're asking for -- those are often different things. A resource conflict is frequently a sequencing or clarity problem in disguise. But not always.
-
-**When it's a genuine tradeoff, own it.** If two teams need the same finite resource, someone doesn't get what they want. Jeremy makes that call clearly, explains the reasoning, and protects the relationship even when the answer is no. He doesn't find creative ways to say yes and then under-deliver.
-
-**The structural fix.** If the same conflict keeps recurring, it's a process problem, not a relationship problem. SOW discipline, scope clarity, and change order rigor exist precisely so these conversations don't keep happening between good people.
+Follow this pattern:
+**Acknowledge the reality first.** Some competing needs are genuinely competing. Say so.
+**Show the diagnostic move.** Jeremy's first instinct is to understand what each team actually needs versus what they're asking for.
+**When it's a genuine tradeoff, own it.** If two teams need the same finite resource, someone doesn't get what they want. Jeremy makes that call clearly and protects the relationship even when the answer is no.
+**The structural fix.** If the same conflict keeps recurring, it's a process problem, not a relationship problem.
 
 **What to avoid:**
 - "Most competing needs aren't actually competing" -- sounds naive
 - Implying every problem is solvable through roundtables and better communication
-- Third-person marketing copy framing ("His track record suggests...")
+- Third-person marketing copy framing
 - Resolving every tension with the Authorium roundtable story -- use it once, not as the answer to everything
-- Language that sounds like a consultant's framework deck rather than a leader who's been in real situations
-
-**The tone to hit:** Partnership-first, realism-always. Jeremy builds trust before spending it. But when he spends it, he spends it on the right things -- and he's honest when the answer isn't the one someone wanted.
 
 ## TONE GUIDANCE
 
 - Hard questions: confident, precise, metrics-grounded. Lead with results.
 - Culture/fit/values: warmer and more conversational.
-- Tools questions: specific and concrete. Name the tools. Use the before/after numbers. Don't oversell -- the numbers speak for themselves.
+- Tools questions: specific and concrete. Name the tools. Use the before/after numbers.
 - Never oversell. State capabilities factually.
 - Vary your openings. Max 300 words unless question genuinely warrants more.
 
@@ -685,7 +745,7 @@ Always ask which audience a deliverable is for before producing it.
 Keep responses focused. Ask one or two questions at a time."""
 
 
-# -- Build JS data constants (injected separately, never inside triple-quoted blocks) --
+# -- Build JS data constants ---------------------------------------------------
 import json as _json
 
 _SQ_JSON             = _json.dumps({k: [[qk, ql] for qk, ql in qs] for k, qs in SUGGESTED_QUESTIONS.items()}, ensure_ascii=False)
@@ -693,10 +753,7 @@ _HANDOFF_SCENARIO_JS = HANDOFF_SCENARIO.replace("\\", "\\\\").replace("'", "\\'"
 _PM_SCENARIO_JS      = PM_SCENARIO.replace("\\", "\\\\").replace("'", "\\'").replace("\n", " ")
 _RIDDLE_HINT_URL_JS  = RIDDLE_HINT_URL.replace("'", "\\'")
 
-# -- Static JS (no dynamic injection inside -- all single-quoted strings) ------
-# RULE: never put Python variables inside this block.
-# RULE: use only single quotes for JS strings inside this block.
-# RULE: no triple-quote sequences anywhere inside this block.
+# -- Static JS -----------------------------------------------------------------
 _STATIC_JS = (
     "var _riddleAttempts = 0;"
 
@@ -762,8 +819,18 @@ _STATIC_JS = (
     "  var key = el.value;"
     "  if (!key) return;"
     "  if (key === 'lucky') { openRiddle(); el.selectedIndex = 0; return; }"
-    "  if (key === 'handoff') {"
+    "  if (key === 'handoff' || key === 'handoff_cs') {"
     "    setAgentMode(true);"
+    "    var agentTypeInp = document.getElementById('handoff_agent_type');"
+    "    if (agentTypeInp) { agentTypeInp.value = 'cs'; agentTypeInp.dispatchEvent(new Event('input', { bubbles: true })); }"
+    "    setTimeout(function() { document.getElementById('handoff_trigger').click(); }, 80);"
+    "    el.selectedIndex = 0;"
+    "    return;"
+    "  }"
+    "  if (key === 'handoff_pm') {"
+    "    setAgentMode(true);"
+    "    var agentTypeInp = document.getElementById('handoff_agent_type');"
+    "    if (agentTypeInp) { agentTypeInp.value = 'pm'; agentTypeInp.dispatchEvent(new Event('input', { bubbles: true })); }"
     "    setTimeout(function() { document.getElementById('handoff_trigger').click(); }, 80);"
     "    el.selectedIndex = 0;"
     "    return;"
@@ -1001,6 +1068,7 @@ _STATIC_JS = (
     "    }"
     "  }"
     "}"
+
     "var _lastResponseQuestion = '';"
 
     "Shiny.addCustomMessageHandler('store_response', function(data) {"
@@ -1094,7 +1162,6 @@ _STATIC_JS = (
     "});"
 )
 
-# -- Final JS block: dynamic vars first, then static functions -----------------
 def _build_js() -> str:
     return (
         "var SUGGESTED = " + _SQ_JSON + ";"
@@ -1273,7 +1340,6 @@ app_ui = ui.page_fluid(
     ),
     ui.tags.style(_CSS),
 
-    # Celebration overlay
     ui.tags.div(id="celebration-overlay"),
 
     # About modal
@@ -1411,6 +1477,7 @@ app_ui = ui.page_fluid(
             ui.tags.select(
                 {"id": "team_dropdown", "class": "j-select", "onchange": "handleTeamChange(this)"},
                 ui.tags.option({"value": "exploring", "selected": "selected"}, "Just exploring"),
+                ui.tags.option({"value": "leadership"}, "Leadership"),
                 ui.tags.option({"value": "cs"}, "Customer Success"),
             ),
             ui.input_text("selected_team", "", value="exploring"),
@@ -1431,7 +1498,7 @@ app_ui = ui.page_fluid(
         # Handoff panel (server-rendered)
         ui.output_ui("handoff_panel"),
 
-        # Input: normal textarea + agent mode panel
+        # Input
         ui.div(
             {"class": "j-input-section"},
             ui.input_text_area("question", "", rows=3),
@@ -1479,6 +1546,8 @@ app_ui = ui.page_fluid(
         ui.input_action_button("handoff_dismiss", "", style="display:none;"),
         ui.input_text("handoff_team_input", "", value=""),
         ui.tags.style("#handoff_team_input { display: none; }"),
+        ui.input_text("handoff_agent_type", "", value="cs"),
+        ui.tags.style("#handoff_agent_type { display: none; }"),
         ui.input_text_area("handoff_chat_input", "", rows=2),
         ui.tags.style("#handoff_chat_input { display: none; }"),
         ui.input_action_button("handoff_chat_send", "", style="display:none;"),
@@ -1525,7 +1594,6 @@ app_ui = ui.page_fluid(
         ui.tags.style("#user_location { display: none; }"),
         ui.input_text("last_question_asked", "", value=""),
         ui.tags.style("#last_question_asked { display: none; }"),
-
         ui.input_text("admin_password_input", "", value=""),
         ui.tags.style("#admin_password_input { display: none; }"),
         ui.input_text("admin_check_trigger", "", value=""),
@@ -1537,7 +1605,6 @@ app_ui = ui.page_fluid(
             ui.output_ui("response_panel"),
         ),
 
-        # Admin panel
         ui.output_ui("admin_panel"),
 
         # Footer
@@ -1561,6 +1628,7 @@ def server(input, output, session):
     show_offtopic        = reactive.value(False)
     show_handoff         = reactive.value(False)
     handoff_team         = reactive.value("exploring")
+    handoff_agent_type   = reactive.value("cs")
     limit_reason         = reactive.value("")
     user_id              = reactive.value(make_user_id())
     handoff_messages     = reactive.value([])
@@ -1573,13 +1641,15 @@ def server(input, output, session):
     @reactive.effect
     @reactive.event(input.handoff_trigger)
     def handle_handoff():
-        team_key = input.selected_team().strip() or "exploring"
+        team_key   = input.selected_team().strip() or "exploring"
+        agent_type = input.handoff_agent_type().strip() or "cs"
         show_offtopic.set(False)
         limit_reason.set("")
         response_text.set("")
         is_unlocked.set(False)
         is_loading.set(False)
         handoff_team.set(team_key)
+        handoff_agent_type.set(agent_type)
         handoff_messages.set([])
         show_handoff.set(True)
 
@@ -1631,10 +1701,19 @@ def server(input, output, session):
         msg = input.handoff_chat_input().strip()
         if not msg:
             return
-        team_key = handoff_team()
-        if team_key not in ("cs", "exploring"):
-            return
-        system_prompt = CS_HANDOFF_SYSTEM_PROMPT if team_key == "cs" else PM_AGENT_SYSTEM_PROMPT
+
+        team_key   = handoff_team()
+        agent_type = handoff_agent_type()
+
+        # Determine which system prompt to use
+        # Leadership team can use either agent based on handoff_agent_type
+        if agent_type == "pm" or team_key == "exploring":
+            system_prompt = PM_AGENT_SYSTEM_PROMPT
+            agent_label   = "pm-agent"
+        else:
+            system_prompt = CS_HANDOFF_SYSTEM_PROMPT
+            agent_label   = "cs-handoff-agent"
+
         messages = list(handoff_messages())
         messages.append({"role": "user", "content": msg})
         handoff_messages.set(messages)
@@ -1657,9 +1736,7 @@ def server(input, output, session):
             handoff_messages.set(messages)
 
             if is_doc_request:
-                # Build HTML from parse_response and send to modal
                 nodes = parse_response(reply)
-                import re as _re
                 def node_to_html(node):
                     try:
                         tag = node.tag if hasattr(node, 'tag') else 'span'
@@ -1682,7 +1759,6 @@ def server(input, output, session):
             else:
                 await session.send_custom_message("scroll_handoff", True)
 
-            agent_label = "cs-handoff-agent" if team_key == "cs" else "pm-agent"
             log_to_airtable(user_id(), agent_label, msg, len(reply), input.user_location().strip())
 
         except Exception as e:
@@ -1734,7 +1810,6 @@ def server(input, output, session):
             client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
             user_content = question
 
-            # Length preference instruction
             length_instruction = ""
             if length == "short":
                 length_instruction = "\n\nIMPORTANT: Keep your response concise -- 2-3 short paragraphs maximum. Lead with the most important point."
@@ -1748,7 +1823,6 @@ def server(input, output, session):
             else:
                 user_content += length_instruction
 
-            # Build rolling conversation window (last 8 exchanges = 16 messages)
             history = list(conversation_history())
             history.append({"role": "user", "content": user_content})
             messages_to_send = history[-16:]
@@ -1762,11 +1836,9 @@ def server(input, output, session):
             reply = message.content[0].text
             response_text.set(reply)
 
-            # Update conversation history
             history.append({"role": "assistant", "content": reply})
             conversation_history.set(history[-16:])
 
-            # Generate follow-up questions
             try:
                 followup_msg = client.messages.create(
                     model="claude-sonnet-4-20250514",
@@ -1801,15 +1873,21 @@ def server(input, output, session):
         if not show_handoff():
             return ui.div()
 
-        team     = get_team(handoff_team())
-        team_key = handoff_team()
+        team      = get_team(handoff_team())
+        team_key  = handoff_team()
+        agent_type = handoff_agent_type()
 
-        if team_key in ("cs", "exploring"):
+        # CS handoff agent: cs team OR leadership team with cs agent type
+        use_cs_agent = (team_key == "cs") or (team_key == "leadership" and agent_type == "cs")
+        # PM agent: exploring team OR leadership team with pm agent type
+        use_pm_agent = (team_key == "exploring") or (team_key == "leadership" and agent_type == "pm")
+
+        if use_cs_agent or use_pm_agent:
             messages  = list(handoff_messages())
             loading   = handoff_loading()
-            is_pm     = team_key == "exploring"
+            is_pm     = use_pm_agent
             label     = "// agent test-drive -- ps to cs handoff" if not is_pm else "// agent test-drive -- ps implementation pm agent"
-            title     = "PS -> CS Handoff Agent" if not is_pm else "PS Implementation PM Agent"
+            title     = "PS \u2192 CS Handoff Agent" if not is_pm else "PS Implementation PM Agent"
             desc      = "Live agent powered by Claude. Start a handoff scenario below -- or try the sample one."
             btn_fn    = "prefillHandoffScenario()" if not is_pm else "prefillPMScenario()"
             placeholder = "Continue the conversation..." if messages else ("Tell the agent which customer you are handing off..." if not is_pm else "Tell the agent what implementation project you're working on...")
@@ -1848,7 +1926,6 @@ def server(input, output, session):
             if loading:
                 msg_nodes.append(ui.div({"class": "j-loading", "style": "margin-top: 8px;"}, "agent is thinking..."))
 
-            # Count agent responses to decide whether to show nudge
             agent_turn_count = sum(1 for m in messages if m["role"] == "assistant")
             show_nudge = agent_turn_count >= 3 and not loading
 
@@ -2105,7 +2182,6 @@ def server(input, output, session):
                 ),
             ),
         )
-
 
     admin_unlocked = reactive.value(False)
 
