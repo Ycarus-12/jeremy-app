@@ -279,9 +279,14 @@ OFF_TOPIC_PATTERNS = [
     r"\b(who (is|was|invented|created|won)|when (was|did|is)|where (is|was|did)|what (year|day|country|city|language))\b",
     r"\b(trump|biden|election|congress|democrat|republican|politics|government|war|ukraine|israel|climate change|abortion)\b",
     r"\b(recipe|ingredient|cook|bake|restaurant|food|meal|eat|drink|coffee|beer|wine)\b",
-    r"\b(movie|netflix|show|episode|song|album|artist|celebrity|sports|game|nfl|nba|mlb|nhl)\b",
+    r"\b(movie|netflix|show|episode|song|album|artist|celebrity|sports|game|nfl|nba|mlb|nhl|nascar|mma|ufc)\b",
+    r"\b(baseball|basketball|football|soccer|hockey|tennis|golf|team|player|score|standings|championship|playoffs|superbowl|world series|march madness)\b",
+    r"\b(astros|yankees|dodgers|lakers|celtics|cowboys|patriots|warriors|chiefs|cubs|cardinals|eagles|packers|heat|bulls|knicks|mets|braves|rangers|bruins|penguins)\b",
+    r"\b(best|worst|greatest|goat).{0,20}\b(team|player|coach|athlete|sport|season|game|franchise)\b",
     r"\b(stock|invest|crypto|bitcoin|ethereum|market|trading|401k|portfolio|buy|sell)\b",
     r"\b(diagnose|symptom|medication|doctor|lawyer|legal advice|sue|lawsuit)\b",
+    r"\b(weather|temperature|forecast|hurricane|tornado|earthquake)\b",
+    r"\b(joke|funny|meme|trivia|quiz)\b",
 ]
 
 
@@ -821,17 +826,13 @@ _STATIC_JS = (
     "  if (key === 'lucky') { openRiddle(); el.selectedIndex = 0; return; }"
     "  if (key === 'handoff' || key === 'handoff_cs') {"
     "    setAgentMode(true);"
-    "    var agentTypeInp = document.getElementById('handoff_agent_type');"
-    "    if (agentTypeInp) { agentTypeInp.value = 'cs'; agentTypeInp.dispatchEvent(new Event('input', { bubbles: true })); }"
-    "    setTimeout(function() { document.getElementById('handoff_trigger').click(); }, 80);"
+    "    Shiny.setInputValue('handoff_agent_trigger', 'cs', {priority: 'event'});"
     "    el.selectedIndex = 0;"
     "    return;"
     "  }"
     "  if (key === 'handoff_pm') {"
     "    setAgentMode(true);"
-    "    var agentTypeInp = document.getElementById('handoff_agent_type');"
-    "    if (agentTypeInp) { agentTypeInp.value = 'pm'; agentTypeInp.dispatchEvent(new Event('input', { bubbles: true })); }"
-    "    setTimeout(function() { document.getElementById('handoff_trigger').click(); }, 80);"
+    "    Shiny.setInputValue('handoff_agent_trigger', 'pm', {priority: 'event'});"
     "    el.selectedIndex = 0;"
     "    return;"
     "  }"
@@ -880,7 +881,7 @@ _STATIC_JS = (
     "function closeAbout() { document.getElementById('about-overlay').classList.remove('active'); }"
     "function closeAboutOnOverlay(e) { if (e.target === document.getElementById('about-overlay')) closeAbout(); }"
 
-    "function openExplainer() { document.getElementById('explainer-overlay').classList.add('active'); }"
+    "function openExplainer() { document.getElementById('explainer-overlay').classList.add('active'); Shiny.setInputValue('explainer_opened', String(Date.now()), {priority: 'event'}); }"
     "function closeExplainer() { document.getElementById('explainer-overlay').classList.remove('active'); }"
     "function closeExplainerOnOverlay(e) { if (e.target === document.getElementById('explainer-overlay')) closeExplainer(); }"
 
@@ -1113,7 +1114,7 @@ _STATIC_JS = (
     "  copyToClipboard(url, 'share-url-btn');"
     "}"
 
-    "function shareApp() {"
+    "function shareApp() { Shiny.setInputValue('share_clicked', String(Date.now()), {priority: 'event'});"
     "  var msg = 'A guy built an AI agent to make his case for a Director of Professional Services role and it\\'s genuinely the most unhinged impressive thing I\\'ve seen. https://jmcoates-whyjeremy.share.connect.posit.cloud';"
     "  navigator.clipboard.writeText(msg).then(function() {"
     "    var btn = document.getElementById('share-app-btn');"
@@ -1548,6 +1549,8 @@ app_ui = ui.page_fluid(
         ui.tags.style("#handoff_team_input { display: none; }"),
         ui.input_text("handoff_agent_type", "", value="cs"),
         ui.tags.style("#handoff_agent_type { display: none; }"),
+        ui.input_text("handoff_agent_trigger", "", value=""),
+        ui.tags.style("#handoff_agent_trigger { display: none; }"),
         ui.input_text_area("handoff_chat_input", "", rows=2),
         ui.tags.style("#handoff_chat_input { display: none; }"),
         ui.input_action_button("handoff_chat_send", "", style="display:none;"),
@@ -1590,6 +1593,10 @@ app_ui = ui.page_fluid(
         ui.tags.style("#riddle_team_signal { display: none; }"),
         ui.input_text("riddle_opened", "", value=""),
         ui.tags.style("#riddle_opened { display: none; }"),
+        ui.input_text("explainer_opened", "", value=""),
+        ui.tags.style("#explainer_opened { display: none; }"),
+        ui.input_text("share_clicked", "", value=""),
+        ui.tags.style("#share_clicked { display: none; }"),
         ui.input_text("user_location", "", value=""),
         ui.tags.style("#user_location { display: none; }"),
         ui.input_text("last_question_asked", "", value=""),
@@ -1660,6 +1667,21 @@ def server(input, output, session):
         handoff_messages.set([])
 
     @reactive.effect
+    @reactive.event(input.handoff_agent_trigger)
+    def handle_agent_trigger():
+        agent_type = input.handoff_agent_trigger().strip() or "cs"
+        team_key   = input.selected_team().strip() or "exploring"
+        show_offtopic.set(False)
+        limit_reason.set("")
+        response_text.set("")
+        is_unlocked.set(False)
+        is_loading.set(False)
+        handoff_team.set(team_key)
+        handoff_agent_type.set(agent_type)
+        handoff_messages.set([])
+        show_handoff.set(True)
+
+    @reactive.effect
     @reactive.event(input.reset_conversation)
     def handle_reset():
         conversation_history.set([])
@@ -1681,6 +1703,18 @@ def server(input, output, session):
     def handle_riddle_opened():
         team_key = input.selected_team().strip() or "exploring"
         log_to_airtable(user_id(), team_key, "// feeling curious clicked", 0, input.user_location().strip())
+
+    @reactive.effect
+    @reactive.event(input.explainer_opened)
+    def handle_explainer_opened():
+        team_key = input.selected_team().strip() or "exploring"
+        log_to_airtable(user_id(), team_key, "// what am i looking at clicked", 0, input.user_location().strip())
+
+    @reactive.effect
+    @reactive.event(input.share_clicked)
+    def handle_share_clicked():
+        team_key = input.selected_team().strip() or "exploring"
+        log_to_airtable(user_id(), team_key, "// share clicked", 0, input.user_location().strip())
 
     @reactive.effect
     @reactive.event(input.riddle_correct)
@@ -1858,6 +1892,9 @@ def server(input, output, session):
                 followup_questions.set([])
 
             log_to_airtable(uid, team_key, question, len(reply), location)
+            team_questions = [ql for _, ql in SUGGESTED_QUESTIONS.get(team_key, SUGGESTED_QUESTIONS["exploring"])]
+            if question not in team_questions:
+                log_to_airtable(uid, team_key, "// custom: " + question[:200], 0, location)
             await session.send_custom_message("store_response", {"text": reply, "question": question})
             await session.send_custom_message("scroll_response", True)
 
