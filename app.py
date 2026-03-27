@@ -1701,18 +1701,24 @@ def server(input, output, session):
     @reactive.effect
     @reactive.event(input.riddle_opened)
     def handle_riddle_opened():
+        if not input.riddle_opened().strip():
+            return
         team_key = input.selected_team().strip() or "exploring"
         log_to_airtable(user_id(), team_key, "// feeling curious clicked", 0, input.user_location().strip())
 
     @reactive.effect
     @reactive.event(input.explainer_opened)
     def handle_explainer_opened():
+        if not input.explainer_opened().strip():
+            return
         team_key = input.selected_team().strip() or "exploring"
         log_to_airtable(user_id(), team_key, "// what am i looking at clicked", 0, input.user_location().strip())
 
     @reactive.effect
     @reactive.event(input.share_clicked)
     def handle_share_clicked():
+        if not input.share_clicked().strip():
+            return
         team_key = input.selected_team().strip() or "exploring"
         log_to_airtable(user_id(), team_key, "// share clicked", 0, input.user_location().strip())
 
