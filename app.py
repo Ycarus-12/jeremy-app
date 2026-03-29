@@ -131,10 +131,13 @@ TEAMS = {
 }
 
 # -- Suggested questions -------------------------------------------------------
+# CHANGE 1: Added ("culture_ai", "How will Jeremy integrate AI into the culture here?")
+# as position 2 in the leadership list (after q1, before q2).
 
 SUGGESTED_QUESTIONS = {
     "leadership": [
         ("q1",         "How would you use AI to scale the PS function without just adding headcount?"),
+        ("culture_ai", "How will Jeremy integrate AI into the culture here?"),
         ("q2",         "What's your philosophy on building and protecting team culture during growth?"),
         ("q3",         "How do you think about servant leadership in a post-sales delivery org?"),
         ("q4",         "What would your first 90 days look like, and what would you prioritize first?"),
@@ -372,7 +375,7 @@ def parse_response(t: str) -> list:
             content = line[2:].strip()
             nodes.append(ui.div(
                 {"style": "display:flex; gap:10px; margin-bottom:8px; padding-left:4px;"},
-                ui.tags.span({"style": "color:var(--accent-light); min-width:14px; flex-shrink:0; padding-top:3px; font-size:12px;"}, "–"),
+                ui.tags.span({"style": "color:var(--accent-light); min-width:14px; flex-shrink:0; padding-top:3px; font-size:12px;"}, "\u2013"),
                 ui.tags.span({"style": "font-size:15px; line-height:1.7; color:var(--text-primary);"}, *render_inline(content))
             ))
             i += 1
@@ -486,9 +489,34 @@ The honest answer is that Jeremy has already started. Over the past year he's bu
 
 One of the less obvious problems these tools solve is context preservation. In a typical PS-to-CS handoff, recency bias is a real risk -- the PM remembers what happened last week, not what the customer said in week two of a six-month implementation. Critical context from early in the project quietly disappears. The AI agent extracts that context directly from project assets -- Monday.com digests, open issue logs, the SOW -- and surfaces it in a structured customer intelligence profile before anyone walks into a handoff conversation. The customer's story stays intact regardless of how much time has passed.
 
-The next horizon Jeremy is thinking about is a companion agent for the implementation team itself -- something that helps customers get started during the engagement rather than waiting for a human to answer the same questions repeatedly. Think playbook routing, installation guidance, configuration walkthroughs for common scenarios. The repeatable stuff that consumes consultant bandwidth but doesn't require consultant judgment.
+The most important thing to understand about all of this is what these tools are actually for -- and what they are not. They are not about replacing people. They are about removing the rote, repetitive, draining work that nobody went into this field to do. The status report that takes two hours to pull together. The handoff document that requires excavating five different systems. The go-live email that gets half-written and forgotten. When that burden lifts, people get their energy back. They bring sharper thinking to the customer conversations that actually matter. A Solutions Engineer who isn't buried in documentation is a Solutions Engineer who is fully present when a customer needs real problem-solving -- and that is when the best work happens, and when customers get the best outcome. AI handles the repeatable so the team can own the relational, the complex, and the strategic.
 
-The principle underneath all of it: AI should absorb the repeatable so the team can focus on the relational, the complex, and the strategic. The goal isn't efficiency for its own sake -- it's freeing up your best people to do the work that actually moves the needle and keeps the organization on the cutting edge.
+That principle is already deployed and already producing a live tool: a companion agent for the implementation team itself, helping customers get started during the engagement rather than waiting for a human to answer the same question for the tenth time -- playbook routing, installation guidance, configuration walkthroughs for common scenarios. You can see it running here: https://jmcoates-implementation-assistant.share.connect.posit.cloud
+
+The goal isn't efficiency for its own sake. It's giving your best people the space to do their best work -- and giving customers the experience they deserve as a result.
+
+**culture_ai -- How will Jeremy integrate AI into the culture here?**
+BLUF: Not a training event. Infrastructure, permission, and habit -- built deliberately, measured honestly, and already proven to work.
+
+The failure mode for AI adoption is almost always the same: a leader gets excited, runs a demo, maybe builds one tool, and then calls it done. Six months later, two people are using it and everyone else has quietly gone back to their old workflow. That's a culture problem, not a tools problem.
+
+The tools are the easy part. Jeremy has already built them -- SOW generator, PM agent, PS-to-CS handoff agent, go-live communications suite. These aren't prototypes. They're deployed infrastructure that reduced post-go-live enablement tickets by 40% and cut hours of prep work to under one. The foundation exists.
+
+What Jeremy brings on top of that is a specific framework for making AI adoption stick at the team level:
+
+**Psychological safety first.** Teams don't adopt AI when they're afraid of looking incompetent. The first move is leadership modeling -- publicly sharing experiments that didn't work, reframing AI as a force multiplier for expertise rather than a threat to it, and making "I tried this and it failed" a normal thing to say in a team meeting. The job question gets addressed directly: AI will change what the job looks like, but the core value of PS professionals -- customer empathy, judgment, relationship management, domain expertise -- becomes more important, not less.
+
+**Woven in, not bolted on.** AI that lives in a separate tab gets ignored. AI that lives inside the SOW kickoff checklist, inside the project board template, inside the weekly status report workflow -- that gets used. The integration strategy is to make the AI-assisted path the path of least resistance, not an optional detour.
+
+**Prompt Labs over training sessions.** One-time training produces short-term enthusiasm and long-term atrophy. Monthly 30-minute working sessions where the team tackles a real deliverable together -- that's how skills compound. A shared prompt library becomes a team asset everyone contributes to and refines. The third version of a prompt is always better than the first; normalizing iteration is how you build a learning culture rather than a training event.
+
+**Cross-functional spread, not PS isolation.** The biggest multiplier isn't getting PS to use AI -- it's PS demonstrating what's possible to CS, Sales, Support, and Product, then helping them build their own workflows. A cross-functional showcase turns one team's adoption into an organizational capability. And it creates the right dynamic: PS as the team that raises the floor for everyone, not the team hoarding a competitive advantage.
+
+**Measured.** AI confidence surveys at baseline, quarterly impact reviews, time savings tracked, adoption rates visible. The same rigor Jeremy applies to TTV and CSAT applies here. If it can't be measured, it can't be improved.
+
+The 12-month goal: every member of the PS organization -- and key cross-functional partners -- using AI-assisted workflows for their core responsibilities as a matter of course. Not as a novelty. As how work gets done.
+
+Jeremy has the framework. He has the tools. He's done the cultural work before. The only variable is how fast Posit wants to move.
 
 **Q2 -- What's your philosophy on building and protecting team culture during growth?**
 BLUF: Culture doesn't survive growth by accident. It survives because someone treats it like a strategic asset.
@@ -1745,8 +1773,6 @@ def server(input, output, session):
         team_key   = handoff_team()
         agent_type = handoff_agent_type()
 
-        # Determine which system prompt to use
-        # Leadership team can use either agent based on handoff_agent_type
         if agent_type == "pm" or team_key == "exploring":
             system_prompt = PM_AGENT_SYSTEM_PROMPT
             agent_label   = "pm-agent"
@@ -1920,9 +1946,7 @@ def server(input, output, session):
         team_key  = handoff_team()
         agent_type = handoff_agent_type()
 
-        # CS handoff agent: cs team OR leadership team with cs agent type
         use_cs_agent = (team_key == "cs") or (team_key == "leadership" and agent_type == "cs")
-        # PM agent: exploring team OR leadership team with pm agent type
         use_pm_agent = (team_key == "exploring") or (team_key == "leadership" and agent_type == "pm")
 
         if use_cs_agent or use_pm_agent:
